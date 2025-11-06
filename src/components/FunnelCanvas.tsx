@@ -400,7 +400,7 @@ export const FunnelCanvas = () => {
           defaultViewport={{ x: 0, y: 0, zoom: 0.12 }}
         >
           <Background />
-          <Controls />
+          <Controls position="bottom-right" />
         </ReactFlow>
       </div>
 

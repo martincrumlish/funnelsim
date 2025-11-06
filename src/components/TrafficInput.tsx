@@ -49,7 +49,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
   const totalCost = sources.reduce((sum, s) => sum + s.cost, 0);
 
   return (
-    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 min-w-[400px]">
+    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 w-80">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <Users className="h-4 w-4 text-primary" />
@@ -65,8 +65,8 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
         <TableHeader>
           <TableRow>
             <TableHead className="text-xs">Traffic Type</TableHead>
-            <TableHead className="text-xs text-right">Visits</TableHead>
-            <TableHead className="text-xs text-right">$ Cost</TableHead>
+            <TableHead className="text-xs text-right w-16">Visits</TableHead>
+            <TableHead className="text-xs text-right w-16">$ Cost</TableHead>
             <TableHead className="w-8"></TableHead>
           </TableRow>
         </TableHeader>
