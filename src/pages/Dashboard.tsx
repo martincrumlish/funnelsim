@@ -4,6 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, LogOut, Trash2, Edit, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
@@ -20,6 +30,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [funnels, setFunnels] = useState<Funnel[]>([]);
   const [loadingFunnels, setLoadingFunnels] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [funnelToDelete, setFunnelToDelete] = useState<{ id: string; name: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -77,10 +89,15 @@ const Dashboard = () => {
     }
   };
 
-  const deleteFunnel = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
+  const openDeleteDialog = (id: string, name: string) => {
+    setFunnelToDelete({ id, name });
+    setDeleteDialogOpen(true);
+  };
 
-    const { error } = await supabase.from("funnels").delete().eq("id", id);
+  const confirmDelete = async () => {
+    if (!funnelToDelete) return;
+
+    const { error } = await supabase.from("funnels").delete().eq("id", funnelToDelete.id);
 
     if (error) {
       toast({
@@ -91,10 +108,13 @@ const Dashboard = () => {
     } else {
       toast({
         title: "Funnel deleted",
-        description: `"${name}" has been deleted`,
+        description: `"${funnelToDelete.name}" has been deleted`,
       });
       loadFunnels();
     }
+    
+    setDeleteDialogOpen(false);
+    setFunnelToDelete(null);
   };
 
   if (loading || loadingFunnels) {
@@ -172,7 +192,7 @@ const Dashboard = () => {
                     <Button
                       variant="destructive"
                       size="icon"
-                      onClick={() => deleteFunnel(funnel.id, funnel.name)}
+                      onClick={() => openDeleteDialog(funnel.id, funnel.name)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -183,6 +203,23 @@ const Dashboard = () => {
           </div>
         )}
       </main>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Funnel?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{funnelToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
