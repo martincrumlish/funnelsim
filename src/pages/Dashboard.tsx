@@ -102,7 +102,12 @@ const Dashboard = () => {
       if (reset) {
         setFunnels(data || []);
       } else {
-        setFunnels((prev) => [...prev, ...(data || [])]);
+        // Filter out duplicates when appending new funnels
+        setFunnels((prev) => {
+          const existingIds = new Set(prev.map(f => f.id));
+          const newFunnels = (data || []).filter(f => !existingIds.has(f.id));
+          return [...prev, ...newFunnels];
+        });
       }
       setHasMore(count ? (currentPage + 1) * ITEMS_PER_PAGE < count : false);
       if (!reset) {
@@ -275,8 +280,11 @@ const Dashboard = () => {
         title: "Funnel cloned",
         description: `"${clonedFunnel.name}" has been created`,
       });
-      // Add the cloned funnel to the top of the list
-      setFunnels((prev) => [clonedFunnel, ...prev]);
+      // Add the cloned funnel to the top of the list, ensuring no duplicates
+      setFunnels((prev) => {
+        const filtered = prev.filter(f => f.id !== clonedFunnel.id);
+        return [clonedFunnel, ...filtered];
+      });
     }
   };
 
