@@ -14,7 +14,8 @@ import "reactflow/dist/style.css";
 import { FunnelNode } from "./FunnelNode";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, DollarSign } from "lucide-react";
+import { Plus, DollarSign, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const nodeTypes = {
   funnelStep: FunnelNode,
@@ -42,9 +43,20 @@ export const FunnelCanvas = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [traffic, setTraffic] = useState(1000);
   const [nodeIdCounter, setNodeIdCounter] = useState(2);
+  const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
 
   const onConnect = useCallback(
     (params: Connection) => {
+      // Check if source already has a connection from this handle
+      const existingConnection = edges.find(
+        (e) => e.source === params.source && e.sourceHandle === params.sourceHandle
+      );
+      
+      if (existingConnection) {
+        toast.error("Each output can only connect to one node. Delete the existing connection first.");
+        return;
+      }
+
       const edge = {
         ...params,
         type: "smoothstep",
@@ -57,7 +69,7 @@ export const FunnelCanvas = () => {
       };
       setEdges((eds) => addEdge(edge, eds));
     },
-    [setEdges]
+    [setEdges, edges]
   );
 
   const updateNodeData = useCallback(
@@ -104,6 +116,21 @@ export const FunnelCanvas = () => {
     },
     [setNodes, setEdges]
   );
+
+  const deleteSelectedEdges = useCallback(() => {
+    if (selectedEdges.length === 0) {
+      toast.error("Select a connector to delete");
+      return;
+    }
+    setEdges((eds) => eds.filter((e) => !selectedEdges.includes(e.id)));
+    setSelectedEdges([]);
+    toast.success("Connector deleted");
+  }, [selectedEdges, setEdges]);
+
+  const onSelectionChange = useCallback((elements: any) => {
+    const edgeIds = elements.edges?.map((e: Edge) => e.id) || [];
+    setSelectedEdges(edgeIds);
+  }, []);
 
   // Calculate metrics based on flow
   const calculateMetrics = () => {
@@ -175,6 +202,15 @@ export const FunnelCanvas = () => {
             <Plus className="h-4 w-4" />
             Add Downsell
           </Button>
+          <Button 
+            onClick={deleteSelectedEdges} 
+            variant="destructive" 
+            className="gap-2"
+            disabled={selectedEdges.length === 0}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete Connector
+          </Button>
         </div>
 
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20">
@@ -220,6 +256,7 @@ export const FunnelCanvas = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes}
           fitView
         >
@@ -229,7 +266,7 @@ export const FunnelCanvas = () => {
       </div>
 
       <footer className="text-center text-sm text-muted-foreground p-4">
-        <p>Connect nodes: drag from green (buy) or red (no thanks) handles</p>
+        <p>Connect nodes: drag from green (buy) or red (no thanks) handles. Click a connector and press Delete Connector to remove it.</p>
       </footer>
     </div>
   );
