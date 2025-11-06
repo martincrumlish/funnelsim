@@ -58,23 +58,17 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
+      <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 w-[600px]">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" />
             Initial Traffic
           </h3>
-          <div className="flex items-center gap-2">
-            <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1">
-              <Plus className="h-3 w-3" />
-              Add
+          <CollapsibleTrigger asChild>
+            <Button size="icon" variant="ghost" className="h-7 w-7">
+              {isOpen ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
             </Button>
-            <CollapsibleTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-7 w-7">
-                {isOpen ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-              </Button>
-            </CollapsibleTrigger>
-          </div>
+          </CollapsibleTrigger>
         </div>
 
         <CollapsibleContent>
@@ -144,6 +138,12 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
           </TableRow>
         </TableBody>
           </Table>
+          <div className="mt-3">
+            <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1 w-full">
+              <Plus className="h-3 w-3" />
+              Add
+            </Button>
+          </div>
         </CollapsibleContent>
       </Card>
     </Collapsible>
