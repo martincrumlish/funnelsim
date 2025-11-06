@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, LogOut, Trash2, Edit, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface Funnel {
   id: string;
@@ -51,7 +51,7 @@ const Dashboard = () => {
     const { data, error } = await supabase
       .from("funnels")
       .select("id, name, created_at, updated_at")
-      .order("updated_at", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) {
       toast({
@@ -176,7 +176,7 @@ const Dashboard = () => {
                 <CardHeader>
                   <CardTitle>{funnel.name}</CardTitle>
                   <CardDescription>
-                    Updated {formatDistanceToNow(new Date(funnel.updated_at))} ago
+                    Last edited: {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
