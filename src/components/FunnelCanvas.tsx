@@ -370,15 +370,7 @@ export const FunnelCanvas = () => {
             <Plus className="h-4 w-4" />
             Add Downsell
           </Button>
-          <ExportMenu 
-            nodes={nodes}
-            edges={edges}
-            trafficSources={trafficSources}
-            stepMetrics={stepMetrics}
-            totalTraffic={totalVisits}
-            totalRevenue={totalRevenue}
-            totalCost={totalCost}
-          />
+          <ExportMenu canvasRef={reactFlowWrapper} />
         </div>
       </div>
 

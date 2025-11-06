@@ -68,7 +68,7 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               step="1"
               value={price}
               onChange={(e) => onUpdate?.(id, "price", parseFloat(e.target.value) || 0)}
-              className="text-xs h-7 nodrag [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="text-xs h-7 nodrag"
             />
           </div>
 
@@ -84,7 +84,7 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               step="0.1"
               value={conversion}
               onChange={(e) => onUpdate?.(id, "conversion", parseFloat(e.target.value) || 0)}
-              className="text-xs h-7 nodrag [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="text-xs h-7 nodrag"
             />
           </div>
         </div>
