@@ -31,6 +31,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [funnels, setFunnels] = useState<Funnel[]>([]);
   const [loadingFunnels, setLoadingFunnels] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [funnelToDelete, setFunnelToDelete] = useState<{ id: string; name: string } | null>(null);
   const [editingFunnelId, setEditingFunnelId] = useState<string | null>(null);
@@ -111,6 +112,7 @@ const Dashboard = () => {
 
     setLoadingFunnels(false);
     setLoadingMore(false);
+    setInitialLoad(false);
   };
 
   const loadMore = () => {
@@ -263,7 +265,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading || loadingFunnels) {
+  if (loading || initialLoad) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-muted-foreground">Loading...</div>
