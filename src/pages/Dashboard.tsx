@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, Edit, User } from "lucide-react";
+import { Plus, LogOut, Trash2, Edit, User, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -162,6 +162,51 @@ const Dashboard = () => {
     setEditingName("");
   };
 
+  const cloneFunnel = async (funnelId: string) => {
+    // First, fetch the complete funnel data
+    const { data: funnelData, error: fetchError } = await supabase
+      .from("funnels")
+      .select("*")
+      .eq("id", funnelId)
+      .single();
+
+    if (fetchError || !funnelData) {
+      toast({
+        title: "Error cloning funnel",
+        description: fetchError?.message || "Funnel not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create a new funnel with the cloned data
+    const { data: clonedFunnel, error: cloneError } = await supabase
+      .from("funnels")
+      .insert({
+        user_id: user?.id,
+        name: `${funnelData.name} (cloned)`,
+        nodes: funnelData.nodes,
+        edges: funnelData.edges,
+        traffic_sources: funnelData.traffic_sources,
+      })
+      .select()
+      .single();
+
+    if (cloneError) {
+      toast({
+        title: "Error cloning funnel",
+        description: cloneError.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Funnel cloned",
+        description: `"${clonedFunnel.name}" has been created`,
+      });
+      loadFunnels();
+    }
+  };
+
   if (loading || loadingFunnels) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -259,6 +304,14 @@ const Dashboard = () => {
                     >
                       <Edit className="mr-2 h-4 w-4" />
                       Open
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => cloneFunnel(funnel.id)}
+                      title="Clone funnel"
+                    >
+                      <Copy className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="destructive"
