@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { FunnelCanvas } from "@/components/FunnelCanvas";
 import { ReactFlowProvider } from "reactflow";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,8 +14,6 @@ const FunnelBuilder = () => {
   const navigate = useNavigate();
   const [funnelData, setFunnelData] = useState<any>(null);
   const [loadingFunnel, setLoadingFunnel] = useState(true);
-  const [funnelName, setFunnelName] = useState("");
-  const [isEditingName, setIsEditingName] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -48,7 +45,6 @@ const FunnelBuilder = () => {
       navigate("/dashboard");
     } else {
       setFunnelData(data);
-      setFunnelName(data.name);
     }
     setLoadingFunnel(false);
   };
@@ -76,38 +72,11 @@ const FunnelBuilder = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          {isEditingName ? (
-            <Input
-              value={funnelName}
-              onChange={(e) => setFunnelName(e.target.value)}
-              onBlur={() => setIsEditingName(false)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setIsEditingName(false);
-                }
-              }}
-              autoFocus
-              className="w-auto p-0 m-0 bg-transparent border-0 border-b-2 border-dashed border-primary focus:outline-none focus:ring-0 text-xl font-semibold"
-              style={{ fontSize: 'inherit', lineHeight: 'inherit', fontWeight: 'inherit', letterSpacing: 'inherit' }}
-            />
-          ) : (
-            <h1 
-              className="text-xl font-semibold cursor-pointer hover:text-primary transition-colors"
-              onClick={() => setIsEditingName(true)}
-            >
-              {funnelName}
-            </h1>
-          )}
+          <h1 className="text-xl font-semibold">{funnelData?.name}</h1>
         </div>
       </header>
       <ReactFlowProvider>
-        <FunnelCanvas 
-          funnelId={id} 
-          initialData={funnelData} 
-          onNameChange={updateFunnelName}
-          funnelName={funnelName}
-          onFunnelNameChange={setFunnelName}
-        />
+        <FunnelCanvas funnelId={id} initialData={funnelData} onNameChange={updateFunnelName} />
       </ReactFlowProvider>
     </div>
   );
