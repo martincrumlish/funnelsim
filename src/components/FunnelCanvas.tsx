@@ -256,6 +256,13 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
         return;
       }
 
+      // Prevent "Buy" connections from going to downsells
+      const targetNode = nodes.find((n) => n.id === params.target);
+      if (targetNode?.data.nodeType === "downsell" && params.sourceHandle === "yes") {
+        toast.error("A 'Buy' cannot connect to a Downsell. Only 'No Thanks' can go to downsells.");
+        return;
+      }
+
       const edge = {
         ...params,
         type: "custom",
@@ -269,7 +276,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       };
       setEdges((eds) => addEdge(edge, eds));
     },
-    [setEdges, edges, deleteEdge]
+    [setEdges, edges, deleteEdge, nodes]
   );
 
   const updateNodeData = useCallback(
