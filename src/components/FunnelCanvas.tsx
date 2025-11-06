@@ -302,7 +302,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
   const addNode = useCallback((type: "oto" | "downsell", position?: { x: number; y: number }) => {
     const nodePosition = position || { 
       x: 250 + Math.random() * 100, 
-      y: 150 + nodes.length * 50 
+      y: 150 + nodes.length * 200 
     };
     
     const newNodeId = (Math.max(...nodes.map(n => parseInt(n.id)), 0) + 1).toString();
