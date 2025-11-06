@@ -170,7 +170,8 @@ const Dashboard = () => {
         title: "Funnel deleted",
         description: `"${funnelToDelete.name}" has been deleted`,
       });
-      loadFunnels(true);
+      // Remove the funnel from local state instead of reloading
+      setFunnels((prev) => prev.filter((funnel) => funnel.id !== funnelToDelete.id));
     }
     
     setDeleteDialogOpen(false);
@@ -209,7 +210,12 @@ const Dashboard = () => {
         title: "Funnel renamed",
         description: "Successfully updated funnel name",
       });
-      loadFunnels(true);
+      // Update the funnel in local state instead of reloading
+      setFunnels((prev) =>
+        prev.map((funnel) =>
+          funnel.id === id ? { ...funnel, name: editingName.trim() } : funnel
+        )
+      );
     }
     
     setEditingFunnelId(null);
@@ -261,7 +267,8 @@ const Dashboard = () => {
         title: "Funnel cloned",
         description: `"${clonedFunnel.name}" has been created`,
       });
-      loadFunnels(true);
+      // Add the cloned funnel to the top of the list
+      setFunnels((prev) => [clonedFunnel, ...prev]);
     }
   };
 
