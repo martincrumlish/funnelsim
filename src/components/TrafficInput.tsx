@@ -59,7 +59,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 w-[400px]">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" />
             Initial Traffic
