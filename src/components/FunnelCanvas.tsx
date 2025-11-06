@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -19,7 +19,9 @@ import { TrafficInput } from "./TrafficInput";
 import { FunnelMetricsTable } from "./FunnelMetricsTable";
 import { ExportMenu } from "./ExportMenu";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Save, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const nodeTypes = {
@@ -142,16 +144,69 @@ interface TrafficSource {
   cost: number;
 }
 
-export const FunnelCanvas = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([
-    { id: "1", type: "FB Ads", visits: 10000, cost: 0 },
-  ]);
-  const [nodeIdCounter, setNodeIdCounter] = useState(5);
+interface FunnelCanvasProps {
+  funnelId?: string;
+  initialData?: {
+    name: string;
+    nodes: Node[];
+    edges: Edge[];
+    traffic_sources: TrafficSource[];
+  };
+}
+
+export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    initialData?.nodes?.length ? initialData.nodes : initialNodes
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    initialData?.edges?.length ? initialData.edges : initialEdges
+  );
+  const [trafficSources, setTrafficSources] = useState<TrafficSource[]>(
+    initialData?.traffic_sources?.length ? initialData.traffic_sources : [{ id: "1", type: "FB Ads", visits: 10000, cost: 0 }]
+  );
+  const [funnelName, setFunnelName] = useState(initialData?.name || "Untitled Funnel");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [nodeIdCounter, setNodeIdCounter] = useState(
+    initialData?.nodes?.length ? Math.max(...initialData.nodes.map(n => parseInt(n.id))) + 1 : 5
+  );
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!funnelId) return;
+    
+    const autoSave = setTimeout(() => {
+      saveFunnel();
+    }, 2000);
+
+    return () => clearTimeout(autoSave);
+  }, [nodes, edges, trafficSources, funnelName, funnelId]);
+
+  const saveFunnel = async () => {
+    if (!funnelId) return;
+    
+    setSaving(true);
+    const { error } = await supabase
+      .from("funnels")
+      .update({
+        name: funnelName,
+        nodes: nodes as any,
+        edges: edges as any,
+        traffic_sources: trafficSources as any,
+      })
+      .eq("id", funnelId);
+
+    if (error) {
+      toast.error("Failed to save funnel");
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+    setSaving(false);
+  };
 
   const totalVisits = trafficSources.reduce((sum, s) => sum + s.visits, 0);
   const totalCost = trafficSources.reduce((sum, s) => sum + s.cost, 0);
@@ -354,12 +409,41 @@ export const FunnelCanvas = () => {
       )}
       
       <div className="p-4 space-y-3">
-        <header className="text-center space-y-1">
-          <h1 className="text-3xl font-bold text-foreground">Visual Funnel Builder</h1>
-          <p className="text-sm text-muted-foreground">
-            Drag nodes, connect paths, and model your branching funnel
-          </p>
-        </header>
+        {funnelId ? (
+          <div className="flex items-center justify-center gap-4">
+            <Input
+              value={funnelName}
+              onChange={(e) => setFunnelName(e.target.value)}
+              className="max-w-md text-center text-xl font-semibold"
+              placeholder="Funnel Name"
+            />
+            <Button
+              onClick={saveFunnel}
+              variant={saved ? "default" : "outline"}
+              size="sm"
+              disabled={saving}
+            >
+              {saved ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Saved
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {saving ? "Saving..." : "Save"}
+                </>
+              )}
+            </Button>
+          </div>
+        ) : (
+          <header className="text-center space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">Visual Funnel Builder</h1>
+            <p className="text-sm text-muted-foreground">
+              Drag nodes, connect paths, and model your branching funnel
+            </p>
+          </header>
+        )}
 
         <div className="flex flex-wrap gap-2 justify-center">
           <Button onClick={() => addNode("oto")} className="gap-2">
