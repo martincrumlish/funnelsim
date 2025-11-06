@@ -35,7 +35,7 @@ export const FunnelMetricsTable = ({
   return (
     <Card className="absolute bottom-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
       <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
-        <DollarSign className="h-4 w-4 text-accent" />
+        <DollarSign className="h-4 w-4 text-green-600" />
         Funnel Metrics
       </h3>
 
@@ -91,7 +91,7 @@ export const FunnelMetricsTable = ({
             <TableRow className="border-t-2">
               <TableCell className="text-sm font-bold">Total Profit</TableCell>
               <TableCell className="text-xs"></TableCell>
-              <TableCell className={`text-sm text-right font-bold ${profit >= 0 ? 'text-accent' : 'text-destructive'}`}>
+              <TableCell className="text-sm text-right font-bold text-green-600">
                 ${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </TableCell>
               <TableCell className="text-xs"></TableCell>
