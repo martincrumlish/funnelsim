@@ -39,7 +39,7 @@ export const ContextMenu = ({ x, y, onAddOTO, onAddDownsell, onClose }: ContextM
             onAddOTO();
             onClose();
           }}
-          className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded transition-colors"
+          className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 rounded transition-colors"
         >
           Add OTO
         </button>
@@ -48,7 +48,7 @@ export const ContextMenu = ({ x, y, onAddOTO, onAddDownsell, onClose }: ContextM
             onAddDownsell();
             onClose();
           }}
-          className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded transition-colors"
+          className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 rounded transition-colors"
         >
           Add Downsell
         </button>
