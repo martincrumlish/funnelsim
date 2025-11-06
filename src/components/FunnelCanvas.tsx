@@ -152,9 +152,11 @@ interface FunnelCanvasProps {
     traffic_sources: TrafficSource[];
   };
   onNameChange?: (name: string) => void;
+  canvasRef?: React.RefObject<HTMLDivElement>;
+  addNodeRef?: React.MutableRefObject<((type: "oto" | "downsell") => void) | null>;
 }
 
-export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanvasProps) => {
+export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, addNodeRef }: FunnelCanvasProps) => {
   // Ensure frontend node always exists
   const getInitialNodes = () => {
     if (initialData?.nodes) {
@@ -178,7 +180,8 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       : [{ id: "1", type: "Organic", visits: 1000, cost: 0 }]
   );
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const localCanvasRef = useRef<HTMLDivElement>(null);
+  const reactFlowWrapper = canvasRef || localCanvasRef;
   const { screenToFlowPosition } = useReactFlow();
 
   // Auto-save functionality
@@ -276,16 +279,9 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
   );
 
   const addNode = useCallback((type: "oto" | "downsell", position?: { x: number; y: number }) => {
-    // Find the lowest Y position among existing nodes
     const maxY = nodes.reduce((max, node) => Math.max(max, node.position.y), 0);
-    
-    const nodePosition = position || { 
-      x: 250 + Math.random() * 100, 
-      y: maxY + 150 
-    };
-    
+    const nodePosition = position || { x: 250 + Math.random() * 100, y: maxY + 150 };
     const newNodeId = (Math.max(...nodes.map(n => parseInt(n.id)), 0) + 1).toString();
-    
     const newNode: Node = {
       id: newNodeId,
       type: "funnelStep",
@@ -300,6 +296,13 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
     };
     setNodes((nds) => [...nds, newNode]);
   }, [nodes, setNodes]);
+
+  // Expose addNode via ref
+  useEffect(() => {
+    if (addNodeRef) {
+      addNodeRef.current = addNode;
+    }
+  }, [addNode, addNodeRef]);
 
   const deleteNode = useCallback(
     (nodeId: string) => {
@@ -430,18 +433,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
           </header>
         </div>
       )}
-
-      <div className="px-4 pt-3 pb-2 flex justify-end gap-2 border-b">
-        <Button onClick={() => addNode("oto")} size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add OTO
-        </Button>
-        <Button onClick={() => addNode("downsell")} size="sm" variant="secondary" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Downsell
-        </Button>
-        <ExportMenu canvasRef={reactFlowWrapper} />
-      </div>
 
       <div className="flex-1 border-2 border-border rounded-lg m-4 bg-card relative" ref={reactFlowWrapper}>
         <TrafficInput
