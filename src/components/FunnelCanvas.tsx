@@ -174,7 +174,9 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
     initialData ? initialData.edges : initialEdges
   );
   const [trafficSources, setTrafficSources] = useState<TrafficSource[]>(
-    initialData ? initialData.traffic_sources : [{ id: "1", type: "Organic", visits: 1000, cost: 0 }]
+    initialData?.traffic_sources && initialData.traffic_sources.length > 0 
+      ? initialData.traffic_sources 
+      : [{ id: "1", type: "Organic", visits: 1000, cost: 0 }]
   );
   const [funnelName, setFunnelName] = useState(initialData?.name || "Untitled Funnel");
   const [saving, setSaving] = useState(false);
