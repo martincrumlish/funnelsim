@@ -88,7 +88,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
                   min="0"
                   value={source.visits}
                   onChange={(e) => updateSource(source.id, "visits", parseInt(e.target.value) || 0)}
-                  className="text-xs h-7 text-right nodrag"
+                  className="text-xs h-7 text-right nodrag [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   placeholder="0"
                 />
               </TableCell>
@@ -99,7 +99,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
                   step="0.01"
                   value={source.cost}
                   onChange={(e) => updateSource(source.id, "cost", parseFloat(e.target.value) || 0)}
-                  className="text-xs h-7 text-right nodrag"
+                  className="text-xs h-7 text-right nodrag [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   placeholder="0.00"
                 />
               </TableCell>
