@@ -180,9 +180,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [manualSave, setManualSave] = useState(false);
-  const [nodeIdCounter, setNodeIdCounter] = useState(
-    initialData?.nodes?.length ? Math.max(...initialData.nodes.map(n => parseInt(n.id))) + 1 : 5
-  );
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -295,18 +292,20 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
     [setNodes]
   );
 
-  const addNode = (type: "oto" | "downsell", position?: { x: number; y: number }) => {
+  const addNode = useCallback((type: "oto" | "downsell", position?: { x: number; y: number }) => {
     const nodePosition = position || { 
       x: 250 + Math.random() * 100, 
-      y: 150 + nodeIdCounter * 50 
+      y: 150 + nodes.length * 50 
     };
     
+    const newNodeId = (Math.max(...nodes.map(n => parseInt(n.id)), 0) + 1).toString();
+    
     const newNode: Node = {
-      id: nodeIdCounter.toString(),
+      id: newNodeId,
       type: "funnelStep",
       position: nodePosition,
       data: {
-        name: type === "oto" ? `OTO ${nodeIdCounter}` : `Downsell ${nodeIdCounter}`,
+        name: type === "oto" ? `OTO ${newNodeId}` : `Downsell ${newNodeId}`,
         price: type === "oto" ? 197 : 47,
         conversion: type === "oto" ? 25 : 40,
         nodeType: type,
@@ -314,8 +313,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       },
     };
     setNodes((nds) => [...nds, newNode]);
-    setNodeIdCounter((c) => c + 1);
-  };
+  }, [nodes, setNodes]);
 
   const deleteNode = useCallback(
     (nodeId: string) => {
