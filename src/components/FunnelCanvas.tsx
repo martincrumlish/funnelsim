@@ -434,7 +434,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
         </div>
       )}
 
-      <div className="flex-1 border-2 border-border rounded-lg m-4 bg-card relative" ref={reactFlowWrapper}>
+      <div className="flex-1 border-2 border-border bg-card relative" ref={reactFlowWrapper}>
         <TrafficInput
           sources={trafficSources}
           onSourcesChange={setTrafficSources}
