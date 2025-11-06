@@ -1,7 +1,7 @@
-import { FunnelSimulator } from "@/components/FunnelSimulator";
+import { FunnelCanvas } from "@/components/FunnelCanvas";
 
 const Index = () => {
-  return <FunnelSimulator />;
+  return <FunnelCanvas />;
 };
 
 export default Index;
