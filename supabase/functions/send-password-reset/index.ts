@@ -47,7 +47,6 @@ const handler = async (req: Request): Promise<Response> => {
               border-radius: 4px; 
               margin: 20px 0;
             }
-            .footer { padding: 20px; text-align: center; font-size: 12px; color: #666; }
           </style>
         </head>
         <body>
@@ -63,9 +62,6 @@ const handler = async (req: Request): Promise<Response> => {
               </p>
               <p>If you didn't request this password reset, you can safely ignore this email.</p>
               <p>This link will expire in 1 hour.</p>
-            </div>
-            <div class="footer">
-              <p>© ${new Date().getFullYear()} Funnel Builder. All rights reserved.</p>
             </div>
           </div>
         </body>
