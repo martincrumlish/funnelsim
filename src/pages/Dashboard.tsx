@@ -32,6 +32,8 @@ const Dashboard = () => {
   const [loadingFunnels, setLoadingFunnels] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [funnelToDelete, setFunnelToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [editingFunnelId, setEditingFunnelId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -117,6 +119,49 @@ const Dashboard = () => {
     setFunnelToDelete(null);
   };
 
+  const startEditing = (id: string, name: string) => {
+    setEditingFunnelId(id);
+    setEditingName(name);
+  };
+
+  const saveRename = async (id: string) => {
+    if (!editingName.trim()) {
+      toast({
+        title: "Invalid name",
+        description: "Funnel name cannot be empty",
+        variant: "destructive",
+      });
+      setEditingFunnelId(null);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("funnels")
+      .update({ name: editingName.trim() })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error renaming funnel",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Funnel renamed",
+        description: "Successfully updated funnel name",
+      });
+      loadFunnels();
+    }
+    
+    setEditingFunnelId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingFunnelId(null);
+    setEditingName("");
+  };
+
   if (loading || loadingFunnels) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -174,7 +219,33 @@ const Dashboard = () => {
             {funnels.map((funnel) => (
               <Card key={funnel.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle>{funnel.name}</CardTitle>
+                  <CardTitle>
+                    {editingFunnelId === funnel.id ? (
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onBlur={() => saveRename(funnel.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            saveRename(funnel.id);
+                          } else if (e.key === "Escape") {
+                            cancelEditing();
+                          }
+                        }}
+                        autoFocus
+                        className="w-full px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    ) : (
+                      <span
+                        onClick={() => startEditing(funnel.id, funnel.name)}
+                        className="cursor-pointer hover:text-primary transition-colors"
+                        title="Click to rename"
+                      >
+                        {funnel.name}
+                      </span>
+                    )}
+                  </CardTitle>
                   <CardDescription>
                     Last edited: {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                   </CardDescription>
