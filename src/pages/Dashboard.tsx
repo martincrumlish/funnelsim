@@ -219,7 +219,7 @@ const Dashboard = () => {
             {funnels.map((funnel) => (
               <Card key={funnel.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle>
+                  <CardTitle className="relative">
                     {editingFunnelId === funnel.id ? (
                       <input
                         type="text"
@@ -234,12 +234,13 @@ const Dashboard = () => {
                           }
                         }}
                         autoFocus
-                        className="w-full -mx-0.5 px-0.5 bg-transparent border-0 border-b-2 border-primary rounded-none focus:outline-none text-lg font-semibold tracking-tight"
+                        className="w-full p-0 m-0 bg-transparent border-0 border-b-2 border-dashed border-primary focus:outline-none focus:ring-0 text-lg font-semibold tracking-tight"
+                        style={{ fontSize: 'inherit', lineHeight: 'inherit', fontWeight: 'inherit', letterSpacing: 'inherit' }}
                       />
                     ) : (
                       <span
                         onClick={() => startEditing(funnel.id, funnel.name)}
-                        className="cursor-pointer hover:text-primary transition-colors inline-block"
+                        className="cursor-pointer hover:opacity-70 transition-opacity"
                         title="Click to rename"
                       >
                         {funnel.name}
