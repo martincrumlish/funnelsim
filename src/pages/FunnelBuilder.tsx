@@ -6,11 +6,9 @@ import { FunnelCanvas } from "@/components/FunnelCanvas";
 import { ReactFlowProvider } from "reactflow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Check, Plus } from "lucide-react";
+import { ArrowLeft, Save, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
-import { ExportMenu } from "@/components/ExportMenu";
-import { useRef } from "react";
 
 const FunnelBuilder = () => {
   const { id } = useParams();
@@ -22,8 +20,6 @@ const FunnelBuilder = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const { toast } = useToast();
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const [addNodeCallback, setAddNodeCallback] = useState<((type: "oto" | "downsell") => void) | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -97,51 +93,38 @@ const FunnelBuilder = () => {
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b bg-background/80 backdrop-blur-sm z-10">
-        <div className="px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/dashboard")}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Input
-              value={funnelName}
-              onChange={(e) => setFunnelName(e.target.value)}
-              className="max-w-sm font-semibold"
-              placeholder="Funnel Name"
-            />
-            <Button
-              onClick={saveFunnelName}
-              variant={saved ? "default" : "outline"}
-              size="sm"
-              disabled={saving}
-            >
-              {saved ? (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Saved
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving ? "Saving..." : "Save"}
-                </>
-              )}
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={() => addNodeCallback?.("oto")} size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add OTO
-            </Button>
-            <Button onClick={() => addNodeCallback?.("downsell")} size="sm" variant="secondary" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Downsell
-            </Button>
-            <ExportMenu canvasRef={canvasRef} />
-          </div>
+        <div className="px-4 py-3 flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/dashboard")}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <Input
+            value={funnelName}
+            onChange={(e) => setFunnelName(e.target.value)}
+            className="max-w-sm font-semibold"
+            placeholder="Funnel Name"
+          />
+          <Button
+            onClick={saveFunnelName}
+            variant={saved ? "default" : "outline"}
+            size="sm"
+            disabled={saving}
+          >
+            {saved ? (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Saved
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? "Saving..." : "Save"}
+              </>
+            )}
+          </Button>
         </div>
       </header>
       <ReactFlowProvider>
@@ -149,8 +132,6 @@ const FunnelBuilder = () => {
           funnelId={id} 
           initialData={funnelData} 
           onNameChange={updateFunnelName}
-          canvasRef={canvasRef}
-          onAddNodeReady={setAddNodeCallback}
         />
       </ReactFlowProvider>
     </div>
