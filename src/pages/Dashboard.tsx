@@ -110,9 +110,8 @@ const Dashboard = () => {
         });
       }
       setHasMore(count ? (currentPage + 1) * ITEMS_PER_PAGE < count : false);
-      if (!reset) {
-        setPage(currentPage + 1);
-      }
+      // Always increment page after loading, whether it's initial load or load more
+      setPage(currentPage + 1);
     }
 
     setLoadingFunnels(false);
