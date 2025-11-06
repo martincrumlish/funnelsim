@@ -1,5 +1,12 @@
 import { Card } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Minus, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Table,
   TableBody,
@@ -31,15 +38,25 @@ export const FunnelMetricsTable = ({
   cost,
 }: FunnelMetricsTableProps) => {
   const profit = totalRevenue - cost;
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <Card className="absolute bottom-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
-      <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
-        <DollarSign className="h-4 w-4 text-green-600" />
-        Funnel Metrics
-      </h3>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="absolute bottom-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-green-600" />
+            Funnel Metrics
+          </h3>
+          <CollapsibleTrigger asChild>
+            <Button size="icon" variant="ghost" className="h-7 w-7">
+              {isOpen ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
 
-      <div className="space-y-3">
+        <CollapsibleContent>
+          <div className="space-y-3">
         <div className="text-xs">
           <span className="text-muted-foreground">Total Traffic In: </span>
           <span className="font-semibold text-foreground">{totalTraffic.toLocaleString()}</span>
@@ -97,8 +114,10 @@ export const FunnelMetricsTable = ({
               <TableCell className="text-xs"></TableCell>
             </TableRow>
           </TableBody>
-        </Table>
-      </div>
-    </Card>
+          </Table>
+          </div>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 };

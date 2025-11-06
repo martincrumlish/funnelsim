@@ -1,7 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, Plus, Trash2 } from "lucide-react";
+import { Users, Plus, Trash2, Minus } from "lucide-react";
+import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Table,
   TableBody,
@@ -24,6 +30,8 @@ interface TrafficInputProps {
 }
 
 export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) => {
+  const [isOpen, setIsOpen] = useState(true);
+
   const addSource = () => {
     const newSource: TrafficSource = {
       id: Date.now().toString(),
@@ -49,19 +57,28 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
   const totalCost = sources.reduce((sum, s) => sum + s.cost, 0);
 
   return (
-    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-          <Users className="h-4 w-4 text-primary" />
-          Initial Traffic
-        </h3>
-        <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1">
-          <Plus className="h-3 w-3" />
-          Add
-        </Button>
-      </div>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            Initial Traffic
+          </h3>
+          <div className="flex items-center gap-2">
+            <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1">
+              <Plus className="h-3 w-3" />
+              Add
+            </Button>
+            <CollapsibleTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-7 w-7">
+                {isOpen ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+        </div>
 
-      <Table>
+        <CollapsibleContent>
+          <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="text-xs">Traffic Type</TableHead>
@@ -126,7 +143,9 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
             <TableCell></TableCell>
           </TableRow>
         </TableBody>
-      </Table>
-    </Card>
+          </Table>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 };
