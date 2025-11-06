@@ -15,6 +15,7 @@ const corsHeaders = {
 
 interface PasswordResetRequest {
   email: string;
+  redirectUrl?: string;
 }
 
 // Generate a secure random token
@@ -30,9 +31,12 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email }: PasswordResetRequest = await req.json();
+    const { email, redirectUrl }: PasswordResetRequest = await req.json();
 
     console.log("Sending password reset email to:", email);
+    
+    // Use provided redirectUrl or fall back to production domain
+    const baseUrl = redirectUrl || 'https://userapps.kickpages.com';
 
     // Find user by email
     const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
@@ -66,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (tokenError) throw new Error(`Error storing token: ${tokenError.message}`);
 
     // Create reset link
-    const resetLink = `${req.headers.get('origin')}/reset-password?token=${token}`;
+    const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
     const params = new URLSearchParams({
       apikey: ELASTIC_EMAIL_API_KEY!,
