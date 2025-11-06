@@ -55,7 +55,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
           <Users className="h-4 w-4 text-primary" />
           Initial Traffic
         </h3>
-        <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1">
+        <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1 hover:bg-accent/10 hover:text-accent">
           <Plus className="h-3 w-3" />
           Add
         </Button>
@@ -109,9 +109,9 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
                     onClick={() => removeSource(source.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-6 w-6"
+                    className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
                   >
-                    <Trash2 className="h-3 w-3 text-destructive" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 )}
               </TableCell>
