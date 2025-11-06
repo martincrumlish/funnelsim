@@ -96,7 +96,7 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
             type="source"
             position={Position.Bottom}
             id="yes"
-            style={{ left: "50%", background: "#10b981" }}
+            style={{ left: "50%", background: "#10b981", transform: "translateX(-50%)" }}
             className="!w-3 !h-3"
           />
           <div className="text-center mt-2 text-[10px] text-muted-foreground">
@@ -109,14 +109,14 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
             type="source"
             position={Position.Bottom}
             id="yes"
-            style={{ left: "30%", background: "#10b981" }}
+            style={{ left: "30%", background: "#10b981", transform: "translateX(-50%)" }}
             className="!w-3 !h-3"
           />
           <Handle
             type="source"
             position={Position.Bottom}
             id="no"
-            style={{ left: "70%", background: "#ef4444" }}
+            style={{ left: "70%", background: "#ef4444", transform: "translateX(-50%)" }}
             className="!w-3 !h-3"
           />
           <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
