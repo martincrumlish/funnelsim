@@ -180,7 +180,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [manualSave, setManualSave] = useState(false);
-  const [zoomLocked, setZoomLocked] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -481,13 +480,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
             <Plus className="h-4 w-4" />
             Add Downsell
           </Button>
-          <Button 
-            onClick={() => setZoomLocked(!zoomLocked)} 
-            variant={zoomLocked ? "default" : "outline"} 
-            className="gap-2"
-          >
-            {zoomLocked ? "Unlock Zoom" : "Lock Zoom"}
-          </Button>
           <ExportMenu canvasRef={reactFlowWrapper} />
         </div>
       </div>
@@ -518,14 +510,9 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
           minZoom={0.1}
           maxZoom={2}
           defaultViewport={{ x: 0, y: 0, zoom: 0.12 }}
-          zoomOnScroll={!zoomLocked}
-          zoomOnPinch={!zoomLocked}
-          zoomOnDoubleClick={!zoomLocked}
-          panOnScroll={zoomLocked}
-          proOptions={{ hideAttribution: true }}
         >
           <Background />
-          <Controls position="bottom-right" showZoom={!zoomLocked} showFitView showInteractive />
+          <Controls position="bottom-right" />
         </ReactFlow>
       </div>
 
