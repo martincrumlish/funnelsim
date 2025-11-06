@@ -242,7 +242,7 @@ export const FunnelCanvas = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background">
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
@@ -253,10 +253,10 @@ export const FunnelCanvas = () => {
         />
       )}
       
-      <div className="p-4 space-y-4">
-        <header className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-foreground">Visual Funnel Builder</h1>
-          <p className="text-muted-foreground">
+      <div className="p-4 space-y-3">
+        <header className="text-center space-y-1">
+          <h1 className="text-3xl font-bold text-foreground">Visual Funnel Builder</h1>
+          <p className="text-sm text-muted-foreground">
             Drag nodes, connect paths, and model your branching funnel
           </p>
         </header>
@@ -273,7 +273,7 @@ export const FunnelCanvas = () => {
         </div>
       </div>
 
-      <div className="h-[600px] border-2 border-border rounded-lg mx-4 bg-card relative" ref={reactFlowWrapper}>
+      <div className="flex-1 border-2 border-border rounded-lg mx-4 mb-4 bg-card relative" ref={reactFlowWrapper}>
         <TrafficInput
           sources={trafficSources}
           onSourcesChange={setTrafficSources}
@@ -296,13 +296,16 @@ export const FunnelCanvas = () => {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
+          minZoom={0.1}
+          maxZoom={1.5}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
         >
           <Background />
           <Controls />
         </ReactFlow>
       </div>
 
-      <footer className="text-center text-sm text-muted-foreground p-4">
+      <footer className="text-center text-xs text-muted-foreground pb-2">
         <p>Right-click on canvas to add nodes • Hover over connectors to delete • Drag handles to connect</p>
       </footer>
     </div>

@@ -26,21 +26,21 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
   };
 
   return (
-    <Card className={`p-4 min-w-[280px] ${nodeColors[nodeType]} border-2`}>
+    <Card className={`p-3 min-w-[220px] ${nodeColors[nodeType]} border-2`}>
       <Handle
         type="target"
         position={Position.Top}
-        className="!bg-primary !w-3 !h-3"
+        className="!bg-primary !w-2 !h-2"
       />
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Tag className="h-4 w-4 text-primary" />
+          <div className="flex items-center gap-1.5">
+            <Tag className="h-3.5 w-3.5 text-primary flex-shrink-0" />
             <Input
               value={name}
               onChange={(e) => onUpdate?.(id, "name", e.target.value)}
-              className="text-sm font-semibold border-0 p-0 h-auto bg-transparent nodrag"
+              className="text-xs font-semibold border-0 p-0 h-auto bg-transparent nodrag"
               placeholder="Step name"
             />
           </div>
@@ -48,7 +48,7 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
+              className="h-5 w-5"
               onClick={() => onDelete?.(id)}
             >
               <Trash2 className="h-3 w-3 text-destructive" />
@@ -56,10 +56,10 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs flex items-center gap-1">
-              <DollarSign className="h-3 w-3" />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-0.5">
+            <Label className="text-[10px] flex items-center gap-0.5">
+              <DollarSign className="h-2.5 w-2.5" />
               Price
             </Label>
             <Input
@@ -68,13 +68,13 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               step="1"
               value={price}
               onChange={(e) => onUpdate?.(id, "price", parseFloat(e.target.value) || 0)}
-              className="text-sm h-8 nodrag"
+              className="text-xs h-7 nodrag"
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs flex items-center gap-1">
-              <Percent className="h-3 w-3" />
+          <div className="space-y-0.5">
+            <Label className="text-[10px] flex items-center gap-0.5">
+              <Percent className="h-2.5 w-2.5" />
               Conv %
             </Label>
             <Input
@@ -84,7 +84,7 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               step="0.1"
               value={conversion}
               onChange={(e) => onUpdate?.(id, "conversion", parseFloat(e.target.value) || 0)}
-              className="text-sm h-8 nodrag"
+              className="text-xs h-7 nodrag"
             />
           </div>
         </div>
@@ -97,9 +97,9 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
             position={Position.Bottom}
             id="yes"
             style={{ left: "50%", background: "#10b981", transform: "translateX(-50%)" }}
-            className="!w-3 !h-3"
+            className="!w-2 !h-2"
           />
-          <div className="text-center mt-2 text-[10px] text-muted-foreground">
+          <div className="text-center mt-1.5 text-[10px] text-muted-foreground">
             <span>Buy</span>
           </div>
         </>
@@ -110,16 +110,16 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
             position={Position.Bottom}
             id="yes"
             style={{ left: "30%", background: "#10b981", transform: "translateX(-50%)" }}
-            className="!w-3 !h-3"
+            className="!w-2 !h-2"
           />
           <Handle
             type="source"
             position={Position.Bottom}
             id="no"
             style={{ left: "70%", background: "#ef4444", transform: "translateX(-50%)" }}
-            className="!w-3 !h-3"
+            className="!w-2 !h-2"
           />
-          <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
+          <div className="flex justify-between mt-1.5 text-[10px] text-muted-foreground">
             <span>Buy</span>
             <span>No Thanks</span>
           </div>
