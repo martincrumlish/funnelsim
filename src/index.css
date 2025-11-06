@@ -102,4 +102,8 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+  
+  *:focus-visible {
+    @apply outline-none ring-1 ring-ring ring-offset-0;
+  }
 }
