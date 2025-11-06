@@ -124,6 +124,33 @@ export const ExportMenu = ({
 
         <!-- Right Side: Funnel Flow -->
         <div style="flex: 1; position: relative; min-height: 800px;">
+          <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;" xmlns="http://www.w3.org/2000/svg">
+            ${edges.map((edge) => {
+              const sourceNode = nodes.find(n => n.id === edge.source);
+              const targetNode = nodes.find(n => n.id === edge.target);
+              if (!sourceNode || !targetNode) return '';
+              
+              const sourceX = sourceNode.position.x + 110; // center of node (220px wide / 2)
+              const sourceY = sourceNode.position.y + 80; // bottom of node
+              const targetX = targetNode.position.x + 110;
+              const targetY = targetNode.position.y;
+              
+              const color = edge.sourceHandle === 'yes' ? '#10b981' : '#ef4444';
+              const midY = (sourceY + targetY) / 2;
+              
+              return `
+                <path 
+                  d="M ${sourceX} ${sourceY} L ${sourceX} ${midY} L ${targetX} ${midY} L ${targetX} ${targetY}" 
+                  stroke="${color}" 
+                  stroke-width="2" 
+                  fill="none" 
+                  stroke-dasharray="${edge.sourceHandle === 'yes' ? '5,5' : '3,3'}"
+                />
+                <circle cx="${targetX}" cy="${targetY}" r="4" fill="${color}" />
+              `;
+            }).join('')}
+          </svg>
+          
           ${nodes.map((node) => {
             const bgColor = node.data.nodeType === 'frontend' ? '#dbeafe' : 
                            node.data.nodeType === 'oto' ? '#d1fae5' : '#fed7aa';
@@ -140,6 +167,7 @@ export const ExportMenu = ({
                 border: 2px solid ${borderColor};
                 border-radius: 8px;
                 font-size: 12px;
+                z-index: 10;
               ">
                 <div style="font-weight: 600; margin-bottom: 8px;">${node.data.name}</div>
                 <div style="display: flex; gap: 8px;">
