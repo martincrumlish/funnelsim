@@ -234,12 +234,12 @@ const Dashboard = () => {
                           }
                         }}
                         autoFocus
-                        className="w-full px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full -mx-0.5 px-0.5 bg-transparent border-0 border-b-2 border-primary rounded-none focus:outline-none text-lg font-semibold tracking-tight"
                       />
                     ) : (
                       <span
                         onClick={() => startEditing(funnel.id, funnel.name)}
-                        className="cursor-pointer hover:text-primary transition-colors"
+                        className="cursor-pointer hover:text-primary transition-colors inline-block"
                         title="Click to rename"
                       >
                         {funnel.name}
