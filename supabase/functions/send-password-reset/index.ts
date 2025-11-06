@@ -91,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
               display: inline-block; 
               padding: 12px 24px; 
               background-color: #007bff; 
-              color: #ffffff; 
+              color: #ffffff !important; 
               text-decoration: none; 
               border-radius: 4px; 
               margin: 20px 0;
