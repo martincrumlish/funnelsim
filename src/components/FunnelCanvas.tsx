@@ -513,10 +513,9 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
           onPaneContextMenu={onPaneContextMenu}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          fitView
           minZoom={0.1}
           maxZoom={2}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.12 }}
+          defaultViewport={{ x: 0, y: 0, zoom: 1 }}
           proOptions={{ hideAttribution: true }}
         >
           <Background />
