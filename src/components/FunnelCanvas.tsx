@@ -167,6 +167,7 @@ export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
   const [funnelName, setFunnelName] = useState(initialData?.name || "Untitled Funnel");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [manualSave, setManualSave] = useState(false);
   const [nodeIdCounter, setNodeIdCounter] = useState(
     initialData?.nodes?.length ? Math.max(...initialData.nodes.map(n => parseInt(n.id))) + 1 : 5
   );
@@ -179,16 +180,20 @@ export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
     if (!funnelId) return;
     
     const autoSave = setTimeout(() => {
-      saveFunnel();
+      saveFunnel(false);
     }, 2000);
 
     return () => clearTimeout(autoSave);
   }, [nodes, edges, trafficSources, funnelName, funnelId]);
 
-  const saveFunnel = async () => {
+  const saveFunnel = async (isManual = false) => {
     if (!funnelId) return;
     
-    setSaving(true);
+    if (isManual) {
+      setSaving(true);
+      setManualSave(true);
+    }
+    
     const { error } = await supabase
       .from("funnels")
       .update({
@@ -201,11 +206,17 @@ export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
 
     if (error) {
       toast.error("Failed to save funnel");
-    } else {
+    } else if (isManual) {
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => {
+        setSaved(false);
+        setManualSave(false);
+      }, 2000);
     }
-    setSaving(false);
+    
+    if (isManual) {
+      setSaving(false);
+    }
   };
 
   const totalVisits = trafficSources.reduce((sum, s) => sum + s.visits, 0);
@@ -418,10 +429,10 @@ export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
               placeholder="Funnel Name"
             />
             <Button
-              onClick={saveFunnel}
+              onClick={() => saveFunnel(true)}
               variant={saved ? "default" : "outline"}
               size="sm"
-              disabled={saving}
+              disabled={saving && manualSave}
             >
               {saved ? (
                 <>
@@ -431,7 +442,7 @@ export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  {saving ? "Saving..." : "Save"}
+                  {saving && manualSave ? "Saving..." : "Save"}
                 </>
               )}
             </Button>
