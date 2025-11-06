@@ -1,72 +1,132 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Users, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, Plus, Trash2 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-interface TrafficInputProps {
-  trafficType: string;
+interface TrafficSource {
+  id: string;
+  type: string;
   visits: number;
   cost: number;
-  onTrafficTypeChange: (value: string) => void;
-  onVisitsChange: (value: number) => void;
-  onCostChange: (value: number) => void;
 }
 
-export const TrafficInput = ({
-  trafficType,
-  visits,
-  cost,
-  onTrafficTypeChange,
-  onVisitsChange,
-  onCostChange,
-}: TrafficInputProps) => {
+interface TrafficInputProps {
+  sources: TrafficSource[];
+  onSourcesChange: (sources: TrafficSource[]) => void;
+}
+
+export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) => {
+  const addSource = () => {
+    const newSource: TrafficSource = {
+      id: Date.now().toString(),
+      type: "",
+      visits: 0,
+      cost: 0,
+    };
+    onSourcesChange([...sources, newSource]);
+  };
+
+  const removeSource = (id: string) => {
+    if (sources.length === 1) return; // Keep at least one row
+    onSourcesChange(sources.filter((s) => s.id !== id));
+  };
+
+  const updateSource = (id: string, field: keyof TrafficSource, value: string | number) => {
+    onSourcesChange(
+      sources.map((s) => (s.id === id ? { ...s, [field]: value } : s))
+    );
+  };
+
+  const totalVisits = sources.reduce((sum, s) => sum + s.visits, 0);
+  const totalCost = sources.reduce((sum, s) => sum + s.cost, 0);
+
   return (
-    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 min-w-[250px]">
-      <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
-        <Users className="h-4 w-4 text-primary" />
-        Initial Traffic
-      </h3>
-      
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Traffic Type</Label>
-          <Input
-            type="text"
-            value={trafficType}
-            onChange={(e) => onTrafficTypeChange(e.target.value)}
-            className="text-sm h-8 nodrag"
-            placeholder="e.g., Facebook Ads"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Visits</Label>
-          <Input
-            type="number"
-            min="0"
-            value={visits}
-            onChange={(e) => onVisitsChange(parseInt(e.target.value) || 0)}
-            className="text-sm h-8 nodrag"
-            placeholder="10000"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1">
-            <DollarSign className="h-3 w-3" />
-            Cost
-          </Label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={cost}
-            onChange={(e) => onCostChange(parseFloat(e.target.value) || 0)}
-            className="text-sm h-8 nodrag"
-            placeholder="0.00"
-          />
-        </div>
+    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 min-w-[400px]">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          Initial Traffic
+        </h3>
+        <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1">
+          <Plus className="h-3 w-3" />
+          Add
+        </Button>
       </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-xs">Traffic Type</TableHead>
+            <TableHead className="text-xs text-right">Visits</TableHead>
+            <TableHead className="text-xs text-right">$ Cost</TableHead>
+            <TableHead className="w-8"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sources.map((source) => (
+            <TableRow key={source.id}>
+              <TableCell className="p-1">
+                <Input
+                  type="text"
+                  value={source.type}
+                  onChange={(e) => updateSource(source.id, "type", e.target.value)}
+                  className="text-xs h-7 nodrag"
+                  placeholder="FB Ads"
+                />
+              </TableCell>
+              <TableCell className="p-1">
+                <Input
+                  type="number"
+                  min="0"
+                  value={source.visits}
+                  onChange={(e) => updateSource(source.id, "visits", parseInt(e.target.value) || 0)}
+                  className="text-xs h-7 text-right nodrag"
+                  placeholder="0"
+                />
+              </TableCell>
+              <TableCell className="p-1">
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={source.cost}
+                  onChange={(e) => updateSource(source.id, "cost", parseFloat(e.target.value) || 0)}
+                  className="text-xs h-7 text-right nodrag"
+                  placeholder="0.00"
+                />
+              </TableCell>
+              <TableCell className="p-1">
+                {sources.length > 1 && (
+                  <Button
+                    onClick={() => removeSource(source.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6"
+                  >
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+          <TableRow className="border-t-2">
+            <TableCell className="text-xs font-bold p-2">Total</TableCell>
+            <TableCell className="text-xs font-bold text-right p-2">{totalVisits.toLocaleString()}</TableCell>
+            <TableCell className="text-xs font-bold text-right p-2">
+              ${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </Card>
   );
 };

@@ -39,23 +39,32 @@ const initialNodes: Node[] = [
       price: 47, 
       conversion: 3,
       nodeType: "frontend",
-      traffic: 1000 
     },
   },
 ];
 
 const initialEdges: Edge[] = [];
 
+interface TrafficSource {
+  id: string;
+  type: string;
+  visits: number;
+  cost: number;
+}
+
 export const FunnelCanvas = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [trafficType, setTrafficType] = useState("Facebook Ads");
-  const [visits, setVisits] = useState(10000);
-  const [cost, setCost] = useState(0);
+  const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([
+    { id: "1", type: "FB Ads", visits: 10000, cost: 0 },
+  ]);
   const [nodeIdCounter, setNodeIdCounter] = useState(2);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+
+  const totalVisits = trafficSources.reduce((sum, s) => sum + s.visits, 0);
+  const totalCost = trafficSources.reduce((sum, s) => sum + s.cost, 0);
 
   const deleteEdge = useCallback(
     (edgeId: string) => {
@@ -210,7 +219,7 @@ export const FunnelCanvas = () => {
       }
     };
 
-    processNode(frontEndNode.id, visits, 0);
+    processNode(frontEndNode.id, totalVisits, 0);
 
     // Sort by order to show logical flow
     stepMetrics.sort((a, b) => a.order - b.order);
@@ -266,19 +275,15 @@ export const FunnelCanvas = () => {
 
       <div className="h-[600px] border-2 border-border rounded-lg mx-4 bg-card relative" ref={reactFlowWrapper}>
         <TrafficInput
-          trafficType={trafficType}
-          visits={visits}
-          cost={cost}
-          onTrafficTypeChange={setTrafficType}
-          onVisitsChange={setVisits}
-          onCostChange={setCost}
+          sources={trafficSources}
+          onSourcesChange={setTrafficSources}
         />
         
         <FunnelMetricsTable
           steps={stepMetrics}
-          totalTraffic={visits}
+          totalTraffic={totalVisits}
           totalRevenue={totalRevenue}
-          cost={cost}
+          cost={totalCost}
         />
 
         <ReactFlow
