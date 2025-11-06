@@ -156,13 +156,13 @@ interface FunnelCanvasProps {
 
 export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    initialData?.nodes?.length ? initialData.nodes : initialNodes
+    initialData ? initialData.nodes : initialNodes
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    initialData?.edges?.length ? initialData.edges : initialEdges
+    initialData ? initialData.edges : initialEdges
   );
   const [trafficSources, setTrafficSources] = useState<TrafficSource[]>(
-    initialData?.traffic_sources?.length ? initialData.traffic_sources : [{ id: "1", type: "FB Ads", visits: 10000, cost: 0 }]
+    initialData ? initialData.traffic_sources : [{ id: "1", type: "FB Ads", visits: 10000, cost: 0 }]
   );
   const [funnelName, setFunnelName] = useState(initialData?.name || "Untitled Funnel");
   const [saving, setSaving] = useState(false);
