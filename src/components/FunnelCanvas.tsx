@@ -12,13 +12,18 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { FunnelNode } from "./FunnelNode";
+import { CustomEdge } from "./CustomEdge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, DollarSign, Trash2 } from "lucide-react";
+import { Plus, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 const nodeTypes = {
   funnelStep: FunnelNode,
+};
+
+const edgeTypes = {
+  custom: CustomEdge,
 };
 
 const initialNodes: Node[] = [
@@ -43,7 +48,14 @@ export const FunnelCanvas = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [traffic, setTraffic] = useState(1000);
   const [nodeIdCounter, setNodeIdCounter] = useState(2);
-  const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
+
+  const deleteEdge = useCallback(
+    (edgeId: string) => {
+      setEdges((eds) => eds.filter((e) => e.id !== edgeId));
+      toast.success("Connection deleted");
+    },
+    [setEdges]
+  );
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -59,17 +71,18 @@ export const FunnelCanvas = () => {
 
       const edge = {
         ...params,
-        type: "smoothstep",
+        type: "custom",
         animated: true,
         markerEnd: {
           type: MarkerType.ArrowClosed,
         },
         label: params.sourceHandle === "yes" ? "Buy" : "No Thanks",
         style: { stroke: params.sourceHandle === "yes" ? "#10b981" : "#ef4444" },
+        data: { onDelete: deleteEdge },
       };
       setEdges((eds) => addEdge(edge, eds));
     },
-    [setEdges, edges]
+    [setEdges, edges, deleteEdge]
   );
 
   const updateNodeData = useCallback(
@@ -116,21 +129,6 @@ export const FunnelCanvas = () => {
     },
     [setNodes, setEdges]
   );
-
-  const deleteSelectedEdges = useCallback(() => {
-    if (selectedEdges.length === 0) {
-      toast.error("Select a connector to delete");
-      return;
-    }
-    setEdges((eds) => eds.filter((e) => !selectedEdges.includes(e.id)));
-    setSelectedEdges([]);
-    toast.success("Connector deleted");
-  }, [selectedEdges, setEdges]);
-
-  const onSelectionChange = useCallback((elements: any) => {
-    const edgeIds = elements.edges?.map((e: Edge) => e.id) || [];
-    setSelectedEdges(edgeIds);
-  }, []);
 
   // Calculate metrics based on flow
   const calculateMetrics = () => {
@@ -202,15 +200,6 @@ export const FunnelCanvas = () => {
             <Plus className="h-4 w-4" />
             Add Downsell
           </Button>
-          <Button 
-            onClick={deleteSelectedEdges} 
-            variant="destructive" 
-            className="gap-2"
-            disabled={selectedEdges.length === 0}
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Connector
-          </Button>
         </div>
 
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20">
@@ -256,8 +245,8 @@ export const FunnelCanvas = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView
         >
           <Background />
@@ -266,7 +255,7 @@ export const FunnelCanvas = () => {
       </div>
 
       <footer className="text-center text-sm text-muted-foreground p-4">
-        <p>Connect nodes: drag from green (buy) or red (no thanks) handles. Click a connector and press Delete Connector to remove it.</p>
+        <p>Connect nodes: drag from green (buy) or red (no thanks) handles. Hover over a connector to delete it.</p>
       </footer>
     </div>
   );
