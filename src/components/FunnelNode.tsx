@@ -20,9 +20,9 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
   const { name, price, conversion, nodeType, onUpdate, onDelete } = data;
 
   const nodeColors = {
-    frontend: "border-primary/50 bg-primary/5",
-    oto: "border-accent/50 bg-accent/5",
-    downsell: "border-orange-500/50 bg-orange-500/5",
+    frontend: "border-primary/50 bg-primary/10",
+    oto: "border-accent/50 bg-accent/10",
+    downsell: "border-orange-500/50 bg-orange-500/10",
   };
 
   return (

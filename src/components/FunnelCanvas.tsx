@@ -156,9 +156,20 @@ interface FunnelCanvasProps {
 }
 
 export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanvasProps) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    initialData ? initialData.nodes : initialNodes
-  );
+  // Ensure frontend node always exists
+  const getInitialNodes = () => {
+    if (initialData?.nodes) {
+      const hasFrontend = initialData.nodes.some(n => n.data.nodeType === "frontend");
+      if (!hasFrontend) {
+        // Add frontend node if missing
+        return [initialNodes[0], ...initialData.nodes];
+      }
+      return initialData.nodes;
+    }
+    return initialNodes;
+  };
+  
+  const [nodes, setNodes, onNodesChange] = useNodesState(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     initialData ? initialData.edges : initialEdges
   );
