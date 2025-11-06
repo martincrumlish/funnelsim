@@ -15,7 +15,7 @@ import { Node, Edge } from "reactflow";
 interface ExportMenuProps {
   nodes: Node[];
   edges: Edge[];
-  trafficSources: Array<{ type: string; visits: number; cost: number }>;
+  trafficSources: Array<{ id: string; type: string; visits: number; cost: number }>;
   stepMetrics: Array<{ name: string; conversions: number; revenue: number; epc: number }>;
   totalTraffic: number;
   totalRevenue: number;
