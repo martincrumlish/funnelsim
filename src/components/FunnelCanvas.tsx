@@ -298,7 +298,7 @@ export const FunnelCanvas = () => {
           fitView
           minZoom={0.1}
           maxZoom={2}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.2 }}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.12 }}
         >
           <Background />
           <Controls />
