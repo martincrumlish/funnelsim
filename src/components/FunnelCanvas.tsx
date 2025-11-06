@@ -152,9 +152,11 @@ interface FunnelCanvasProps {
     traffic_sources: TrafficSource[];
   };
   onNameChange?: (name: string) => void;
+  canvasRef?: React.RefObject<HTMLDivElement>;
+  onAddNodeReady?: (callback: (type: "oto" | "downsell") => void) => void;
 }
 
-export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanvasProps) => {
+export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, onAddNodeReady }: FunnelCanvasProps) => {
   // Ensure frontend node always exists
   const getInitialNodes = () => {
     if (initialData?.nodes) {
@@ -178,7 +180,8 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       : [{ id: "1", type: "Organic", visits: 1000, cost: 0 }]
   );
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const localCanvasRef = useRef<HTMLDivElement>(null);
+  const reactFlowWrapper = canvasRef || localCanvasRef;
   const { screenToFlowPosition } = useReactFlow();
 
   // Auto-save functionality
@@ -301,6 +304,13 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
     setNodes((nds) => [...nds, newNode]);
   }, [nodes, setNodes]);
 
+  // Expose addNode to parent
+  useEffect(() => {
+    if (onAddNodeReady) {
+      onAddNodeReady(addNode);
+    }
+  }, [addNode, onAddNodeReady]);
+
   const deleteNode = useCallback(
     (nodeId: string) => {
       setNodes((nds) => nds.filter((n) => n.id !== nodeId));
@@ -409,7 +419,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
   }));
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex-1 flex flex-col bg-background overflow-hidden">
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
@@ -420,30 +430,18 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
         />
       )}
       
-      <div className="p-4 space-y-3">
-        {!funnelId && (
+      {!funnelId && (
+        <div className="p-4">
           <header className="text-center space-y-1">
             <h1 className="text-3xl font-bold text-foreground">Visual Funnel Builder</h1>
             <p className="text-sm text-muted-foreground">
               Drag nodes, connect paths, and model your branching funnel
             </p>
           </header>
-        )}
-
-        <div className="flex flex-wrap gap-2 justify-center">
-          <Button onClick={() => addNode("oto")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add OTO
-          </Button>
-          <Button onClick={() => addNode("downsell")} variant="secondary" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Downsell
-          </Button>
-          <ExportMenu canvasRef={reactFlowWrapper} />
         </div>
-      </div>
+      )}
 
-      <div className="flex-1 border-2 border-border rounded-lg mx-4 mb-4 bg-card relative" ref={reactFlowWrapper}>
+      <div className="flex-1 border-2 border-border rounded-lg m-4 bg-card relative" ref={reactFlowWrapper}>
         <TrafficInput
           sources={trafficSources}
           onSourcesChange={setTrafficSources}
@@ -474,10 +472,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
           <Controls position="bottom-right" />
         </ReactFlow>
       </div>
-
-      <footer className="text-center text-xs text-muted-foreground pb-2">
-        <p>Right-click on canvas to add nodes • Hover over connectors to delete • Drag handles to connect</p>
-      </footer>
     </div>
   );
 };
