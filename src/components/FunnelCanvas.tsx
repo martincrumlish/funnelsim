@@ -17,6 +17,7 @@ import { CustomEdge } from "./CustomEdge";
 import { ContextMenu } from "./ContextMenu";
 import { TrafficInput } from "./TrafficInput";
 import { FunnelMetricsTable } from "./FunnelMetricsTable";
+import { ExportMenu } from "./ExportMenu";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -369,6 +370,7 @@ export const FunnelCanvas = () => {
             <Plus className="h-4 w-4" />
             Add Downsell
           </Button>
+          <ExportMenu canvasRef={reactFlowWrapper} />
         </div>
       </div>
 
