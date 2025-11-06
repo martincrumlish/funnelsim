@@ -15,9 +15,10 @@ import "reactflow/dist/style.css";
 import { FunnelNode } from "./FunnelNode";
 import { CustomEdge } from "./CustomEdge";
 import { ContextMenu } from "./ContextMenu";
+import { TrafficInput } from "./TrafficInput";
+import { FunnelMetricsTable } from "./FunnelMetricsTable";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, DollarSign } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const nodeTypes = {
@@ -48,7 +49,9 @@ const initialEdges: Edge[] = [];
 export const FunnelCanvas = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [traffic, setTraffic] = useState(1000);
+  const [trafficType, setTrafficType] = useState("Facebook Ads");
+  const [visits, setVisits] = useState(10000);
+  const [cost, setCost] = useState(0);
   const [nodeIdCounter, setNodeIdCounter] = useState(2);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -157,44 +160,67 @@ export const FunnelCanvas = () => {
 
   // Calculate metrics based on flow
   const calculateMetrics = () => {
-    const nodeMap = new Map(nodes.map((n) => [n.id, { ...n.data, buyers: 0, revenue: 0 }]));
+    const nodeMap = new Map(nodes.map((n) => [n.id, { ...n.data, buyers: 0, revenue: 0, trafficIn: 0 }]));
     
     // Start with front end node
     const frontEndNode = nodes.find((n) => n.data.nodeType === "frontend");
-    if (!frontEndNode) return { totalRevenue: 0, totalConversions: 0, epc: 0 };
+    if (!frontEndNode) return { stepMetrics: [], totalRevenue: 0 };
 
-    const processNode = (nodeId: string, incomingTraffic: number) => {
+    const stepMetrics: Array<{
+      name: string;
+      trafficIn: number;
+      conversions: number;
+      revenue: number;
+      epc: number;
+      order: number;
+      nodeId: string;
+    }> = [];
+
+    const processNode = (nodeId: string, incomingTraffic: number, order: number) => {
       const node = nodeMap.get(nodeId);
       if (!node) return;
 
       const buyers = Math.floor((incomingTraffic * node.conversion) / 100);
       const revenue = buyers * node.price;
+      const epc = incomingTraffic > 0 ? revenue / incomingTraffic : 0;
       
       node.buyers = buyers;
       node.revenue = revenue;
+      node.trafficIn = incomingTraffic;
+
+      stepMetrics.push({
+        name: node.name,
+        trafficIn: incomingTraffic,
+        conversions: buyers,
+        revenue: revenue,
+        epc: epc,
+        order: order,
+        nodeId: nodeId,
+      });
 
       // Find outgoing edges
       const yesEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "yes");
       const noEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "no");
 
       if (yesEdge) {
-        processNode(yesEdge.target, buyers);
+        processNode(yesEdge.target, buyers, order + 1);
       }
       if (noEdge) {
-        processNode(noEdge.target, incomingTraffic - buyers);
+        processNode(noEdge.target, incomingTraffic - buyers, order + 1);
       }
     };
 
-    processNode(frontEndNode.id, traffic);
+    processNode(frontEndNode.id, visits, 0);
 
-    const totalRevenue = Array.from(nodeMap.values()).reduce((sum, n) => sum + n.revenue, 0);
-    const totalConversions = nodeMap.get(frontEndNode.id)?.buyers || 0;
-    const epc = traffic > 0 ? totalRevenue / traffic : 0;
+    // Sort by order to show logical flow
+    stepMetrics.sort((a, b) => a.order - b.order);
 
-    return { totalRevenue, totalConversions, epc };
+    const totalRevenue = stepMetrics.reduce((sum, s) => sum + s.revenue, 0);
+
+    return { stepMetrics, totalRevenue };
   };
 
-  const metrics = calculateMetrics();
+  const { stepMetrics, totalRevenue } = calculateMetrics();
 
   // Update node data with calculated metrics
   const nodesWithMetrics = nodes.map((node) => ({
@@ -236,44 +262,25 @@ export const FunnelCanvas = () => {
             Add Downsell
           </Button>
         </div>
-
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20">
-          <div className="flex items-center gap-3 mb-4">
-            <DollarSign className="h-8 w-8 text-accent" />
-            <h2 className="text-2xl font-bold text-foreground">Funnel Metrics</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Initial Traffic</p>
-              <input
-                type="number"
-                value={traffic}
-                onChange={(e) => setTraffic(parseInt(e.target.value) || 0)}
-                className="text-2xl font-bold text-foreground bg-transparent border-b-2 border-primary/20 w-full outline-none"
-              />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Total Revenue</p>
-              <p className="text-2xl font-bold text-accent">
-                ${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">FE Conversions</p>
-              <p className="text-2xl font-bold text-primary">{metrics.totalConversions.toLocaleString()}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">EPC</p>
-              <p className="text-2xl font-bold text-foreground">
-                ${metrics.epc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
-        </Card>
       </div>
 
-      <div className="h-[600px] border-2 border-border rounded-lg mx-4 bg-card" ref={reactFlowWrapper}>
+      <div className="h-[600px] border-2 border-border rounded-lg mx-4 bg-card relative" ref={reactFlowWrapper}>
+        <TrafficInput
+          trafficType={trafficType}
+          visits={visits}
+          cost={cost}
+          onTrafficTypeChange={setTrafficType}
+          onVisitsChange={setVisits}
+          onCostChange={setCost}
+        />
+        
+        <FunnelMetricsTable
+          steps={stepMetrics}
+          totalTraffic={visits}
+          totalRevenue={totalRevenue}
+          cost={cost}
+        />
+
         <ReactFlow
           nodes={nodesWithMetrics}
           edges={edges}
