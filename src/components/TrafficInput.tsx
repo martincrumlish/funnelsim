@@ -55,7 +55,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
           <Users className="h-4 w-4 text-primary" />
           Initial Traffic
         </h3>
-        <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1 hover:bg-accent/10 hover:text-accent">
+        <Button onClick={addSource} size="sm" variant="outline" className="h-7 gap-1">
           <Plus className="h-3 w-3" />
           Add
         </Button>
