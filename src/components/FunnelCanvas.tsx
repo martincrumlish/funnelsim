@@ -152,9 +152,10 @@ interface FunnelCanvasProps {
     edges: Edge[];
     traffic_sources: TrafficSource[];
   };
+  onNameChange?: (name: string) => void;
 }
 
-export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
+export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanvasProps) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     initialData ? initialData.nodes : initialNodes
   );
@@ -206,12 +207,17 @@ export const FunnelCanvas = ({ funnelId, initialData }: FunnelCanvasProps) => {
 
     if (error) {
       toast.error("Failed to save funnel");
-    } else if (isManual) {
-      setSaved(true);
-      setTimeout(() => {
-        setSaved(false);
-        setManualSave(false);
-      }, 2000);
+    } else {
+      if (onNameChange) {
+        onNameChange(funnelName);
+      }
+      if (isManual) {
+        setSaved(true);
+        setTimeout(() => {
+          setSaved(false);
+          setManualSave(false);
+        }, 2000);
+      }
     }
     
     if (isManual) {

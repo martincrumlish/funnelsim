@@ -49,6 +49,10 @@ const FunnelBuilder = () => {
     setLoadingFunnel(false);
   };
 
+  const updateFunnelName = (name: string) => {
+    setFunnelData((prev: any) => prev ? { ...prev, name } : prev);
+  };
+
   if (loading || loadingFunnel) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -72,7 +76,7 @@ const FunnelBuilder = () => {
         </div>
       </header>
       <ReactFlowProvider>
-        <FunnelCanvas funnelId={id} initialData={funnelData} />
+        <FunnelCanvas funnelId={id} initialData={funnelData} onNameChange={updateFunnelName} />
       </ReactFlowProvider>
     </div>
   );
