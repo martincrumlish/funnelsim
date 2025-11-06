@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [editingFunnelId, setEditingFunnelId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -49,11 +50,20 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useEffect(() => {
     if (user) {
       loadFunnels(true);
     }
-  }, [user, searchQuery]);
+  }, [user, debouncedSearch]);
 
   const loadFunnels = async (reset = false) => {
     if (reset) {
@@ -75,8 +85,8 @@ const Dashboard = () => {
       .range(from, to);
 
     // Add search filter if query exists
-    if (searchQuery.trim()) {
-      query = query.ilike("name", `%${searchQuery.trim()}%`);
+    if (debouncedSearch.trim()) {
+      query = query.ilike("name", `%${debouncedSearch.trim()}%`);
     }
 
     const { data, error, count } = await query;
