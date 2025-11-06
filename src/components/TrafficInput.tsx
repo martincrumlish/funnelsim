@@ -49,7 +49,7 @@ export const TrafficInput = ({ sources, onSourcesChange }: TrafficInputProps) =>
   const totalCost = sources.reduce((sum, s) => sum + s.cost, 0);
 
   return (
-    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 w-[350px]">
+    <Card className="absolute top-4 left-4 p-4 bg-card border-border shadow-lg z-10 max-w-[600px]">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <Users className="h-4 w-4 text-primary" />
