@@ -184,6 +184,14 @@ const Dashboard = () => {
   };
 
   const saveRename = async (id: string) => {
+    const currentFunnel = funnels.find(f => f.id === id);
+    
+    // If name hasn't changed, just cancel editing
+    if (editingName.trim() === currentFunnel?.name) {
+      setEditingFunnelId(null);
+      return;
+    }
+
     if (!editingName.trim()) {
       toast({
         title: "Invalid name",
