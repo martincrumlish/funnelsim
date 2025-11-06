@@ -60,10 +60,10 @@ export const FunnelMetricsTable = ({
                 <TableCell className="text-xs font-medium">{step.name}</TableCell>
                 <TableCell className="text-xs text-right">{step.conversions.toLocaleString()}</TableCell>
                 <TableCell className="text-xs text-right">
-                  <span className="text-green-600">$</span>{step.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${step.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </TableCell>
                 <TableCell className="text-xs text-right">
-                  <span className="text-green-600">$</span>{step.epc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${step.epc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </TableCell>
               </TableRow>
             ))}
@@ -72,10 +72,10 @@ export const FunnelMetricsTable = ({
               <TableCell className="text-xs font-bold">Sub Total</TableCell>
               <TableCell className="text-xs"></TableCell>
               <TableCell className="text-xs text-right font-bold">
-                <span className="text-green-600">$</span>{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </TableCell>
               <TableCell className="text-xs text-right font-bold">
-                <span className="text-green-600">$</span>{totalTraffic > 0 ? (totalRevenue / totalTraffic).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                ${totalTraffic > 0 ? (totalRevenue / totalTraffic).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
               </TableCell>
             </TableRow>
 
@@ -83,7 +83,7 @@ export const FunnelMetricsTable = ({
               <TableCell className="text-xs text-destructive font-medium">Costs</TableCell>
               <TableCell className="text-xs"></TableCell>
               <TableCell className="text-xs text-right text-destructive">
-                -<span className="text-green-600">$</span>{cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                -${cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </TableCell>
               <TableCell className="text-xs"></TableCell>
             </TableRow>
@@ -92,7 +92,7 @@ export const FunnelMetricsTable = ({
               <TableCell className="text-sm font-bold">Total Profit</TableCell>
               <TableCell className="text-xs"></TableCell>
               <TableCell className={`text-sm text-right font-bold ${profit >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                <span className="text-green-600">$</span>{profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </TableCell>
               <TableCell className="text-xs"></TableCell>
             </TableRow>
