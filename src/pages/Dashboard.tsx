@@ -14,9 +14,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, Edit, User, Copy } from "lucide-react";
+import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { Input } from "@/components/ui/input";
 
 interface Funnel {
   id: string;
@@ -34,7 +35,13 @@ const Dashboard = () => {
   const [funnelToDelete, setFunnelToDelete] = useState<{ id: string; name: string } | null>(null);
   const [editingFunnelId, setEditingFunnelId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const { toast } = useToast();
+
+  const ITEMS_PER_PAGE = 9;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -44,16 +51,35 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user) {
-      loadFunnels();
+      loadFunnels(true);
     }
-  }, [user]);
+  }, [user, searchQuery]);
 
-  const loadFunnels = async () => {
-    setLoadingFunnels(true);
-    const { data, error } = await supabase
+  const loadFunnels = async (reset = false) => {
+    if (reset) {
+      setLoadingFunnels(true);
+      setPage(0);
+      setFunnels([]);
+    } else {
+      setLoadingMore(true);
+    }
+
+    const currentPage = reset ? 0 : page;
+    const from = currentPage * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    let query = supabase
       .from("funnels")
-      .select("id, name, created_at, updated_at")
-      .order("created_at", { ascending: false });
+      .select("id, name, created_at, updated_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    // Add search filter if query exists
+    if (searchQuery.trim()) {
+      query = query.ilike("name", `%${searchQuery.trim()}%`);
+    }
+
+    const { data, error, count } = await query;
 
     if (error) {
       toast({
@@ -62,9 +88,29 @@ const Dashboard = () => {
         variant: "destructive",
       });
     } else {
-      setFunnels(data || []);
+      if (reset) {
+        setFunnels(data || []);
+      } else {
+        setFunnels((prev) => [...prev, ...(data || [])]);
+      }
+      setHasMore(count ? (currentPage + 1) * ITEMS_PER_PAGE < count : false);
+      if (!reset) {
+        setPage(currentPage + 1);
+      }
     }
+
     setLoadingFunnels(false);
+    setLoadingMore(false);
+  };
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      loadFunnels(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
   };
 
   const createNewFunnel = async () => {
@@ -112,7 +158,7 @@ const Dashboard = () => {
         title: "Funnel deleted",
         description: `"${funnelToDelete.name}" has been deleted`,
       });
-      loadFunnels();
+      loadFunnels(true);
     }
     
     setDeleteDialogOpen(false);
@@ -151,7 +197,7 @@ const Dashboard = () => {
         title: "Funnel renamed",
         description: "Successfully updated funnel name",
       });
-      loadFunnels();
+      loadFunnels(true);
     }
     
     setEditingFunnelId(null);
@@ -203,7 +249,7 @@ const Dashboard = () => {
         title: "Funnel cloned",
         description: `"${clonedFunnel.name}" has been created`,
       });
-      loadFunnels();
+      loadFunnels(true);
     }
   };
 
@@ -233,34 +279,69 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold mb-2">Your Funnels</h2>
-            <p className="text-muted-foreground">Create and manage your conversion funnels</p>
+        <div className="flex flex-col gap-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Your Funnels</h2>
+              <p className="text-muted-foreground">Create and manage your conversion funnels</p>
+            </div>
+            <Button onClick={createNewFunnel} size="lg">
+              <Plus className="mr-2 h-5 w-5" />
+              New Funnel
+            </Button>
           </div>
-          <Button onClick={createNewFunnel} size="lg">
-            <Plus className="mr-2 h-5 w-5" />
-            New Funnel
-          </Button>
+
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search funnels..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+                onClick={clearSearch}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
 
-        {funnels.length === 0 ? (
+        {funnels.length === 0 && !loadingFunnels ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <div className="text-center space-y-4">
-                <h3 className="text-xl font-semibold">No funnels yet</h3>
+                <h3 className="text-xl font-semibold">
+                  {searchQuery ? "No funnels found" : "No funnels yet"}
+                </h3>
                 <p className="text-muted-foreground">
-                  Create your first funnel to start tracking conversions
+                  {searchQuery
+                    ? `No funnels match "${searchQuery}"`
+                    : "Create your first funnel to start tracking conversions"}
                 </p>
-                <Button onClick={createNewFunnel} size="lg">
-                  <Plus className="mr-2 h-5 w-5" />
-                  Create Your First Funnel
-                </Button>
+                {searchQuery ? (
+                  <Button onClick={clearSearch} variant="outline">
+                    Clear Search
+                  </Button>
+                ) : (
+                  <Button onClick={createNewFunnel} size="lg">
+                    <Plus className="mr-2 h-5 w-5" />
+                    Create Your First Funnel
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {funnels.map((funnel) => (
               <Card key={funnel.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
@@ -325,8 +406,23 @@ const Dashboard = () => {
               </Card>
             ))}
           </div>
-        )}
-      </main>
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={loadMore}
+                disabled={loadingMore}
+                variant="outline"
+                size="lg"
+              >
+                {loadingMore ? "Loading..." : "Load More"}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </main>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
