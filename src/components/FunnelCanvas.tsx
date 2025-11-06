@@ -37,13 +37,102 @@ const initialNodes: Node[] = [
     data: { 
       name: "Front End", 
       price: 47, 
-      conversion: 3,
+      conversion: 10,
       nodeType: "frontend",
+    },
+  },
+  {
+    id: "2",
+    type: "funnelStep",
+    position: { x: 250, y: 200 },
+    data: { 
+      name: "OTO 2", 
+      price: 197, 
+      conversion: 10,
+      nodeType: "oto",
+    },
+  },
+  {
+    id: "3",
+    type: "funnelStep",
+    position: { x: 500, y: 350 },
+    data: { 
+      name: "Downsell 5", 
+      price: 47, 
+      conversion: 100,
+      nodeType: "downsell",
+    },
+  },
+  {
+    id: "4",
+    type: "funnelStep",
+    position: { x: 350, y: 500 },
+    data: { 
+      name: "OTO 3", 
+      price: 197, 
+      conversion: 100,
+      nodeType: "oto",
     },
   },
 ];
 
-const initialEdges: Edge[] = [];
+const initialEdges: Edge[] = [
+  {
+    id: "e1-2",
+    source: "1",
+    target: "2",
+    sourceHandle: "yes",
+    type: "custom",
+    animated: true,
+    markerEnd: { type: MarkerType.ArrowClosed },
+    label: "Buy",
+    style: { stroke: "#10b981" },
+  },
+  {
+    id: "e2-3",
+    source: "2",
+    target: "3",
+    sourceHandle: "no",
+    type: "custom",
+    animated: true,
+    markerEnd: { type: MarkerType.ArrowClosed },
+    label: "No Thanks",
+    style: { stroke: "#ef4444" },
+  },
+  {
+    id: "e2-4",
+    source: "2",
+    target: "4",
+    sourceHandle: "yes",
+    type: "custom",
+    animated: true,
+    markerEnd: { type: MarkerType.ArrowClosed },
+    label: "Buy",
+    style: { stroke: "#10b981" },
+  },
+  {
+    id: "e3-4-yes",
+    source: "3",
+    target: "4",
+    sourceHandle: "yes",
+    type: "custom",
+    animated: true,
+    markerEnd: { type: MarkerType.ArrowClosed },
+    label: "Buy",
+    style: { stroke: "#10b981" },
+  },
+  {
+    id: "e3-4-no",
+    source: "3",
+    target: "4",
+    sourceHandle: "no",
+    type: "custom",
+    animated: true,
+    markerEnd: { type: MarkerType.ArrowClosed },
+    label: "No Thanks",
+    style: { stroke: "#ef4444" },
+  },
+];
 
 interface TrafficSource {
   id: string;
@@ -58,7 +147,7 @@ export const FunnelCanvas = () => {
   const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([
     { id: "1", type: "FB Ads", visits: 10000, cost: 0 },
   ]);
-  const [nodeIdCounter, setNodeIdCounter] = useState(2);
+  const [nodeIdCounter, setNodeIdCounter] = useState(5);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -197,7 +286,7 @@ export const FunnelCanvas = () => {
         existing.trafficIn += incomingTraffic;
         existing.conversions += buyers;
         existing.revenue += revenue;
-        existing.order = Math.min(existing.order, order);
+        // Keep the first order encountered, don't update
       } else {
         metricsMap.set(nodeId, {
           name: node.name,
@@ -209,16 +298,18 @@ export const FunnelCanvas = () => {
         });
       }
 
-      // Find outgoing edges
+      // Find outgoing edges - process "no" edge first so downsells appear before next OTOs
       const yesEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "yes");
       const noEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "no");
 
-      if (yesEdge) {
-        processNode(yesEdge.target, buyers, order + 1);
-      }
+      // Process "no" edge (downsells) before "yes" edge (next OTOs) for better ordering
       if (noEdge) {
         processNode(noEdge.target, incomingTraffic - buyers, order + 1);
       }
+      if (yesEdge) {
+        processNode(yesEdge.target, buyers, order + 1);
+      }
+
     };
 
     processNode(frontEndNode.id, totalVisits, 0);
