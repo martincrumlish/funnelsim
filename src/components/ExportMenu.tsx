@@ -18,15 +18,58 @@ interface ExportMenuProps {
 export const ExportMenu = ({ canvasRef }: ExportMenuProps) => {
   const [isExporting, setIsExporting] = useState(false);
 
+  const replaceInputsWithText = (container: HTMLElement) => {
+    const inputs = container.querySelectorAll('input');
+    const replacements: Array<{ input: HTMLInputElement; parent: HTMLElement; replacement: HTMLDivElement }> = [];
+    
+    inputs.forEach((input) => {
+      const replacement = document.createElement('div');
+      const value = input.value || input.placeholder || '';
+      replacement.textContent = value;
+      
+      // Copy all computed styles
+      const styles = window.getComputedStyle(input);
+      replacement.style.cssText = styles.cssText;
+      replacement.style.border = styles.border;
+      replacement.style.padding = styles.padding;
+      replacement.style.fontSize = styles.fontSize;
+      replacement.style.fontWeight = styles.fontWeight;
+      replacement.style.color = styles.color;
+      replacement.style.backgroundColor = styles.backgroundColor;
+      replacement.style.textAlign = styles.textAlign;
+      replacement.style.width = styles.width;
+      replacement.style.height = styles.height;
+      replacement.style.lineHeight = styles.lineHeight;
+      replacement.style.display = 'flex';
+      replacement.style.alignItems = 'center';
+      replacement.style.justifyContent = styles.textAlign === 'right' ? 'flex-end' : 'flex-start';
+      
+      const parent = input.parentElement!;
+      replacements.push({ input, parent, replacement });
+      parent.replaceChild(replacement, input);
+    });
+    
+    return replacements;
+  };
+
+  const restoreInputs = (replacements: Array<{ input: HTMLInputElement; parent: HTMLElement; replacement: HTMLDivElement }>) => {
+    replacements.forEach(({ input, parent, replacement }) => {
+      parent.replaceChild(input, replacement);
+    });
+  };
+
   const exportAsImage = async () => {
     if (!canvasRef.current) return;
     
     setIsExporting(true);
     
     try {
-      // Hide controls during export
+      // Hide controls
       const controls = document.querySelector('.react-flow__controls') as HTMLElement;
       if (controls) controls.style.display = 'none';
+      
+      // Replace inputs with text
+      const replacements = replaceInputsWithText(canvasRef.current);
       
       await new Promise(resolve => setTimeout(resolve, 150));
       
@@ -36,7 +79,8 @@ export const ExportMenu = ({ canvasRef }: ExportMenuProps) => {
         logging: false,
       });
       
-      // Restore controls
+      // Restore everything
+      restoreInputs(replacements);
       if (controls) controls.style.display = '';
       
       const link = document.createElement("a");
@@ -59,9 +103,12 @@ export const ExportMenu = ({ canvasRef }: ExportMenuProps) => {
     setIsExporting(true);
     
     try {
-      // Hide controls during export
+      // Hide controls
       const controls = document.querySelector('.react-flow__controls') as HTMLElement;
       if (controls) controls.style.display = 'none';
+      
+      // Replace inputs with text
+      const replacements = replaceInputsWithText(canvasRef.current);
       
       await new Promise(resolve => setTimeout(resolve, 150));
       
@@ -71,7 +118,8 @@ export const ExportMenu = ({ canvasRef }: ExportMenuProps) => {
         logging: false,
       });
       
-      // Restore controls
+      // Restore everything
+      restoreInputs(replacements);
       if (controls) controls.style.display = '';
       
       const imgData = canvas.toDataURL("image/png");
