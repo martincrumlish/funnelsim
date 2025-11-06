@@ -19,8 +19,7 @@ import { TrafficInput } from "./TrafficInput";
 import { FunnelMetricsTable } from "./FunnelMetricsTable";
 import { ExportMenu } from "./ExportMenu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Save, Check } from "lucide-react";
+import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -153,9 +152,11 @@ interface FunnelCanvasProps {
     traffic_sources: TrafficSource[];
   };
   onNameChange?: (name: string) => void;
+  funnelName: string;
+  onFunnelNameChange: (name: string) => void;
 }
 
-export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanvasProps) => {
+export const FunnelCanvas = ({ funnelId, initialData, onNameChange, funnelName, onFunnelNameChange }: FunnelCanvasProps) => {
   // Ensure frontend node always exists
   const getInitialNodes = () => {
     if (initialData?.nodes) {
@@ -176,7 +177,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
   const [trafficSources, setTrafficSources] = useState<TrafficSource[]>(
     initialData ? initialData.traffic_sources : [{ id: "1", type: "Organic", visits: 1000, cost: 0 }]
   );
-  const [funnelName, setFunnelName] = useState(initialData?.name || "Untitled Funnel");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [manualSave, setManualSave] = useState(false);
@@ -445,42 +445,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       )}
       
       <div className="p-4 space-y-3">
-        {funnelId ? (
-          <div className="flex items-center justify-center gap-4">
-            <Input
-              value={funnelName}
-              onChange={(e) => setFunnelName(e.target.value)}
-              className="max-w-md text-center text-xl font-semibold"
-              placeholder="Funnel Name"
-            />
-            <Button
-              onClick={() => saveFunnel(true)}
-              variant={saved ? "default" : "outline"}
-              size="sm"
-              disabled={saving && manualSave}
-            >
-              {saved ? (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Saved
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving && manualSave ? "Saving..." : "Save"}
-                </>
-              )}
-            </Button>
-          </div>
-        ) : (
-          <header className="text-center space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">Visual Funnel Builder</h1>
-            <p className="text-sm text-muted-foreground">
-              Drag nodes, connect paths, and model your branching funnel
-            </p>
-          </header>
-        )}
-
         <div className="flex flex-wrap gap-2 justify-center">
           <Button onClick={() => addNode("oto")} className="gap-2">
             <Plus className="h-4 w-4" />
