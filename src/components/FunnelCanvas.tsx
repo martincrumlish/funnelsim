@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -9,10 +9,12 @@ import ReactFlow, {
   Controls,
   Background,
   MarkerType,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { FunnelNode } from "./FunnelNode";
 import { CustomEdge } from "./CustomEdge";
+import { ContextMenu } from "./ContextMenu";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus, DollarSign } from "lucide-react";
@@ -48,6 +50,9 @@ export const FunnelCanvas = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [traffic, setTraffic] = useState(1000);
   const [nodeIdCounter, setNodeIdCounter] = useState(2);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { screenToFlowPosition } = useReactFlow();
 
   const deleteEdge = useCallback(
     (edgeId: string) => {
@@ -105,11 +110,16 @@ export const FunnelCanvas = () => {
     [setNodes]
   );
 
-  const addNode = (type: "oto" | "downsell") => {
+  const addNode = (type: "oto" | "downsell", position?: { x: number; y: number }) => {
+    const nodePosition = position || { 
+      x: 250 + Math.random() * 100, 
+      y: 150 + nodeIdCounter * 50 
+    };
+    
     const newNode: Node = {
       id: nodeIdCounter.toString(),
       type: "funnelStep",
-      position: { x: 250 + Math.random() * 100, y: 150 + nodeIdCounter * 50 },
+      position: nodePosition,
       data: {
         name: type === "oto" ? `OTO ${nodeIdCounter}` : `Downsell ${nodeIdCounter}`,
         price: type === "oto" ? 197 : 47,
@@ -129,6 +139,21 @@ export const FunnelCanvas = () => {
     },
     [setNodes, setEdges]
   );
+
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    
+    const position = screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      clickPos: position,
+    });
+  }, [screenToFlowPosition]);
 
   // Calculate metrics based on flow
   const calculateMetrics = () => {
@@ -183,6 +208,16 @@ export const FunnelCanvas = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onAddOTO={() => addNode("oto", contextMenu.clickPos)}
+          onAddDownsell={() => addNode("downsell", contextMenu.clickPos)}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
+      
       <div className="p-4 space-y-4">
         <header className="text-center space-y-2">
           <h1 className="text-4xl font-bold text-foreground">Visual Funnel Builder</h1>
@@ -238,13 +273,14 @@ export const FunnelCanvas = () => {
         </Card>
       </div>
 
-      <div className="h-[600px] border-2 border-border rounded-lg mx-4 bg-card">
+      <div className="h-[600px] border-2 border-border rounded-lg mx-4 bg-card" ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodesWithMetrics}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onPaneContextMenu={onPaneContextMenu}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
@@ -255,7 +291,7 @@ export const FunnelCanvas = () => {
       </div>
 
       <footer className="text-center text-sm text-muted-foreground p-4">
-        <p>Connect nodes: drag from green (buy) or red (no thanks) handles. Hover over a connector to delete it.</p>
+        <p>Right-click on canvas to add nodes • Hover over connectors to delete • Drag handles to connect</p>
       </footer>
     </div>
   );
