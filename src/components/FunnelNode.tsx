@@ -90,25 +90,41 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
         </div>
       </div>
 
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="yes"
-        style={{ left: "30%", background: "#10b981" }}
-        className="!w-3 !h-3"
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="no"
-        style={{ left: "70%", background: "#ef4444" }}
-        className="!w-3 !h-3"
-      />
-      
-      <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
-        <span>Buy</span>
-        <span>No Thanks</span>
-      </div>
+      {nodeType === "frontend" ? (
+        <>
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id="yes"
+            style={{ left: "50%", background: "#10b981" }}
+            className="!w-3 !h-3"
+          />
+          <div className="text-center mt-2 text-[10px] text-muted-foreground">
+            <span>Buy</span>
+          </div>
+        </>
+      ) : (
+        <>
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id="yes"
+            style={{ left: "30%", background: "#10b981" }}
+            className="!w-3 !h-3"
+          />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id="no"
+            style={{ left: "70%", background: "#ef4444" }}
+            className="!w-3 !h-3"
+          />
+          <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
+            <span>Buy</span>
+            <span>No Thanks</span>
+          </div>
+        </>
+      )}
     </Card>
   );
 });
