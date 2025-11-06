@@ -175,15 +175,14 @@ export const FunnelCanvas = () => {
     const frontEndNode = nodes.find((n) => n.data.nodeType === "frontend");
     if (!frontEndNode) return { stepMetrics: [], totalRevenue: 0 };
 
-    const stepMetrics: Array<{
+    const metricsMap = new Map<string, {
       name: string;
       trafficIn: number;
       conversions: number;
       revenue: number;
-      epc: number;
       order: number;
       nodeId: string;
-    }> = [];
+    }>();
 
     const processNode = (nodeId: string, incomingTraffic: number, order: number) => {
       const node = nodeMap.get(nodeId);
@@ -191,21 +190,24 @@ export const FunnelCanvas = () => {
 
       const buyers = Math.floor((incomingTraffic * node.conversion) / 100);
       const revenue = buyers * node.price;
-      const epc = incomingTraffic > 0 ? revenue / incomingTraffic : 0;
       
-      node.buyers = buyers;
-      node.revenue = revenue;
-      node.trafficIn = incomingTraffic;
-
-      stepMetrics.push({
-        name: node.name,
-        trafficIn: incomingTraffic,
-        conversions: buyers,
-        revenue: revenue,
-        epc: epc,
-        order: order,
-        nodeId: nodeId,
-      });
+      // Aggregate metrics for this node
+      const existing = metricsMap.get(nodeId);
+      if (existing) {
+        existing.trafficIn += incomingTraffic;
+        existing.conversions += buyers;
+        existing.revenue += revenue;
+        existing.order = Math.min(existing.order, order);
+      } else {
+        metricsMap.set(nodeId, {
+          name: node.name,
+          trafficIn: incomingTraffic,
+          conversions: buyers,
+          revenue: revenue,
+          order: order,
+          nodeId: nodeId,
+        });
+      }
 
       // Find outgoing edges
       const yesEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "yes");
@@ -220,6 +222,12 @@ export const FunnelCanvas = () => {
     };
 
     processNode(frontEndNode.id, totalVisits, 0);
+
+    // Convert map to array and add EPC calculation
+    const stepMetrics = Array.from(metricsMap.values()).map(metric => ({
+      ...metric,
+      epc: metric.trafficIn > 0 ? metric.revenue / metric.trafficIn : 0,
+    }));
 
     // Sort by order to show logical flow
     stepMetrics.sort((a, b) => a.order - b.order);
