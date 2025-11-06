@@ -515,7 +515,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
           edgeTypes={edgeTypes}
           minZoom={0.1}
           maxZoom={2}
-          defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+          defaultViewport={{ x: 400, y: 50, zoom: 1 }}
           proOptions={{ hideAttribution: true }}
         >
           <Background />
