@@ -5,8 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { FunnelCanvas } from "@/components/FunnelCanvas";
 import { ReactFlowProvider } from "reactflow";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Save, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 
 const FunnelBuilder = () => {
   const { id } = useParams();
@@ -14,6 +16,9 @@ const FunnelBuilder = () => {
   const navigate = useNavigate();
   const [funnelData, setFunnelData] = useState<any>(null);
   const [loadingFunnel, setLoadingFunnel] = useState(true);
+  const [funnelName, setFunnelName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,8 +50,32 @@ const FunnelBuilder = () => {
       navigate("/dashboard");
     } else {
       setFunnelData(data);
+      setFunnelName(data.name || "Untitled Funnel");
     }
     setLoadingFunnel(false);
+  };
+
+  const saveFunnelName = async () => {
+    if (!id) return;
+    
+    setSaving(true);
+    const { error } = await supabaseClient
+      .from("funnels")
+      .update({ name: funnelName })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error saving funnel name",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      updateFunnelName(funnelName);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+    setSaving(false);
   };
 
   const updateFunnelName = (name: string) => {
@@ -64,7 +93,7 @@ const FunnelBuilder = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="px-4 py-3 flex items-center gap-4">
+        <div className="px-4 py-3 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -72,7 +101,30 @@ const FunnelBuilder = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-semibold">{funnelData?.name}</h1>
+          <Input
+            value={funnelName}
+            onChange={(e) => setFunnelName(e.target.value)}
+            className="max-w-sm font-semibold"
+            placeholder="Funnel Name"
+          />
+          <Button
+            onClick={saveFunnelName}
+            variant={saved ? "default" : "outline"}
+            size="sm"
+            disabled={saving}
+          >
+            {saved ? (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Saved
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? "Saving..." : "Save"}
+              </>
+            )}
+          </Button>
         </div>
       </header>
       <ReactFlowProvider>

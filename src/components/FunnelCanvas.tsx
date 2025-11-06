@@ -19,8 +19,7 @@ import { TrafficInput } from "./TrafficInput";
 import { FunnelMetricsTable } from "./FunnelMetricsTable";
 import { ExportMenu } from "./ExportMenu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Save, Check } from "lucide-react";
+import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -178,10 +177,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       ? initialData.traffic_sources 
       : [{ id: "1", type: "Organic", visits: 1000, cost: 0 }]
   );
-  const [funnelName, setFunnelName] = useState(initialData?.name || "Untitled Funnel");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [manualSave, setManualSave] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clickPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -191,24 +186,18 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
     if (!funnelId) return;
     
     const autoSave = setTimeout(() => {
-      saveFunnel(false);
+      saveFunnel();
     }, 2000);
 
     return () => clearTimeout(autoSave);
-  }, [nodes, edges, trafficSources, funnelName, funnelId]);
+  }, [nodes, edges, trafficSources, funnelId]);
 
-  const saveFunnel = async (isManual = false) => {
+  const saveFunnel = async () => {
     if (!funnelId) return;
-    
-    if (isManual) {
-      setSaving(true);
-      setManualSave(true);
-    }
     
     const { error } = await supabase
       .from("funnels")
       .update({
-        name: funnelName,
         nodes: nodes as any,
         edges: edges as any,
         traffic_sources: trafficSources as any,
@@ -217,21 +206,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
 
     if (error) {
       toast.error("Failed to save funnel");
-    } else {
-      if (onNameChange) {
-        onNameChange(funnelName);
-      }
-      if (isManual) {
-        setSaved(true);
-        setTimeout(() => {
-          setSaved(false);
-          setManualSave(false);
-        }, 2000);
-      }
-    }
-    
-    if (isManual) {
-      setSaving(false);
     }
   };
 
@@ -447,34 +421,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange }: FunnelCanv
       )}
       
       <div className="p-4 space-y-3">
-        {funnelId ? (
-          <div className="flex items-center justify-center gap-4">
-            <Input
-              value={funnelName}
-              onChange={(e) => setFunnelName(e.target.value)}
-              className="max-w-md text-center text-xl font-semibold"
-              placeholder="Funnel Name"
-            />
-            <Button
-              onClick={() => saveFunnel(true)}
-              variant={saved ? "default" : "outline"}
-              size="sm"
-              disabled={saving && manualSave}
-            >
-              {saved ? (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Saved
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving && manualSave ? "Saving..." : "Save"}
-                </>
-              )}
-            </Button>
-          </div>
-        ) : (
+        {!funnelId && (
           <header className="text-center space-y-1">
             <h1 className="text-3xl font-bold text-foreground">Visual Funnel Builder</h1>
             <p className="text-sm text-muted-foreground">
