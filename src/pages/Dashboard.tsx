@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, LogOut, Trash2, Edit } from "lucide-react";
+import { Plus, LogOut, Trash2, Edit, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 
@@ -112,6 +112,9 @@ const Dashboard = () => {
           <h1 className="text-2xl font-bold">Funnel Builder</h1>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{user?.email}</span>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
+              <User className="h-4 w-4" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => signOut()}>
               <LogOut className="h-4 w-4" />
             </Button>
