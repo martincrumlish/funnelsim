@@ -295,10 +295,9 @@ export const FunnelCanvas = () => {
           onPaneContextMenu={onPaneContextMenu}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          fitView
           minZoom={0.1}
           maxZoom={2}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.12 }}
+          defaultViewport={{ x: 200, y: 100, zoom: 0.12 }}
         >
           <Background />
           <Controls />
