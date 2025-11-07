@@ -5,12 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -20,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X, BarChart3, TrendingUp, Folder, DollarSign, MoreVertical } from "lucide-react";
+import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X, BarChart3, TrendingUp, Folder, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -349,7 +343,11 @@ const Dashboard = () => {
                 );
                 
                 return (
-                  <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 relative">
+                  <Card 
+                    key={funnel.id} 
+                    className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 relative cursor-pointer"
+                    onClick={() => navigate(`/funnel/${funnel.id}`)}
+                  >
                     <CardHeader className="pb-4">
                       <div className="absolute top-4 right-4">
                         <Badge 
@@ -382,35 +380,29 @@ const Dashboard = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => navigate(`/funnel/${funnel.id}`)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Open
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => cloneFunnel(funnel.id)}>
-                              <Copy className="mr-2 h-4 w-4" />
-                              Clone
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => openDeleteDialog(funnel.id, funnel.name)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cloneFunnel(funnel.id);
+                          }}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteDialog(funnel.id, funnel.name);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
