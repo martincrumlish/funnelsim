@@ -108,8 +108,11 @@ export const FunnelMetricsTable = ({
             <TableRow className="border-t-2">
               <TableCell className="text-sm font-bold">Total Profit</TableCell>
               <TableCell className="text-xs"></TableCell>
-              <TableCell className="text-sm text-right font-bold text-green-600">
-                ${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <TableCell className={`text-sm text-right font-bold ${profit < 0 ? 'text-destructive' : 'text-green-600'}`}>
+                {profit < 0 
+                  ? `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : `$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                }
               </TableCell>
               <TableCell className="text-xs"></TableCell>
             </TableRow>
