@@ -34,8 +34,6 @@ const Dashboard = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [funnelToDelete, setFunnelToDelete] = useState<{ id: string; name: string } | null>(null);
-  const [editingFunnelId, setEditingFunnelId] = useState<string | null>(null);
-  const [editingName, setEditingName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
@@ -182,61 +180,6 @@ const Dashboard = () => {
     setFunnelToDelete(null);
   };
 
-  const startEditing = (id: string, name: string) => {
-    setEditingFunnelId(id);
-    setEditingName(name);
-  };
-
-  const saveRename = async (id: string) => {
-    const currentFunnel = funnels.find(f => f.id === id);
-    
-    // If name hasn't changed, just cancel editing
-    if (editingName.trim() === currentFunnel?.name) {
-      setEditingFunnelId(null);
-      return;
-    }
-
-    if (!editingName.trim()) {
-      toast({
-        title: "Invalid name",
-        description: "Funnel name cannot be empty",
-        variant: "destructive",
-      });
-      setEditingFunnelId(null);
-      return;
-    }
-
-    const { error } = await supabase
-      .from("funnels")
-      .update({ name: editingName.trim() })
-      .eq("id", id);
-
-    if (error) {
-      toast({
-        title: "Error renaming funnel",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Funnel renamed",
-        description: "Successfully updated funnel name",
-      });
-      // Update the funnel in local state instead of reloading
-      setFunnels((prev) =>
-        prev.map((funnel) =>
-          funnel.id === id ? { ...funnel, name: editingName.trim() } : funnel
-        )
-      );
-    }
-    
-    setEditingFunnelId(null);
-  };
-
-  const cancelEditing = () => {
-    setEditingFunnelId(null);
-    setEditingName("");
-  };
 
   const cloneFunnel = async (funnelId: string) => {
     // First, fetch the complete funnel data
@@ -379,33 +322,7 @@ const Dashboard = () => {
             {funnels.map((funnel) => (
               <Card key={funnel.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle>
-                    {editingFunnelId === funnel.id ? (
-                      <input
-                        type="text"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onBlur={() => saveRename(funnel.id)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            saveRename(funnel.id);
-                          } else if (e.key === "Escape") {
-                            cancelEditing();
-                          }
-                        }}
-                        autoFocus
-                        className="w-full px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    ) : (
-                      <span
-                        onClick={() => startEditing(funnel.id, funnel.name)}
-                        className="cursor-pointer hover:text-primary transition-colors"
-                        title="Click to rename"
-                      >
-                        {funnel.name}
-                      </span>
-                    )}
-                  </CardTitle>
+                  <CardTitle>{funnel.name}</CardTitle>
                   <CardDescription>
                     Last edited: {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                   </CardDescription>
