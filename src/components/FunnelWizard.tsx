@@ -330,7 +330,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                 <div
                   key={product.id}
                   style={{ marginLeft: `${product.level * 24}px` }}
-                  className="border rounded-lg p-4 space-y-3 bg-muted/30"
+                  className="border rounded-lg p-3 space-y-2 bg-muted/30"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
@@ -357,75 +357,73 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor={`name-${product.id}`}>Name</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`name-${product.id}`}>Name</Label>
+                    <Input
+                      id={`name-${product.id}`}
+                      value={product.name}
+                      onChange={(e) =>
+                        updateProduct(product.id, "name", e.target.value)
+                      }
+                      placeholder="Product name"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`price-${product.id}`}>Price ($)</Label>
                       <Input
-                        id={`name-${product.id}`}
-                        value={product.name}
-                        onChange={(e) =>
-                          updateProduct(product.id, "name", e.target.value)
-                        }
-                        placeholder="Product name"
+                        id={`price-${product.id}`}
+                        type="number"
+                        min="0"
+                        max="1000000"
+                        step="1"
+                        value={product.price}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value) || 0;
+                          if (value > 1000000) return;
+                          updateProduct(product.id, "price", e.target.value);
+                        }}
+                        onInput={(e) => {
+                          const input = e.target as HTMLInputElement;
+                          const value = input.value.replace('.', '').replace('-', '');
+                          if (value.length > 7) {
+                            input.value = input.value.slice(0, -1);
+                          }
+                        }}
+                        placeholder="0.00"
                       />
                     </div>
 
-                    <div className="flex items-end gap-2">
-                      <div className="space-y-2 flex-1">
-                        <Label htmlFor={`price-${product.id}`}>Price ($)</Label>
-                        <Input
-                          id={`price-${product.id}`}
-                          type="number"
-                          min="0"
-                          max="1000000"
-                          step="1"
-                          value={product.price}
-                          onChange={(e) => {
-                            const value = parseFloat(e.target.value) || 0;
-                            if (value > 1000000) return;
-                            updateProduct(product.id, "price", e.target.value);
-                          }}
-                          onInput={(e) => {
-                            const input = e.target as HTMLInputElement;
-                            const value = input.value.replace('.', '').replace('-', '');
-                            if (value.length > 7) {
-                              input.value = input.value.slice(0, -1);
-                            }
-                          }}
-                          placeholder="0.00"
-                        />
-                      </div>
-
-                      <div className="space-y-2 w-24">
-                        <Label htmlFor={`conversion-${product.id}`}>
-                          Conv (%)
-                        </Label>
-                        <Input
-                          id={`conversion-${product.id}`}
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          value={product.conversion}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            // Limit to 3 digits before decimal
-                            if (value.replace('.', '').length > 5) return;
-                            const numValue = parseFloat(value) || 0;
-                            if (numValue > 100) return;
-                            updateProduct(product.id, "conversion", value);
-                          }}
-                          onInput={(e) => {
-                            const input = e.target as HTMLInputElement;
-                            const value = input.value;
-                            // Remove any characters beyond 3 digits (plus decimal)
-                            if (value.replace('.', '').replace('-', '').length > 4) {
-                              input.value = value.slice(0, -1);
-                            }
-                          }}
-                          placeholder="0.0"
-                        />
-                      </div>
+                    <div className="space-y-1.5 w-28">
+                      <Label htmlFor={`conversion-${product.id}`}>
+                        Conv (%)
+                      </Label>
+                      <Input
+                        id={`conversion-${product.id}`}
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={product.conversion}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Limit to 3 digits before decimal
+                          if (value.replace('.', '').length > 5) return;
+                          const numValue = parseFloat(value) || 0;
+                          if (numValue > 100) return;
+                          updateProduct(product.id, "conversion", value);
+                        }}
+                        onInput={(e) => {
+                          const input = e.target as HTMLInputElement;
+                          const value = input.value;
+                          // Remove any characters beyond 3 digits (plus decimal)
+                          if (value.replace('.', '').replace('-', '').length > 4) {
+                            input.value = value.slice(0, -1);
+                          }
+                        }}
+                        placeholder="0.0"
+                      />
                     </div>
                   </div>
                   
