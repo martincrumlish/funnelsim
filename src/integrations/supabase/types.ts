@@ -19,6 +19,7 @@ export type Database = {
           created_at: string | null
           edges: Json
           id: string
+          logo_url: string | null
           name: string
           nodes: Json
           traffic_sources: Json
@@ -29,6 +30,7 @@ export type Database = {
           created_at?: string | null
           edges?: Json
           id?: string
+          logo_url?: string | null
           name: string
           nodes?: Json
           traffic_sources?: Json
@@ -39,6 +41,7 @@ export type Database = {
           created_at?: string | null
           edges?: Json
           id?: string
+          logo_url?: string | null
           name?: string
           nodes?: Json
           traffic_sources?: Json

@@ -31,6 +31,7 @@ interface Funnel {
   nodes?: any;
   edges?: any;
   traffic_sources?: any;
+  logo_url?: string | null;
 }
 
 const Dashboard = () => {
@@ -87,7 +88,7 @@ const Dashboard = () => {
 
     let query = supabase
       .from("funnels")
-      .select("id, name, created_at, updated_at, nodes, edges, traffic_sources", { count: "exact" })
+      .select("id, name, created_at, updated_at, nodes, edges, traffic_sources, logo_url", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -345,8 +346,17 @@ const Dashboard = () => {
                   <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 flex flex-col">
                     <CardHeader className="space-y-1">
                       <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="line-clamp-1 flex-1">{funnel.name}</CardTitle>
-                        <Badge 
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {funnel.logo_url && (
+                            <img 
+                              src={funnel.logo_url} 
+                              alt="Funnel logo" 
+                              className="h-6 w-6 object-contain flex-shrink-0"
+                            />
+                          )}
+                          <CardTitle className="line-clamp-1">{funnel.name}</CardTitle>
+                        </div>
+                        <Badge
                           variant="secondary" 
                           className={`flex items-center gap-1 ${
                             revenue > 0 
