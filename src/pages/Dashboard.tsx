@@ -354,7 +354,6 @@ const Dashboard = () => {
                               : 'bg-muted text-muted-foreground border-border'
                           }`}
                         >
-                          <DollarSign className="h-3 w-3" />
                           {formatCurrency(revenue)}
                         </Badge>
                       </div>

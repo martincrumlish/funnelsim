@@ -73,10 +73,14 @@ export const calculateFunnelRevenue = (
 };
 
 export const formatCurrency = (amount: number): string => {
-  if (amount >= 1000000) {
-    return `$${(amount / 1000000).toFixed(1)}M`;
-  } else if (amount >= 1000) {
-    return `$${(amount / 1000).toFixed(1)}K`;
+  const absAmount = Math.abs(amount);
+  const isNegative = amount < 0;
+  const prefix = isNegative ? '-$' : '$';
+  
+  if (absAmount >= 1000000) {
+    return `${prefix}${(absAmount / 1000000).toFixed(1)}M`;
+  } else if (absAmount >= 1000) {
+    return `${prefix}${(absAmount / 1000).toFixed(1)}K`;
   }
-  return `$${amount.toFixed(0)}`;
+  return `${prefix}${absAmount.toLocaleString()}`;
 };
