@@ -29,6 +29,9 @@ interface Product {
   name: string;
   price: string;
   conversion: string;
+  parentId?: string; // Which product this connects from
+  connectionType?: "buy" | "no"; // Which handle it connects from
+  level: number; // Hierarchy level for display
 }
 
 interface FunnelWizardProps {
@@ -43,13 +46,17 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
   const { toast } = useToast();
   const [funnelName, setFunnelName] = useState("");
   const [products, setProducts] = useState<Product[]>([
-    { id: "1", type: "FE", name: "Frontend", price: "", conversion: "" },
+    { id: "1", type: "FE", name: "Frontend", price: "", conversion: "", level: 0 },
   ]);
   const [isCreating, setIsCreating] = useState(false);
 
-  const addProduct = () => {
+  const addOTO = () => {
+    // Find the last OTO or Frontend to connect from via "buy"
+    const lastMainProduct = [...products]
+      .reverse()
+      .find((p) => p.type === "FE" || p.type === "OTO");
+    
     const otoCount = products.filter((p) => p.type === "OTO").length;
-    const downsellCount = products.filter((p) => p.type === "Downsell").length;
     
     const newProduct: Product = {
       id: Date.now().toString(),
@@ -57,9 +64,39 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
       name: `OTO ${otoCount + 1}`,
       price: "",
       conversion: "",
+      parentId: lastMainProduct?.id,
+      connectionType: "buy",
+      level: 0,
     };
     
     setProducts([...products, newProduct]);
+  };
+
+  const addDownsell = (parentId: string) => {
+    const parent = products.find((p) => p.id === parentId);
+    if (!parent) return;
+    
+    // Count existing downsells for this parent chain
+    const parentChainDownsells = products.filter(
+      (p) => p.type === "Downsell" && (p.parentId === parentId || products.find(dp => dp.id === p.parentId)?.parentId === parentId)
+    ).length;
+    
+    const newProduct: Product = {
+      id: Date.now().toString(),
+      type: "Downsell",
+      name: `Downsell ${parentChainDownsells + 1}`,
+      price: "",
+      conversion: "",
+      parentId: parentId,
+      connectionType: "no",
+      level: parent.level + 1,
+    };
+    
+    // Insert after parent
+    const parentIndex = products.findIndex((p) => p.id === parentId);
+    const newProducts = [...products];
+    newProducts.splice(parentIndex + 1, 0, newProduct);
+    setProducts(newProducts);
   };
 
   const removeProduct = (id: string) => {
@@ -84,45 +121,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
     setProducts(
       products.map((p) => {
         if (p.id === id) {
-          const updated = { ...p, [field]: value };
-          
-          // Auto-update name based on type
-          if (field === "type") {
-            // Check if trying to change FROM FE to something else
-            if (p.type === "FE" && value !== "FE") {
-              toast({
-                title: "Cannot change Frontend type",
-                description: "The Frontend product type cannot be changed",
-                variant: "destructive",
-              });
-              return p; // Return unchanged
-            }
-            
-            // Check if trying to add another FE
-            const hasFE = products.some((prod) => prod.type === "FE" && prod.id !== id);
-            if (value === "FE" && hasFE) {
-              toast({
-                title: "Only one Frontend allowed",
-                description: "You can only have one Frontend product per funnel",
-                variant: "destructive",
-              });
-              return p; // Return unchanged
-            }
-            
-            const sameTypeCount = products.filter(
-              (prod) => prod.type === value && prod.id !== id
-            ).length;
-            
-            if (value === "FE") {
-              updated.name = "Frontend";
-            } else if (value === "OTO") {
-              updated.name = `OTO ${sameTypeCount + 1}`;
-            } else if (value === "Downsell") {
-              updated.name = `Downsell ${sameTypeCount + 1}`;
-            }
-          }
-          
-          return updated;
+          return { ...p, [field]: value };
         }
         return p;
       })
@@ -156,36 +155,24 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
     setIsCreating(true);
 
     try {
-      // Create nodes and edges
+      // Create nodes and edges with proper hierarchy
       const nodes = [];
       const edges = [];
+      const nodeMap = new Map<string, string>(); // productId -> nodeId
       let yPosition = 100;
-      const xPosition = 400;
+      const baseXPosition = 400;
       const spacing = 200;
+      const levelXOffset = 150;
 
-      // Create frontend node first
-      const feProduct = products.find((p) => p.type === "FE");
-      if (feProduct) {
-        nodes.push({
-          id: "frontend",
-          type: "funnelStep",
-          position: { x: xPosition, y: yPosition },
-          data: {
-            name: feProduct.name,
-            price: parseFloat(feProduct.price),
-            conversion: parseFloat(feProduct.conversion),
-            nodeType: "frontend",
-          },
-        });
-        yPosition += spacing;
-      }
-
-      // Create OTO and Downsell nodes
-      let previousNodeId = "frontend";
-      const otherProducts = products.filter((p) => p.type !== "FE");
-      
-      otherProducts.forEach((product, index) => {
-        const nodeId = `${product.type.toLowerCase()}-${index + 1}`;
+      // Create all nodes
+      products.forEach((product, index) => {
+        const nodeId = product.type === "FE" 
+          ? "frontend" 
+          : `${product.type.toLowerCase()}-${index}`;
+        
+        nodeMap.set(product.id, nodeId);
+        
+        const xPosition = baseXPosition + (product.level * levelXOffset);
         
         nodes.push({
           id: nodeId,
@@ -195,41 +182,35 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
             name: product.name,
             price: parseFloat(product.price),
             conversion: parseFloat(product.conversion),
-            nodeType: product.type.toLowerCase(),
+            nodeType: product.type === "FE" ? "frontend" : product.type.toLowerCase(),
           },
         });
+        
+        yPosition += spacing;
+      });
 
-        // Connect previous node to this node
-        // For Frontend: only "yes" handle connects to first OTO
-        // For OTOs/Downsells: both "yes" and "no" connect to next product
+      // Create edges based on parent-child relationships
+      products.forEach((product) => {
+        if (!product.parentId) return; // Skip frontend (no parent)
+        
+        const sourceNodeId = nodeMap.get(product.parentId);
+        const targetNodeId = nodeMap.get(product.id);
+        
+        if (!sourceNodeId || !targetNodeId) return;
+        
+        const sourceHandle = product.connectionType || "yes";
+        const label = sourceHandle === "buy" ? "Buy" : "No Thanks";
         
         edges.push({
-          id: `${previousNodeId}-${nodeId}-yes`,
-          source: previousNodeId,
-          target: nodeId,
-          sourceHandle: "yes",
+          id: `${sourceNodeId}-${targetNodeId}-${sourceHandle}`,
+          source: sourceNodeId,
+          target: targetNodeId,
+          sourceHandle: sourceHandle === "buy" ? "yes" : "no",
           targetHandle: null,
           type: "custom",
           animated: true,
-          label: "Buy",
+          label,
         });
-
-        // Add "no" edge from previous node if it's not the frontend
-        if (previousNodeId !== "frontend") {
-          edges.push({
-            id: `${previousNodeId}-${nodeId}-no`,
-            source: previousNodeId,
-            target: nodeId,
-            sourceHandle: "no",
-            targetHandle: null,
-            type: "custom",
-            animated: true,
-            label: "No Thanks",
-          });
-        }
-
-        previousNodeId = nodeId;
-        yPosition += spacing;
       });
 
       // Create the funnel in Supabase
@@ -300,58 +281,44 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Products *</Label>
-                <Button variant="outline" size="sm" onClick={addProduct}>
+                <Button variant="outline" size="sm" onClick={addOTO}>
                   <Plus className="h-4 w-4 mr-1" />
-                  Add Product
+                  Add OTO
                 </Button>
               </div>
 
               {products.map((product, index) => (
                 <div
                   key={product.id}
+                  style={{ marginLeft: `${product.level * 24}px` }}
                   className="border rounded-lg p-4 space-y-3 bg-muted/30"
                 >
                   <div className="flex items-start justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      Product {index + 1}
-                    </span>
-                    {products.length > 1 && product.type !== "FE" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => removeProduct(product.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {product.type === "FE" ? "Frontend" : product.type === "OTO" ? "OTO" : "Downsell"}
+                      </span>
+                      {product.connectionType && (
+                        <span className="text-xs text-muted-foreground">
+                          (from {product.connectionType === "buy" ? "Buy" : "No Thanks"})
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {product.type !== "FE" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => removeProduct(product.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor={`type-${product.id}`}>Type</Label>
-                      <Select
-                        value={product.type}
-                        onValueChange={(value) =>
-                          updateProduct(product.id, "type", value)
-                        }
-                        disabled={product.type === "FE"}
-                      >
-                        <SelectTrigger id={`type-${product.id}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem 
-                            value="FE" 
-                            disabled={products.some((p) => p.type === "FE" && p.id !== product.id)}
-                          >
-                            Frontend (FE)
-                          </SelectItem>
-                          <SelectItem value="OTO">One-Time Offer (OTO)</SelectItem>
-                          <SelectItem value="Downsell">Downsell</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor={`name-${product.id}`}>Name</Label>
@@ -398,6 +365,20 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                       />
                     </div>
                   </div>
+                  
+                  {(product.type === "OTO" || product.type === "Downsell") && (
+                    <div className="pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addDownsell(product.id)}
+                        className="w-full"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Downsell (from No Thanks)
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
