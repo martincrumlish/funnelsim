@@ -357,21 +357,21 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`name-${product.id}`}>Name</Label>
-                    <Input
-                      id={`name-${product.id}`}
-                      value={product.name}
-                      onChange={(e) =>
-                        updateProduct(product.id, "name", e.target.value)
-                      }
-                      placeholder="Product name"
-                    />
-                  </div>
+                  <div className="grid grid-cols-[2fr_1fr_100px] gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor={`name-${product.id}`} className="text-xs">Name</Label>
+                      <Input
+                        id={`name-${product.id}`}
+                        value={product.name}
+                        onChange={(e) =>
+                          updateProduct(product.id, "name", e.target.value)
+                        }
+                        placeholder="Product name"
+                      />
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor={`price-${product.id}`} className="text-sm whitespace-nowrap">Price ($)</Label>
+                    <div className="space-y-1">
+                      <Label htmlFor={`price-${product.id}`} className="text-xs">Price ($)</Label>
                       <Input
                         id={`price-${product.id}`}
                         type="number"
@@ -392,14 +392,11 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                           }
                         }}
                         placeholder="0.00"
-                        className="flex-1"
                       />
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor={`conversion-${product.id}`} className="text-sm whitespace-nowrap">
-                        Conv (%)
-                      </Label>
+                    <div className="space-y-1">
+                      <Label htmlFor={`conversion-${product.id}`} className="text-xs">Conv (%)</Label>
                       <Input
                         id={`conversion-${product.id}`}
                         type="number"
@@ -409,7 +406,6 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                         value={product.conversion}
                         onChange={(e) => {
                           const value = e.target.value;
-                          // Limit to 3 digits before decimal
                           if (value.replace('.', '').length > 5) return;
                           const numValue = parseFloat(value) || 0;
                           if (numValue > 100) return;
@@ -418,13 +414,11 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                         onInput={(e) => {
                           const input = e.target as HTMLInputElement;
                           const value = input.value;
-                          // Remove any characters beyond 3 digits (plus decimal)
                           if (value.replace('.', '').replace('-', '').length > 4) {
                             input.value = value.slice(0, -1);
                           }
                         }}
                         placeholder="0.0"
-                        className="w-20"
                       />
                     </div>
                   </div>
