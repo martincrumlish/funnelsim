@@ -42,7 +42,7 @@ const Dashboard = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const { toast } = useToast();
 
-  const ITEMS_PER_PAGE = 9;
+  const ITEMS_PER_PAGE = 15;
 
   useEffect(() => {
     if (!loading && !user) {
