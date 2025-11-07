@@ -19,8 +19,9 @@ export const ContextMenu = ({ x, y, onAddOTO, onAddDownsell, onClose }: ContextM
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    // Use capture phase to ensure we catch the event before ReactFlow
+    document.addEventListener("click", handleClickOutside, true);
+    return () => document.removeEventListener("click", handleClickOutside, true);
   }, [onClose]);
 
   return (
