@@ -344,12 +344,17 @@ const Dashboard = () => {
                     <CardHeader className="space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <CardTitle className="line-clamp-1 flex-1">{funnel.name}</CardTitle>
-                        {revenue > 0 && (
-                          <Badge variant="secondary" className="flex items-center gap-1 bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20 hover:bg-green-500/20">
-                            <DollarSign className="h-3 w-3" />
-                            {formatCurrency(revenue)}
-                          </Badge>
-                        )}
+                        <Badge 
+                          variant="secondary" 
+                          className={`flex items-center gap-1 ${
+                            revenue > 0 
+                              ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' 
+                              : 'bg-muted text-muted-foreground border-border'
+                          }`}
+                        >
+                          <DollarSign className="h-3 w-3" />
+                          {formatCurrency(revenue)}
+                        </Badge>
                       </div>
                       <CardDescription className="text-xs">
                         {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
