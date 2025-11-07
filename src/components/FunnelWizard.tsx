@@ -378,24 +378,17 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                           type="number"
                           min="0"
                           max="1000000"
-                          step="0.01"
+                          step="1"
                           value={product.price}
                           onChange={(e) => {
-                            const value = parseFloat(e.target.value);
-                            if (value > 1000000) {
-                              toast({
-                                title: "Invalid price",
-                                description: "Price cannot exceed $1,000,000",
-                                variant: "destructive",
-                              });
-                              return;
-                            }
+                            const value = parseFloat(e.target.value) || 0;
+                            if (value > 1000000) return;
                             updateProduct(product.id, "price", e.target.value);
                           }}
                           onInput={(e) => {
                             const input = e.target as HTMLInputElement;
                             const value = input.value.replace('.', '').replace('-', '');
-                            if (value.length > 9) {
+                            if (value.length > 7) {
                               input.value = input.value.slice(0, -1);
                             }
                           }}
@@ -418,15 +411,8 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                             const value = e.target.value;
                             // Limit to 3 digits before decimal
                             if (value.replace('.', '').length > 5) return;
-                            const numValue = parseFloat(value);
-                            if (numValue > 100) {
-                              toast({
-                                title: "Invalid conversion rate",
-                                description: "Conversion rate cannot exceed 100%",
-                                variant: "destructive",
-                              });
-                              return;
-                            }
+                            const numValue = parseFloat(value) || 0;
+                            if (numValue > 100) return;
                             updateProduct(product.id, "conversion", value);
                           }}
                           onInput={(e) => {
