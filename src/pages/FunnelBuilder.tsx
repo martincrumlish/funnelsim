@@ -278,11 +278,11 @@ const FunnelBuilder = () => {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={() => addNodeRef.current?.("oto")} size="sm" className="gap-2">
+            <Button onClick={() => addNodeRef.current?.("oto")} size="sm">
               <Plus className="h-4 w-4" />
               Add OTO
             </Button>
-            <Button onClick={() => addNodeRef.current?.("downsell")} size="sm" variant="secondary" className="gap-2">
+            <Button onClick={() => addNodeRef.current?.("downsell")} size="sm" variant="outline">
               <Plus className="h-4 w-4" />
               Add Downsell
             </Button>

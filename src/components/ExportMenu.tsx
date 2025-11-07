@@ -76,7 +76,7 @@ export const ExportMenu = ({ canvasRef }: ExportMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="gap-2" disabled={isExporting}>
+        <Button variant="outline" size="sm" disabled={isExporting}>
           <Download className="h-4 w-4" />
           {isExporting ? "Exporting..." : "Export"}
         </Button>
