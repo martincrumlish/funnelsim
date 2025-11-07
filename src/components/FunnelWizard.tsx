@@ -199,8 +199,10 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           },
         });
 
-        // Connect to previous node
-        // "yes" edge goes to next offer
+        // Connect previous node to this node
+        // For Frontend: only "yes" handle connects to first OTO
+        // For OTOs/Downsells: both "yes" and "no" connect to next product
+        
         edges.push({
           id: `${previousNodeId}-${nodeId}-yes`,
           source: previousNodeId,
@@ -212,14 +214,12 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           label: "Buy",
         });
 
-        // "no" edge skips to the node after next (if exists) or ends
-        const nextIndex = index + 1;
-        if (nextIndex < otherProducts.length) {
-          const nextNodeId = `${otherProducts[nextIndex].type.toLowerCase()}-${nextIndex + 1}`;
+        // Add "no" edge from previous node if it's not the frontend
+        if (previousNodeId !== "frontend") {
           edges.push({
-            id: `${previousNodeId}-${nextNodeId}-no`,
+            id: `${previousNodeId}-${nodeId}-no`,
             source: previousNodeId,
-            target: nextNodeId,
+            target: nodeId,
             sourceHandle: "no",
             targetHandle: null,
             type: "custom",
