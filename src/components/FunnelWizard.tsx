@@ -159,9 +159,9 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
       // Create nodes and edges
       const nodes = [];
       const edges = [];
-      let yPosition = 50;
-      const xPosition = 250;
-      const spacing = 150;
+      let yPosition = 100;
+      const xPosition = 400;
+      const spacing = 200;
 
       // Create frontend node first
       const feProduct = products.find((p) => p.type === "FE");
@@ -171,7 +171,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           type: "funnelStep",
           position: { x: xPosition, y: yPosition },
           data: {
-            label: feProduct.name,
+            name: feProduct.name,
             price: parseFloat(feProduct.price),
             conversion: parseFloat(feProduct.conversion),
             nodeType: "frontend",
@@ -192,7 +192,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           type: "funnelStep",
           position: { x: xPosition, y: yPosition },
           data: {
-            label: product.name,
+            name: product.name,
             price: parseFloat(product.price),
             conversion: parseFloat(product.conversion),
             nodeType: product.type.toLowerCase(),
@@ -206,8 +206,10 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           source: previousNodeId,
           target: nodeId,
           sourceHandle: "yes",
+          targetHandle: null,
           type: "custom",
           animated: true,
+          label: "Buy",
         });
 
         // "no" edge skips to the node after next (if exists) or ends
@@ -219,8 +221,10 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
             source: previousNodeId,
             target: nextNodeId,
             sourceHandle: "no",
+            targetHandle: null,
             type: "custom",
             animated: true,
+            label: "No Thanks",
           });
         }
 
