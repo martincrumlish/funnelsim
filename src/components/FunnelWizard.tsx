@@ -211,6 +211,47 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
         });
       });
 
+      // Connect downsells to the next OTO (both Buy and No Thanks)
+      const otos = products.filter((p) => p.type === "OTO");
+      const downsells = products.filter((p) => p.type === "Downsell");
+      
+      downsells.forEach((downsell) => {
+        // Find the next OTO after this downsell
+        const downsellIndex = products.findIndex((p) => p.id === downsell.id);
+        const nextOTO = products.slice(downsellIndex + 1).find((p) => p.type === "OTO");
+        
+        if (nextOTO) {
+          const downsellNodeId = nodeMap.get(downsell.id);
+          const nextOTONodeId = nodeMap.get(nextOTO.id);
+          
+          if (downsellNodeId && nextOTONodeId) {
+            // Buy edge
+            edges.push({
+              id: `${downsellNodeId}-${nextOTONodeId}-yes`,
+              source: downsellNodeId,
+              target: nextOTONodeId,
+              sourceHandle: "yes",
+              targetHandle: null,
+              type: "custom",
+              animated: true,
+              label: "Buy",
+            });
+            
+            // No Thanks edge
+            edges.push({
+              id: `${downsellNodeId}-${nextOTONodeId}-no`,
+              source: downsellNodeId,
+              target: nextOTONodeId,
+              sourceHandle: "no",
+              targetHandle: null,
+              type: "custom",
+              animated: true,
+              label: "No Thanks",
+            });
+          }
+        }
+      });
+
       // Create the funnel in Supabase
       const { data, error } = await supabase
         .from("funnels")
