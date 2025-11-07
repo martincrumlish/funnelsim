@@ -63,6 +63,18 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
   };
 
   const removeProduct = (id: string) => {
+    const productToRemove = products.find((p) => p.id === id);
+    
+    // Don't allow removing the Frontend product
+    if (productToRemove?.type === "FE") {
+      toast({
+        title: "Cannot remove Frontend",
+        description: "Every funnel must have a Frontend product",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (products.length > 1) {
       setProducts(products.filter((p) => p.id !== id));
     }
@@ -76,6 +88,27 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           
           // Auto-update name based on type
           if (field === "type") {
+            // Check if trying to change FROM FE to something else
+            if (p.type === "FE" && value !== "FE") {
+              toast({
+                title: "Cannot change Frontend type",
+                description: "The Frontend product type cannot be changed",
+                variant: "destructive",
+              });
+              return p; // Return unchanged
+            }
+            
+            // Check if trying to add another FE
+            const hasFE = products.some((prod) => prod.type === "FE" && prod.id !== id);
+            if (value === "FE" && hasFE) {
+              toast({
+                title: "Only one Frontend allowed",
+                description: "You can only have one Frontend product per funnel",
+                variant: "destructive",
+              });
+              return p; // Return unchanged
+            }
+            
             const sameTypeCount = products.filter(
               (prod) => prod.type === value && prod.id !== id
             ).length;
@@ -278,7 +311,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                     <span className="text-sm font-medium text-muted-foreground">
                       Product {index + 1}
                     </span>
-                    {products.length > 1 && (
+                    {products.length > 1 && product.type !== "FE" && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -298,12 +331,18 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                         onValueChange={(value) =>
                           updateProduct(product.id, "type", value)
                         }
+                        disabled={product.type === "FE"}
                       >
                         <SelectTrigger id={`type-${product.id}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="FE">Frontend (FE)</SelectItem>
+                          <SelectItem 
+                            value="FE" 
+                            disabled={products.some((p) => p.type === "FE" && p.id !== product.id)}
+                          >
+                            Frontend (FE)
+                          </SelectItem>
                           <SelectItem value="OTO">One-Time Offer (OTO)</SelectItem>
                           <SelectItem value="Downsell">Downsell</SelectItem>
                         </SelectContent>
