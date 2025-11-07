@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations";
 import { Badge } from "@/components/ui/badge";
+import { NewFunnelDialog } from "@/components/NewFunnelDialog";
 
 interface Funnel {
   id: string;
@@ -45,6 +46,7 @@ const Dashboard = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [newFunnelDialogOpen, setNewFunnelDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const ITEMS_PER_PAGE = 15;
@@ -293,7 +295,7 @@ const Dashboard = () => {
               )}
             </div>
             
-            <Button onClick={createNewFunnel}>
+            <Button onClick={() => setNewFunnelDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               New Funnel
             </Button>
@@ -321,7 +323,7 @@ const Dashboard = () => {
                     Clear Search
                   </Button>
                 ) : (
-                  <Button onClick={createNewFunnel} size="lg">
+                  <Button onClick={() => setNewFunnelDialogOpen(true)} size="lg">
                     <Plus className="mr-2 h-5 w-5" />
                     Create Your First Funnel
                   </Button>
@@ -430,6 +432,13 @@ const Dashboard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <NewFunnelDialog
+        open={newFunnelDialogOpen}
+        onOpenChange={setNewFunnelDialogOpen}
+        onCreateBlank={createNewFunnel}
+        userId={user?.id}
+      />
     </div>
   );
 };
