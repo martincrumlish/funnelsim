@@ -56,8 +56,8 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <div className="space-y-1 flex-1">
             <Label className="text-xs flex items-center gap-1">
               <DollarSign className="h-3 w-3" />
               Price
@@ -65,14 +65,26 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
             <Input
               type="number"
               min="0"
+              max="1000000"
               step="1"
               value={price}
-              onChange={(e) => onUpdate?.(id, "price", parseFloat(e.target.value) || 0)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                if (value > 1000000) return;
+                onUpdate?.(id, "price", value);
+              }}
+              onInput={(e) => {
+                const input = e.target as HTMLInputElement;
+                const value = input.value.replace('.', '').replace('-', '');
+                if (value.length > 7) {
+                  input.value = input.value.slice(0, -1);
+                }
+              }}
               className="text-sm h-8 nodrag"
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 w-20">
             <Label className="text-xs flex items-center gap-1">
               <Percent className="h-3 w-3" />
               Conv %
