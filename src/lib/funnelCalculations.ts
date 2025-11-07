@@ -18,6 +18,7 @@ interface Edge {
 
 interface TrafficSource {
   visits: number;
+  cost?: number;
 }
 
 export const calculateFunnelRevenue = (
@@ -29,6 +30,9 @@ export const calculateFunnelRevenue = (
 
   // Calculate total initial traffic
   const totalTraffic = trafficSources.reduce((sum, source) => sum + (source.visits || 0), 0);
+  
+  // Calculate total costs
+  const totalCost = trafficSources.reduce((sum, source) => sum + (source.cost || 0), 0);
   
   // Track traffic at each node
   const nodeTraffic: Record<string, number> = {};
@@ -64,7 +68,8 @@ export const calculateFunnelRevenue = (
     });
   });
   
-  return totalRevenue;
+  // Return profit (revenue - costs)
+  return totalRevenue - totalCost;
 };
 
 export const formatCurrency = (amount: number): string => {
