@@ -328,18 +328,19 @@ const Dashboard = () => {
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {funnels.map((funnel) => (
-                <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50">
+                <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 flex flex-col">
                   <CardHeader className="space-y-1">
                     <CardTitle className="line-clamp-1">{funnel.name}</CardTitle>
                     <CardDescription className="text-xs">
                       {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2">
+                  <CardContent className="mt-auto">
+                    <div className="flex gap-2 justify-end">
                       <Button
                         variant="outline"
                         size="sm"
+                        className="text-primary hover:text-primary hover:bg-primary/10 border-primary/20 hover:border-primary/30"
                         onClick={() => navigate(`/funnel/${funnel.id}`)}
                       >
                         <Edit className="mr-2 h-4 w-4" />
@@ -348,6 +349,7 @@ const Dashboard = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="text-muted-foreground hover:text-foreground hover:bg-accent border-border hover:border-accent-foreground/20"
                         onClick={() => cloneFunnel(funnel.id)}
                       >
                         <Copy className="mr-2 h-4 w-4" />
@@ -356,7 +358,7 @@ const Dashboard = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20 hover:border-destructive/30"
                         onClick={() => openDeleteDialog(funnel.id, funnel.name)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
