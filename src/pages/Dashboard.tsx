@@ -364,45 +364,51 @@ const Dashboard = () => {
                         </Badge>
                       </div>
                       <div className="space-y-3 pr-20">
-                        {funnel.logo_url && (
+                        {funnel.logo_url ? (
                           <img 
                             src={funnel.logo_url} 
                             alt="Funnel logo" 
                             className="h-[30px] w-auto object-contain"
                           />
+                        ) : (
+                          <div className="h-[30px] w-[30px] rounded bg-muted flex items-center justify-center">
+                            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                          </div>
                         )}
-                        <div className="space-y-1">
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-1 flex-1 min-w-0">
                           <CardTitle className="line-clamp-2 text-xl">{funnel.name}</CardTitle>
                           <CardDescription className="text-xs">
                             {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                           </CardDescription>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            cloneFunnel(funnel.id);
-                          }}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openDeleteDialog(funnel.id, funnel.name);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              cloneFunnel(funnel.id);
+                            }}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDeleteDialog(funnel.id, funnel.name);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
