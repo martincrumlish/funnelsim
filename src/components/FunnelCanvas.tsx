@@ -184,6 +184,24 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
   const reactFlowWrapper = canvasRef || localCanvasRef;
   const { screenToFlowPosition } = useReactFlow();
 
+  const deleteEdge = useCallback(
+    (edgeId: string) => {
+      setEdges((eds) => eds.filter((e) => e.id !== edgeId));
+      toast.success("Connection deleted");
+    },
+    [setEdges]
+  );
+
+  // Ensure all edges have the delete callback
+  useEffect(() => {
+    setEdges((eds) =>
+      eds.map((edge) => ({
+        ...edge,
+        data: { ...edge.data, onDelete: deleteEdge },
+      }))
+    );
+  }, [deleteEdge, setEdges]);
+
   // Auto-save functionality
   useEffect(() => {
     if (!funnelId) return;
@@ -214,14 +232,6 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
 
   const totalVisits = trafficSources.reduce((sum, s) => sum + s.visits, 0);
   const totalCost = trafficSources.reduce((sum, s) => sum + s.cost, 0);
-
-  const deleteEdge = useCallback(
-    (edgeId: string) => {
-      setEdges((eds) => eds.filter((e) => e.id !== edgeId));
-      toast.success("Connection deleted");
-    },
-    [setEdges]
-  );
 
   const onConnect = useCallback(
     (params: Connection) => {
