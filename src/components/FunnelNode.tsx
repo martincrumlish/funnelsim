@@ -84,9 +84,20 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               step="0.1"
               value={conversion}
               onChange={(e) => {
-                const value = parseFloat(e.target.value) || 0;
-                if (value > 100) return;
-                onUpdate?.(id, "conversion", value);
+                const value = e.target.value;
+                // Limit to 3 digits before decimal
+                if (value.replace('.', '').length > 5) return; // 3 digits + decimal + 1 decimal place
+                const numValue = parseFloat(value) || 0;
+                if (numValue > 100) return;
+                onUpdate?.(id, "conversion", numValue);
+              }}
+              onInput={(e) => {
+                const input = e.target as HTMLInputElement;
+                const value = input.value;
+                // Remove any characters beyond 3 digits (plus decimal)
+                if (value.replace('.', '').replace('-', '').length > 4) {
+                  input.value = value.slice(0, -1);
+                }
               }}
               className="text-sm h-8 nodrag"
             />

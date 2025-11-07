@@ -398,8 +398,11 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                         step="0.1"
                         value={product.conversion}
                         onChange={(e) => {
-                          const value = parseFloat(e.target.value);
-                          if (value > 100) {
+                          const value = e.target.value;
+                          // Limit to 3 digits before decimal
+                          if (value.replace('.', '').length > 5) return;
+                          const numValue = parseFloat(value);
+                          if (numValue > 100) {
                             toast({
                               title: "Invalid conversion rate",
                               description: "Conversion rate cannot exceed 100%",
@@ -407,7 +410,15 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                             });
                             return;
                           }
-                          updateProduct(product.id, "conversion", e.target.value);
+                          updateProduct(product.id, "conversion", value);
+                        }}
+                        onInput={(e) => {
+                          const input = e.target as HTMLInputElement;
+                          const value = input.value;
+                          // Remove any characters beyond 3 digits (plus decimal)
+                          if (value.replace('.', '').replace('-', '').length > 4) {
+                            input.value = value.slice(0, -1);
+                          }
                         }}
                         placeholder="0.0"
                       />
