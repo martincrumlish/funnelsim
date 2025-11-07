@@ -14,17 +14,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X, BarChart3, TrendingUp, Folder } from "lucide-react";
+import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X, BarChart3, TrendingUp, Folder, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations";
+import { Badge } from "@/components/ui/badge";
 
 interface Funnel {
   id: string;
   name: string;
   created_at: string;
   updated_at: string;
+  nodes?: any;
+  edges?: any;
+  traffic_sources?: any;
 }
 
 const Dashboard = () => {
@@ -80,7 +85,7 @@ const Dashboard = () => {
 
     let query = supabase
       .from("funnels")
-      .select("id, name, created_at, updated_at", { count: "exact" })
+      .select("id, name, created_at, updated_at, nodes, edges, traffic_sources", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -327,14 +332,29 @@ const Dashboard = () => {
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {funnels.map((funnel) => (
-                <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 flex flex-col">
-                  <CardHeader className="space-y-1">
-                    <CardTitle className="line-clamp-1">{funnel.name}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
-                    </CardDescription>
-                  </CardHeader>
+              {funnels.map((funnel) => {
+                const revenue = calculateFunnelRevenue(
+                  Array.isArray(funnel.nodes) ? funnel.nodes : [],
+                  Array.isArray(funnel.edges) ? funnel.edges : [],
+                  Array.isArray(funnel.traffic_sources) ? funnel.traffic_sources : []
+                );
+                
+                return (
+                  <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 flex flex-col">
+                    <CardHeader className="space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="line-clamp-1 flex-1">{funnel.name}</CardTitle>
+                        {revenue > 0 && (
+                          <Badge variant="secondary" className="flex items-center gap-1 bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20 hover:bg-green-500/20">
+                            <DollarSign className="h-3 w-3" />
+                            {formatCurrency(revenue)}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="text-xs">
+                        {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
+                      </CardDescription>
+                    </CardHeader>
                   <CardContent className="mt-auto">
                     <div className="flex gap-2 justify-end">
                       <Button
@@ -367,7 +387,8 @@ const Dashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
 
             {/* Load More Button */}
