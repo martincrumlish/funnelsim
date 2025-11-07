@@ -346,15 +346,15 @@ const Dashboard = () => {
                   <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 flex flex-col">
                     <CardHeader className="space-y-1">
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="flex flex-col gap-2 flex-1 min-w-0">
                           {funnel.logo_url && (
                             <img 
                               src={funnel.logo_url} 
                               alt="Funnel logo" 
-                              className="h-6 w-6 object-contain flex-shrink-0"
+                              className="h-[30px] w-auto object-contain"
                             />
                           )}
-                          <CardTitle className="line-clamp-1">{funnel.name}</CardTitle>
+                          <CardTitle className="line-clamp-1 text-xl">{funnel.name}</CardTitle>
                         </div>
                         <Badge
                           variant="secondary" 
