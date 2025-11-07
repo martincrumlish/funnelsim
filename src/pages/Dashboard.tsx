@@ -258,56 +258,6 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Stats Section */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Funnels</CardTitle>
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Folder className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{funnels.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Manage your conversion funnels
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Last Updated</CardTitle>
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {funnels.length > 0 ? format(new Date(funnels[0].updated_at), "MMM d") : "—"}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Most recent funnel activity
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <BarChart3 className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={createNewFunnel} className="w-full" size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                New Funnel
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
@@ -315,26 +265,33 @@ const Dashboard = () => {
             <p className="text-muted-foreground">View and manage all your conversion funnels</p>
           </div>
           
-          {/* Search Bar */}
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search funnels..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
-                onClick={clearSearch}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Search Bar */}
+            <div className="relative flex-1 sm:w-72">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search funnels..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+                  onClick={clearSearch}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            <Button onClick={createNewFunnel}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Funnel
+            </Button>
           </div>
         </div>
 
@@ -378,19 +335,19 @@ const Dashboard = () => {
                       {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Button
-                      variant="default"
-                      className="w-full"
-                      onClick={() => navigate(`/funnel/${funnel.id}`)}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Open Funnel
-                    </Button>
+                  <CardContent>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
-                        className="flex-1"
+                        size="sm"
+                        onClick={() => navigate(`/funnel/${funnel.id}`)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Open
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => cloneFunnel(funnel.id)}
                       >
                         <Copy className="mr-2 h-4 w-4" />
@@ -398,11 +355,12 @@ const Dashboard = () => {
                       </Button>
                       <Button
                         variant="outline"
-                        size="icon"
+                        size="sm"
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => openDeleteDialog(funnel.id, funnel.name)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
                       </Button>
                     </div>
                   </CardContent>
