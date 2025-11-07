@@ -349,42 +349,46 @@ const Dashboard = () => {
                 );
                 
                 return (
-                  <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start gap-3">
+                  <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 relative">
+                    <CardHeader className="pb-4">
+                      <div className="absolute top-4 right-4">
+                        <Badge 
+                          variant="secondary" 
+                          className={`${
+                            revenue > 0 
+                              ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' 
+                              : revenue < 0
+                              ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
+                              : 'bg-muted text-muted-foreground border-border'
+                          }`}
+                        >
+                          {formatCurrency(revenue)}
+                        </Badge>
+                      </div>
+                      <div className="space-y-3 pr-20">
                         {funnel.logo_url && (
                           <img 
                             src={funnel.logo_url} 
                             alt="Funnel logo" 
-                            className="h-[30px] w-auto object-contain flex-shrink-0"
+                            className="h-[30px] w-auto object-contain"
                           />
                         )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <CardTitle className="line-clamp-1 text-xl">{funnel.name}</CardTitle>
-                            <Badge 
-                              variant="secondary" 
-                              className={`flex-shrink-0 ${
-                                revenue > 0 
-                                  ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' 
-                                  : revenue < 0
-                                  ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
-                                  : 'bg-muted text-muted-foreground border-border'
-                              }`}
-                            >
-                              {formatCurrency(revenue)}
-                            </Badge>
-                          </div>
-                          <CardDescription className="text-xs mt-1">
+                        <div className="space-y-1">
+                          <CardTitle className="line-clamp-2 text-xl">{funnel.name}</CardTitle>
+                          <CardDescription className="text-xs">
                             {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
                           </CardDescription>
                         </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex justify-end">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 flex-shrink-0"
+                              className="h-8 w-8"
                             >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
@@ -408,7 +412,7 @@ const Dashboard = () => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                    </CardHeader>
+                    </CardContent>
                   </Card>
                 );
               })}
