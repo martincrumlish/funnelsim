@@ -7,11 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
+import logoDark from "@/assets/logo-dark.png";
+import { useTheme } from "next-themes";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -74,7 +77,7 @@ const ResetPassword = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-center mb-4">
-            <img src={logo} alt="Funnel Builder" className="h-12" />
+            <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-12" />
           </div>
           <CardTitle>Reset Your Password</CardTitle>
           <CardDescription>Enter your new password below</CardDescription>

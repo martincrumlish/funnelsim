@@ -23,6 +23,8 @@ import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations
 import { Badge } from "@/components/ui/badge";
 import { NewFunnelDialog } from "@/components/NewFunnelDialog";
 import logo from "@/assets/logo.png";
+import logoDark from "@/assets/logo-dark.png";
+import { useTheme } from "next-themes";
 
 interface Funnel {
   id: string;
@@ -37,6 +39,7 @@ interface Funnel {
 
 const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [funnels, setFunnels] = useState<Funnel[]>([]);
   const [loadingFunnels, setLoadingFunnels] = useState(true);
@@ -252,7 +255,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <img src={logo} alt="Funnel Builder" className="h-8" />
+          <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-8" />
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
             <ThemeToggle />

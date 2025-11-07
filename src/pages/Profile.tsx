@@ -11,9 +11,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ArrowLeft, User, Mail, Lock, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/logo.png";
+import logoDark from "@/assets/logo-dark.png";
+import { useTheme } from "next-themes";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -108,7 +111,7 @@ const Profile = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <img src={logo} alt="Funnel Builder" className="h-6" />
+            <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-6" />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>

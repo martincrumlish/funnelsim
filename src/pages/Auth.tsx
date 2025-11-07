@@ -10,8 +10,11 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
+import logoDark from "@/assets/logo-dark.png";
+import { useTheme } from "next-themes";
 
 const Auth = () => {
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
@@ -98,7 +101,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <img src={logo} alt="Funnel Builder" className="h-12" />
+            <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-12" />
           </div>
           <CardDescription className="text-center">
             Create, save, and manage your conversion funnels
