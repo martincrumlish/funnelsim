@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X } from "lucide-react";
+import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X, BarChart3, TrendingUp, Folder } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -240,12 +240,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+    <div className="min-h-screen bg-background">
+      <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Funnel Builder</h1>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
             <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
               <User className="h-4 w-4" />
@@ -257,21 +257,66 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Your Funnels</h2>
-              <p className="text-muted-foreground">Create and manage your conversion funnels</p>
-            </div>
-            <Button onClick={createNewFunnel} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              New Funnel
-            </Button>
-          </div>
+      <main className="container mx-auto px-4 py-8 space-y-8">
+        {/* Stats Section */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Funnels</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Folder className="h-4 w-4 text-primary" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{funnels.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Manage your conversion funnels
+              </p>
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Last Updated</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-primary" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {funnels.length > 0 ? format(new Date(funnels[0].updated_at), "MMM d") : "—"}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Most recent funnel activity
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <BarChart3 className="h-4 w-4 text-primary" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={createNewFunnel} className="w-full" size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                New Funnel
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Your Funnels</h2>
+            <p className="text-muted-foreground">View and manage all your conversion funnels</p>
+          </div>
+          
           {/* Search Bar */}
-          <div className="relative max-w-md">
+          <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
@@ -293,14 +338,18 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Funnels Grid */}
         {funnels.length === 0 && !loadingFunnels ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <div className="text-center space-y-4">
+                <div className="h-16 w-16 rounded-full bg-muted mx-auto flex items-center justify-center">
+                  <Folder className="h-8 w-8 text-muted-foreground" />
+                </div>
                 <h3 className="text-xl font-semibold">
                   {searchQuery ? "No funnels found" : "No funnels yet"}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground max-w-sm mx-auto">
                   {searchQuery
                     ? `No funnels match "${searchQuery}"`
                     : "Create your first funnel to start tracking conversions"}
@@ -321,60 +370,61 @@ const Dashboard = () => {
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {funnels.map((funnel) => (
-              <Card key={funnel.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle>{funnel.name}</CardTitle>
-                  <CardDescription>
-                    Last edited: {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
+              {funnels.map((funnel) => (
+                <Card key={funnel.id} className="group hover:shadow-md transition-all duration-200 hover:border-primary/50">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="line-clamp-1">{funnel.name}</CardTitle>
+                    <CardDescription className="text-xs">
+                      {format(new Date(funnel.updated_at), "MMM d, yyyy 'at' h:mm a")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
                     <Button
                       variant="default"
-                      className="flex-1"
+                      className="w-full"
                       onClick={() => navigate(`/funnel/${funnel.id}`)}
                     >
                       <Edit className="mr-2 h-4 w-4" />
-                      Open
+                      Open Funnel
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => cloneFunnel(funnel.id)}
-                      title="Clone funnel"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => openDeleteDialog(funnel.id, funnel.name)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={loadMore}
-                disabled={loadingMore}
-                variant="outline"
-                size="lg"
-              >
-                {loadingMore ? "Loading..." : "Load More"}
-              </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => cloneFunnel(funnel.id)}
+                      >
+                        <Copy className="mr-2 h-4 w-4" />
+                        Clone
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => openDeleteDialog(funnel.id, funnel.name)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          )}
-        </>
-      )}
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="flex justify-center">
+                <Button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  variant="outline"
+                  size="lg"
+                >
+                  {loadingMore ? "Loading..." : "Load More"}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
     </main>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
