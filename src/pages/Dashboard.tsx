@@ -18,6 +18,7 @@ import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface Funnel {
   id: string;
@@ -245,6 +246,7 @@ const Dashboard = () => {
           <h1 className="text-2xl font-bold">Funnel Builder</h1>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{user?.email}</span>
+            <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
               <User className="h-4 w-4" />
             </Button>
