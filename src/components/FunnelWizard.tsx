@@ -397,9 +397,18 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                         max="100"
                         step="0.1"
                         value={product.conversion}
-                        onChange={(e) =>
-                          updateProduct(product.id, "conversion", e.target.value)
-                        }
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value > 100) {
+                            toast({
+                              title: "Invalid conversion rate",
+                              description: "Conversion rate cannot exceed 100%",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          updateProduct(product.id, "conversion", e.target.value);
+                        }}
                         placeholder="0.0"
                       />
                     </div>

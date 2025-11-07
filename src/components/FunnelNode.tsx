@@ -83,7 +83,11 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               max="100"
               step="0.1"
               value={conversion}
-              onChange={(e) => onUpdate?.(id, "conversion", parseFloat(e.target.value) || 0)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                if (value > 100) return;
+                onUpdate?.(id, "conversion", value);
+              }}
               className="text-sm h-8 nodrag"
             />
           </div>
