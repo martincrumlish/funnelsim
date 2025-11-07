@@ -76,15 +76,13 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
     const parent = products.find((p) => p.id === parentId);
     if (!parent) return;
     
-    // Count existing downsells for this parent chain
-    const parentChainDownsells = products.filter(
-      (p) => p.type === "Downsell" && (p.parentId === parentId || products.find(dp => dp.id === p.parentId)?.parentId === parentId)
-    ).length;
+    // Count all existing downsells globally
+    const totalDownsells = products.filter((p) => p.type === "Downsell").length;
     
     const newProduct: Product = {
       id: Date.now().toString(),
       type: "Downsell",
-      name: `Downsell ${parentChainDownsells + 1}`,
+      name: `Downsell ${totalDownsells + 1}`,
       price: "",
       conversion: "",
       parentId: parentId,
