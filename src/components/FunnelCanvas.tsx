@@ -291,13 +291,20 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
   const addNode = useCallback((type: "oto" | "downsell", position?: { x: number; y: number }) => {
     const maxY = nodes.reduce((max, node) => Math.max(max, node.position.y), 0);
     const nodePosition = position || { x: 250 + Math.random() * 100, y: maxY + 150 };
-    const newNodeId = (Math.max(...nodes.map(n => parseInt(n.id)), 0) + 1).toString();
+    
+    // Count existing nodes of this type to determine the number
+    const existingCount = nodes.filter(n => n.data.nodeType === type).length;
+    const nodeNumber = existingCount + 1;
+    
+    // Generate a unique ID
+    const newNodeId = `${type}-${Date.now()}`;
+    
     const newNode: Node = {
       id: newNodeId,
       type: "funnelStep",
       position: nodePosition,
       data: {
-        name: type === "oto" ? `OTO ${newNodeId}` : `Downsell ${newNodeId}`,
+        name: type === "oto" ? `OTO ${nodeNumber}` : `Downsell ${nodeNumber}`,
         price: type === "oto" ? 197 : 47,
         conversion: type === "oto" ? 25 : 40,
         nodeType: type,
