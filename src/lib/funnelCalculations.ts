@@ -3,8 +3,10 @@
 interface Node {
   id: string;
   data: {
-    label: string;
+    label?: string;
+    name?: string;
     price?: number;
+    conversion?: number;
     conversionRate?: number;
   };
 }
@@ -46,7 +48,8 @@ export const calculateFunnelRevenue = (
     if (trafficIn === 0) return;
     
     const price = node.data?.price || 0;
-    const conversionRate = (node.data?.conversionRate || 0) / 100;
+    // Support both 'conversion' and 'conversionRate' field names
+    const conversionRate = ((node.data?.conversion || node.data?.conversionRate || 0) / 100);
     
     const conversions = Math.floor(trafficIn * conversionRate);
     const revenue = conversions * price;
