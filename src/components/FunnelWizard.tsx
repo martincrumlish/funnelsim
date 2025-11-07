@@ -245,18 +245,19 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6">
-          <div className="space-y-6 pb-4">
-            {/* Funnel Name */}
-            <div className="space-y-2">
-              <Label htmlFor="funnel-name">Funnel Name *</Label>
-              <Input
-                id="funnel-name"
-                placeholder="e.g., My Product Launch Funnel"
-                value={funnelName}
-                onChange={(e) => setFunnelName(e.target.value)}
-              />
-            </div>
+        <div className="flex-1 overflow-hidden px-6">
+          <ScrollArea className="h-full">
+            <div className="space-y-6 pb-4 pr-4">
+              {/* Funnel Name */}
+              <div className="space-y-2">
+                <Label htmlFor="funnel-name">Funnel Name *</Label>
+                <Input
+                  id="funnel-name"
+                  placeholder="e.g., My Product Launch Funnel"
+                  value={funnelName}
+                  onChange={(e) => setFunnelName(e.target.value)}
+                />
+              </div>
 
             {/* Products Section */}
             <div className="space-y-4">
@@ -357,8 +358,9 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                 </div>
               ))}
             </div>
-          </div>
-        </ScrollArea>
+            </div>
+          </ScrollArea>
+        </div>
 
         <DialogFooter className="px-6 py-4 border-t">
           <Button variant="outline" onClick={onBack} disabled={isCreating}>
