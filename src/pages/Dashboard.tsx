@@ -22,6 +22,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations";
 import { Badge } from "@/components/ui/badge";
 import { NewFunnelDialog } from "@/components/NewFunnelDialog";
+import logo from "@/assets/logo.png";
 
 interface Funnel {
   id: string;
@@ -251,7 +252,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Funnel Builder</h1>
+          <img src={logo} alt="Funnel Builder" className="h-8" />
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
             <ThemeToggle />

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -96,7 +97,9 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Funnel Builder</CardTitle>
+          <div className="flex justify-center mb-4">
+            <img src={logo} alt="Funnel Builder" className="h-12" />
+          </div>
           <CardDescription className="text-center">
             Create, save, and manage your conversion funnels
           </CardDescription>

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo.png";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -72,6 +73,9 @@ const ResetPassword = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
+          <div className="flex justify-center mb-4">
+            <img src={logo} alt="Funnel Builder" className="h-12" />
+          </div>
           <CardTitle>Reset Your Password</CardTitle>
           <CardDescription>Enter your new password below</CardDescription>
         </CardHeader>

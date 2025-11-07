@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ArrowLeft, User, Mail, Lock, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import logo from "@/assets/logo.png";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -107,7 +108,7 @@ const Profile = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-2xl font-bold">Profile Settings</h1>
+            <img src={logo} alt="Funnel Builder" className="h-6" />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>
