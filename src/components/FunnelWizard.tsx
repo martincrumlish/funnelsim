@@ -369,9 +369,9 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                     />
                   </div>
 
-                  <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`price-${product.id}`}>Price ($)</Label>
+                  <div className="grid grid-cols-2 gap-3 items-center">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`price-${product.id}`} className="text-sm whitespace-nowrap">Price ($)</Label>
                       <Input
                         id={`price-${product.id}`}
                         type="number"
@@ -392,11 +392,12 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                           }
                         }}
                         placeholder="0.00"
+                        className="flex-1"
                       />
                     </div>
 
-                    <div className="space-y-1.5 w-28">
-                      <Label htmlFor={`conversion-${product.id}`}>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`conversion-${product.id}`} className="text-sm whitespace-nowrap">
                         Conv (%)
                       </Label>
                       <Input
@@ -423,6 +424,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                           }
                         }}
                         placeholder="0.0"
+                        className="w-20"
                       />
                     </div>
                   </div>
