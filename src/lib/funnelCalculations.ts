@@ -8,12 +8,14 @@ interface Node {
     price?: number;
     conversion?: number;
     conversionRate?: number;
+    nodeType?: string;
   };
 }
 
 interface Edge {
   source: string;
   target: string;
+  sourceHandle?: string;
 }
 
 interface TrafficSource {
@@ -28,45 +30,56 @@ export const calculateFunnelRevenue = (
 ): number => {
   if (!nodes?.length || !trafficSources?.length) return 0;
 
-  // Calculate total initial traffic
+  // Calculate total initial traffic and costs
   const totalTraffic = trafficSources.reduce((sum, source) => sum + (source.visits || 0), 0);
-  
-  // Calculate total costs
   const totalCost = trafficSources.reduce((sum, source) => sum + (source.cost || 0), 0);
   
-  // Track traffic at each node
-  const nodeTraffic: Record<string, number> = {};
+  // Find the frontend node (first node)
+  const frontEndNode = nodes.find((n) => n.data?.nodeType === "frontend") || nodes[0];
+  if (!frontEndNode) return -totalCost;
   
-  // Find the first node (entry point)
-  const firstNode = nodes[0];
-  if (!firstNode) return 0;
+  // Create a map for quick node lookup
+  const nodeMap = new Map(nodes.map(n => [n.id, n.data]));
   
-  nodeTraffic[firstNode.id] = totalTraffic;
+  // Track metrics for each node
+  const metricsMap = new Map<string, { revenue: number }>();
   
-  // Calculate traffic flow through the funnel
-  let totalRevenue = 0;
+  // Recursive function to process nodes following edges
+  const processNode = (nodeId: string, incomingTraffic: number) => {
+    const nodeData = nodeMap.get(nodeId);
+    if (!nodeData || incomingTraffic <= 0) return;
+    
+    const conversion = (nodeData.conversion || nodeData.conversionRate || 0) / 100;
+    const price = nodeData.price || 0;
+    const buyers = Math.floor(incomingTraffic * conversion);
+    const revenue = buyers * price;
+    
+    // Aggregate revenue for this node
+    const existing = metricsMap.get(nodeId);
+    if (existing) {
+      existing.revenue += revenue;
+    } else {
+      metricsMap.set(nodeId, { revenue });
+    }
+    
+    // Find outgoing edges
+    const yesEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "yes");
+    const noEdge = edges.find((e) => e.source === nodeId && e.sourceHandle === "no");
+    
+    // Process child nodes
+    if (noEdge) {
+      processNode(noEdge.target, incomingTraffic - buyers);
+    }
+    if (yesEdge) {
+      processNode(yesEdge.target, buyers);
+    }
+  };
   
-  // Process each node in order
-  nodes.forEach((node) => {
-    const trafficIn = nodeTraffic[node.id] || 0;
-    if (trafficIn === 0) return;
-    
-    const price = node.data?.price || 0;
-    // Support both 'conversion' and 'conversionRate' field names
-    const conversionRate = ((node.data?.conversion || node.data?.conversionRate || 0) / 100);
-    
-    const conversions = Math.floor(trafficIn * conversionRate);
-    const revenue = conversions * price;
-    
-    totalRevenue += revenue;
-    
-    // Find outgoing edges and distribute traffic
-    edges.forEach((edge) => {
-      if (edge.source === node.id) {
-        nodeTraffic[edge.target] = (nodeTraffic[edge.target] || 0) + conversions;
-      }
-    });
-  });
+  // Start processing from the frontend node
+  processNode(frontEndNode.id, totalTraffic);
+  
+  // Sum up all revenue
+  const totalRevenue = Array.from(metricsMap.values()).reduce((sum, m) => sum + m.revenue, 0);
   
   // Return profit (revenue - costs)
   return totalRevenue - totalCost;
