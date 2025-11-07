@@ -230,8 +230,8 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-2xl h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
@@ -245,8 +245,8 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6 py-4">
+        <ScrollArea className="flex-1 px-6">
+          <div className="space-y-6 pb-4">
             {/* Funnel Name */}
             <div className="space-y-2">
               <Label htmlFor="funnel-name">Funnel Name *</Label>
@@ -360,7 +360,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
           </div>
         </ScrollArea>
 
-        <DialogFooter>
+        <DialogFooter className="px-6 py-4 border-t">
           <Button variant="outline" onClick={onBack} disabled={isCreating}>
             Cancel
           </Button>
