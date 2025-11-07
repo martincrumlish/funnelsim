@@ -357,8 +357,7 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-
+                  <div className="space-y-3">
                     <div className="space-y-2">
                       <Label htmlFor={`name-${product.id}`}>Name</Label>
                       <Input
@@ -371,57 +370,76 @@ export const FunnelWizard = ({ open, onOpenChange, onBack, userId }: FunnelWizar
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor={`price-${product.id}`}>Price ($)</Label>
-                      <Input
-                        id={`price-${product.id}`}
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={product.price}
-                        onChange={(e) =>
-                          updateProduct(product.id, "price", e.target.value)
-                        }
-                        placeholder="0.00"
-                      />
-                    </div>
+                    <div className="flex items-end gap-2">
+                      <div className="space-y-2 flex-1">
+                        <Label htmlFor={`price-${product.id}`}>Price ($)</Label>
+                        <Input
+                          id={`price-${product.id}`}
+                          type="number"
+                          min="0"
+                          max="1000000"
+                          step="0.01"
+                          value={product.price}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value);
+                            if (value > 1000000) {
+                              toast({
+                                title: "Invalid price",
+                                description: "Price cannot exceed $1,000,000",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+                            updateProduct(product.id, "price", e.target.value);
+                          }}
+                          onInput={(e) => {
+                            const input = e.target as HTMLInputElement;
+                            const value = input.value.replace('.', '').replace('-', '');
+                            if (value.length > 9) {
+                              input.value = input.value.slice(0, -1);
+                            }
+                          }}
+                          placeholder="0.00"
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor={`conversion-${product.id}`}>
-                        Conversion Rate (%)
-                      </Label>
-                      <Input
-                        id={`conversion-${product.id}`}
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={product.conversion}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // Limit to 3 digits before decimal
-                          if (value.replace('.', '').length > 5) return;
-                          const numValue = parseFloat(value);
-                          if (numValue > 100) {
-                            toast({
-                              title: "Invalid conversion rate",
-                              description: "Conversion rate cannot exceed 100%",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-                          updateProduct(product.id, "conversion", value);
-                        }}
-                        onInput={(e) => {
-                          const input = e.target as HTMLInputElement;
-                          const value = input.value;
-                          // Remove any characters beyond 3 digits (plus decimal)
-                          if (value.replace('.', '').replace('-', '').length > 4) {
-                            input.value = value.slice(0, -1);
-                          }
-                        }}
-                        placeholder="0.0"
-                      />
+                      <div className="space-y-2 w-24">
+                        <Label htmlFor={`conversion-${product.id}`}>
+                          Conv (%)
+                        </Label>
+                        <Input
+                          id={`conversion-${product.id}`}
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={product.conversion}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Limit to 3 digits before decimal
+                            if (value.replace('.', '').length > 5) return;
+                            const numValue = parseFloat(value);
+                            if (numValue > 100) {
+                              toast({
+                                title: "Invalid conversion rate",
+                                description: "Conversion rate cannot exceed 100%",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+                            updateProduct(product.id, "conversion", value);
+                          }}
+                          onInput={(e) => {
+                            const input = e.target as HTMLInputElement;
+                            const value = input.value;
+                            // Remove any characters beyond 3 digits (plus decimal)
+                            if (value.replace('.', '').replace('-', '').length > 4) {
+                              input.value = value.slice(0, -1);
+                            }
+                          }}
+                          placeholder="0.0"
+                        />
+                      </div>
                     </div>
                   </div>
                   
