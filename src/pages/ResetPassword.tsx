@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -73,7 +74,10 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <div className="fixed bottom-4 left-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-center mb-4">

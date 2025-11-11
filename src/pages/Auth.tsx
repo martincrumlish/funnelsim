@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Auth = () => {
   const { theme } = useTheme();
@@ -97,7 +98,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 p-4 relative">
+      <div className="fixed bottom-4 left-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
