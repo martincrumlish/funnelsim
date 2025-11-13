@@ -5,13 +5,17 @@ import { ArrowRight } from "lucide-react";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 p-4 relative">
+      <div className="fixed bottom-4 left-4">
+        <ThemeToggle />
+      </div>
       <div className="max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
           <div className="flex justify-center mb-6">
