@@ -15,8 +15,8 @@ const Index = () => {
   const features = [
     {
       icon: BarChart3,
-      title: "Visual Canvas Builder",
-      description: "Professional drag-and-drop interface powered by React Flow. Design complex multi-step funnels with unlimited OTOs (One-Time Offers) and downsells. Create conditional pathways with Yes/No logic flows for sophisticated customer journeys."
+      title: "Visual Funnel Planning Canvas",
+      description: "Professional drag-and-drop interface powered by React Flow. Map out complex multi-step funnels with unlimited OTOs (One-Time Offers) and downsells. Visualize conditional pathways with Yes/No logic flows for sophisticated customer journeys."
     },
     {
       icon: Zap,
@@ -87,15 +87,15 @@ const Index = () => {
                 <img src={theme === "dark" ? logoDark : logo} alt="FunnelSim" className="h-12" />
               </div>
               <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                Build High-Converting Sales Funnels in Minutes
+                Plan & Model High-Converting Sales Funnels Before You Build
               </h1>
               <p className="text-xl text-muted-foreground">
-                Design, analyze, and optimize your entire sales funnel with our intuitive visual builder. 
-                Calculate potential revenue and make data-driven decisions before you launch.
+                Visualize, calculate, and optimize your entire funnel strategy before investing in development or traffic. 
+                Model revenue projections and make data-driven decisions with our intuitive planning tool.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" onClick={() => navigate("/auth")} className="text-lg">
-                  Start Building Free
+                  Start Planning Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg">
@@ -123,10 +123,10 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl lg:text-5xl font-bold">
-              Everything You Need to Build Profitable Funnels
+              Everything You Need to Plan Profitable Funnels
             </h2>
             <p className="text-xl text-muted-foreground">
-              Professional-grade tools designed for marketers, entrepreneurs, and funnel builders
+              Professional planning and modeling tools for marketers, entrepreneurs, and funnel strategists
             </p>
           </div>
           
@@ -271,7 +271,7 @@ const Index = () => {
                     <h3 className="text-xl font-semibold mb-2">Zero Learning Curve</h3>
                     <p className="text-muted-foreground">
                       Intuitive drag-and-drop interface anyone can use. No complex software training needed.
-                      Start building your first funnel in under 5 minutes. Built-in examples and smart defaults
+                      Start modeling your first funnel in under 5 minutes. Built-in examples and smart defaults
                       help you get started fast. If you can use a flowchart, you can use FunnelSim.
                     </p>
                   </div>
@@ -287,10 +287,10 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <h2 className="text-3xl lg:text-5xl font-bold">
-              Ready to Build Your Perfect Funnel?
+              Ready to Plan Your Perfect Funnel?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of marketers and entrepreneurs who trust FunnelSim to plan and optimize their sales funnels.
+              Join thousands of marketers and entrepreneurs who trust FunnelSim to model and optimize their funnel strategy before investing in development.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" onClick={() => navigate("/auth")} className="text-lg">
