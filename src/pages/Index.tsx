@@ -73,19 +73,19 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen relative">
-      {/* Page-wide animated gradient background */}
-      <div className="fixed inset-0 bg-gradient-to-b from-primary/20 via-background via-50% to-background -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)] animate-pulse"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.25),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
-      </div>
-
+    <div className="min-h-screen relative bg-background">
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
+        {/* Animated gradient background - only in hero viewport */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)] animate-pulse"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.25),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
         <div className="container mx-auto px-4 py-20 lg:py-32 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-in">
