@@ -79,11 +79,13 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden pb-32">
         {/* Animated gradient background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)] animate-pulse"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.25),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
+          {/* Smooth fade to next section */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-background"></div>
         </div>
         
         <div className="container mx-auto px-4 py-20 lg:py-32 relative z-10">
@@ -125,7 +127,7 @@ const Index = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 lg:py-32 relative">
+      <section className="py-20 lg:py-32 relative -mt-32 pt-32">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl lg:text-5xl font-bold">
