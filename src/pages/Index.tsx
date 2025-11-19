@@ -81,9 +81,9 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.1),transparent_50%)] animate-pulse"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.1),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)] animate-pulse"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.25),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
         
         <div className="container mx-auto px-4 py-20 lg:py-32 relative z-10">
@@ -125,7 +125,7 @@ const Index = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/20">
+      <section className="py-20 lg:py-32 bg-gradient-to-b from-background via-muted/10 to-background">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl lg:text-5xl font-bold">
@@ -191,7 +191,7 @@ const Index = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
+      <section className="py-20 lg:py-32 bg-gradient-to-b from-background via-primary/5 to-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16 space-y-4">
@@ -297,7 +297,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
+      <section className="py-20 lg:py-32 bg-gradient-to-b from-background via-accent/10 to-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <h2 className="text-3xl lg:text-5xl font-bold">
