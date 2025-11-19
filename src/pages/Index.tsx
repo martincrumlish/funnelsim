@@ -79,39 +79,45 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10">
-        <div className="container mx-auto px-4 py-20 lg:py-32">
+      <section className="relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.1),transparent_50%)] animate-pulse"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.1),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
+        <div className="container mx-auto px-4 py-20 lg:py-32 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-in">
-              <div className="flex justify-start mb-6">
+              <div className="flex justify-start mb-6 animate-scale-in">
                 <img src={theme === "dark" ? logoDark : logo} alt="FunnelSim" className="h-12" />
               </div>
-              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-4xl lg:text-6xl font-bold leading-tight animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 Plan & Model High-Converting Sales Funnels Before You Build
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: '0.2s' }}>
                 Visualize, calculate, and optimize your entire funnel strategy before investing in development or traffic. 
                 Model revenue projections and make data-driven decisions with our intuitive planning tool.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" onClick={() => navigate("/auth")} className="text-lg">
+              <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <Button size="lg" onClick={() => navigate("/auth")} className="text-lg group hover-scale">
                   Start Planning Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
-                <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg">
+                <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg hover-scale">
                   View Demo
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.4s' }}>
                 No credit card required • Free forever plan available
               </p>
             </div>
-            <div className="relative animate-scale-in">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg blur-3xl"></div>
+            <div className="relative animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg blur-3xl animate-pulse"></div>
               <img 
                 src={heroImage} 
                 alt="Funnel Builder Dashboard" 
-                className="relative rounded-lg shadow-2xl border border-border"
+                className="relative rounded-lg shadow-2xl border border-border hover-scale transition-all duration-500"
               />
             </div>
           </div>
@@ -132,10 +138,14 @@ const Index = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => (
-              <Card key={index} className="hover-scale border-border/50 bg-card/50 backdrop-blur">
+              <Card 
+                key={index} 
+                className="hover-scale border-border/50 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-xl hover:border-primary/20 animate-fade-in group"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors duration-300">
+                    <feature.icon className="h-6 w-6 text-primary transition-transform group-hover:scale-110" />
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
@@ -155,15 +165,19 @@ const Index = () => {
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {additionalFeatures.map((section, index) => (
-                <Card key={index} className="border-border/50 bg-card/30">
+                <Card 
+                  key={index} 
+                  className="border-border/50 bg-card/30 hover-scale transition-all duration-300 hover:shadow-lg hover:bg-card/50 animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
                   <CardHeader>
                     <CardTitle className="text-lg">{section.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
                       {section.items.map((item, itemIndex) => (
-                        <li key={itemIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <span className="text-primary mt-1">✓</span>
+                        <li key={itemIndex} className="flex items-start gap-2 text-sm text-muted-foreground group">
+                          <span className="text-primary mt-1 transition-transform group-hover:scale-125">✓</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -191,8 +205,8 @@ const Index = () => {
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="flex gap-4 animate-fade-in group" style={{ animationDelay: '0.1s' }}>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 transition-transform group-hover:scale-110">
                     <span className="text-primary-foreground font-bold">1</span>
                   </div>
                   <div>
@@ -205,8 +219,8 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="flex gap-4 animate-fade-in group" style={{ animationDelay: '0.2s' }}>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 transition-transform group-hover:scale-110">
                     <span className="text-primary-foreground font-bold">2</span>
                   </div>
                   <div>
@@ -219,8 +233,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="flex gap-4 animate-fade-in group" style={{ animationDelay: '0.3s' }}>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 transition-transform group-hover:scale-110">
                     <span className="text-primary-foreground font-bold">3</span>
                   </div>
                   <div>
@@ -235,8 +249,8 @@ const Index = () => {
               </div>
 
               <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="flex gap-4 animate-fade-in group" style={{ animationDelay: '0.4s' }}>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 transition-transform group-hover:scale-110">
                     <span className="text-primary-foreground font-bold">4</span>
                   </div>
                   <div>
@@ -249,8 +263,8 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="flex gap-4 animate-fade-in group" style={{ animationDelay: '0.5s' }}>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 transition-transform group-hover:scale-110">
                     <span className="text-primary-foreground font-bold">5</span>
                   </div>
                   <div>
@@ -263,8 +277,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="flex gap-4 animate-fade-in group" style={{ animationDelay: '0.6s' }}>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 transition-transform group-hover:scale-110">
                     <span className="text-primary-foreground font-bold">6</span>
                   </div>
                   <div>
@@ -293,11 +307,11 @@ const Index = () => {
               Start modeling your funnel strategy today and make confident, data-driven decisions before investing in development or traffic.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg">
+              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg group hover-scale">
                 Get Started for Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg">
+              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg hover-scale">
                 Sign In
               </Button>
             </div>
