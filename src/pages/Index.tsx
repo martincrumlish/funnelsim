@@ -73,7 +73,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-gradient-to-b from-primary/20 via-background via-50% to-background relative">
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
@@ -81,7 +81,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20">
+        <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)] animate-pulse"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,85,170,0.25),transparent_50%)] animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
@@ -125,7 +125,7 @@ const Index = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 lg:py-32 bg-gradient-to-b from-background via-muted/10 to-background">
+      <section className="py-20 lg:py-32 relative">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl lg:text-5xl font-bold">
@@ -191,7 +191,7 @@ const Index = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-b from-background via-primary/5 to-background">
+      <section className="py-20 lg:py-32 relative">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16 space-y-4">
@@ -297,7 +297,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-b from-background via-accent/10 to-background">
+      <section className="py-20 lg:py-32 relative">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <h2 className="text-3xl lg:text-5xl font-bold">
@@ -320,7 +320,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border bg-muted/30">
+      <footer className="py-12 border-t border-border relative bg-background/50 backdrop-blur">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
