@@ -290,7 +290,7 @@ const Index = () => {
               Ready to Plan Your Perfect Funnel?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of marketers and entrepreneurs who trust FunnelSim to model and optimize their funnel strategy before investing in development.
+              Start modeling your funnel strategy today and make confident, data-driven decisions before investing in development or traffic.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" onClick={() => navigate("/auth")} className="text-lg">
