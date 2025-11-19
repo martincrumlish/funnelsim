@@ -15,33 +15,60 @@ const Index = () => {
   const features = [
     {
       icon: BarChart3,
-      title: "Visual Funnel Builder",
-      description: "Drag-and-drop interface to design complex sales funnels with multiple paths and conditional logic."
+      title: "Visual Canvas Builder",
+      description: "Professional drag-and-drop interface powered by React Flow. Design complex multi-step funnels with unlimited OTOs (One-Time Offers) and downsells. Create conditional pathways with Yes/No logic flows for sophisticated customer journeys."
     },
     {
       icon: Zap,
-      title: "Real-Time Analytics",
-      description: "See conversion rates, revenue projections, and traffic flow calculations update instantly as you build."
+      title: "Real-Time Calculations",
+      description: "Watch your funnel metrics update instantly as you build. See live conversion calculations, revenue projections, traffic flow through each step, and EPC (Earnings Per Click) for every funnel node. No waiting, no refreshing - just instant insights."
     },
     {
       icon: TrendingUp,
-      title: "Revenue Optimization",
-      description: "Model different scenarios with Front End offers and unlimited OTOs to maximize your funnel profitability."
+      title: "Advanced Revenue Modeling",
+      description: "Model unlimited scenarios with customizable pricing and conversion rates for each step. Track revenue at every stage: Front End offers, multiple OTOs, and downsell pages. Calculate total funnel revenue, profit margins, and ROI before spending a dollar on traffic."
     },
     {
       icon: Users,
-      title: "Traffic Source Tracking",
-      description: "Manage multiple traffic sources and see how different audiences perform through your funnel."
+      title: "Multi-Source Traffic Management",
+      description: "Add unlimited traffic sources with individual cost tracking. Model Facebook Ads, Google Ads, solo ads, and organic traffic separately. See exact profit/loss for each source and identify your most profitable acquisition channels."
     },
     {
       icon: DollarSign,
-      title: "Multi-Product Support",
-      description: "Build sophisticated funnels with main offers, upsells, downsells, and order bumps all in one place."
+      title: "Comprehensive Product Hierarchy",
+      description: "Build sophisticated product sequences with Front End offers (FE), sequential OTOs (OTO 1, 2, 3...), and strategic downsells. Each step tracks conversions independently with customizable conversion rates from 0-100%."
     },
     {
       icon: Shield,
-      title: "Secure & Reliable",
-      description: "Cloud-based platform with automatic saves, version history, and enterprise-grade security."
+      title: "Auto-Save & Data Persistence",
+      description: "Cloud-based platform with automatic saves to Supabase backend. Never lose your work - every change is saved instantly. Access your funnels from any device with secure authentication and user-specific data isolation."
+    }
+  ];
+
+  const additionalFeatures = [
+    {
+      title: "Professional Export Options",
+      items: ["Export funnels as high-quality PNG images", "Generate detailed PDF reports with metrics", "Share visual representations with clients and team members", "Print-ready formats for presentations"]
+    },
+    {
+      title: "Customization & Branding",
+      items: ["Upload custom logos for each funnel", "Personalize funnel names and step labels", "Color-coded nodes: Primary (FE), Green (OTO), Orange (Downsell)", "Custom pricing for each offer"]
+    },
+    {
+      title: "Metrics Dashboard",
+      items: ["Live metrics table showing all step performance", "Traffic In, Conversions, Revenue per step", "Earnings Per Click (EPC) calculations", "Total revenue and profit tracking with cost deductions", "Sub-total and grand total calculations"]
+    },
+    {
+      title: "Intelligent Node System",
+      items: ["Three node types: Frontend (required), OTO (upsell), Downsell", "Yes/No handles for conditional logic", "Connect nodes with animated flow lines", "Visual indicators for buy vs. no-thanks paths", "Drag-and-drop positioning on infinite canvas"]
+    },
+    {
+      title: "Traffic Simulation",
+      items: ["Input initial traffic volume", "Watch traffic flow through each step", "See conversion numbers at each stage", "Calculate final buyer counts", "Model different traffic scenarios"]
+    },
+    {
+      title: "User Experience",
+      items: ["Clean, modern interface with dark/light mode", "Responsive design works on all devices", "Intuitive controls with no learning curve", "Context menus for quick actions", "Collapsible metrics panel for focus mode"]
     }
   ];
 
@@ -96,14 +123,14 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl lg:text-5xl font-bold">
-              Everything You Need to Succeed
+              Everything You Need to Build Profitable Funnels
             </h2>
             <p className="text-xl text-muted-foreground">
-              Powerful features designed to help you create, test, and optimize profitable sales funnels
+              Professional-grade tools designed for marketers, entrepreneurs, and funnel builders
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => (
               <Card key={index} className="hover-scale border-border/50 bg-card/50 backdrop-blur">
                 <CardHeader>
@@ -113,12 +140,38 @@ const Index = () => {
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base">
+                  <CardDescription className="text-base leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* Additional Features Detail */}
+          <div className="max-w-6xl mx-auto">
+            <h3 className="text-2xl lg:text-4xl font-bold text-center mb-12">
+              Packed with Power Features
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {additionalFeatures.map((section, index) => (
+                <Card key={index} className="border-border/50 bg-card/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{section.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {section.items.map((item, itemIndex) => (
+                        <li key={itemIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <span className="text-primary mt-1">✓</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -145,8 +198,9 @@ const Index = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Save Time & Money</h3>
                     <p className="text-muted-foreground">
-                      Test and validate your funnel strategy before investing in development or traffic. 
-                      Avoid costly mistakes and optimize from day one.
+                      Test and validate your funnel strategy before investing thousands in development or traffic. 
+                      Model multiple scenarios in minutes instead of weeks. Identify bottlenecks before they cost you money.
+                      Avoid costly mistakes and optimize from day one with data-driven funnel architecture.
                     </p>
                   </div>
                 </div>
@@ -158,8 +212,23 @@ const Index = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Data-Driven Decisions</h3>
                     <p className="text-muted-foreground">
-                      See exactly how conversion rate changes impact your bottom line. 
-                      Model different scenarios and choose the most profitable path.
+                      See exactly how a 1% conversion rate change impacts your revenue. Model different price points instantly.
+                      Calculate EPC (Earnings Per Click) for every funnel step. Compare traffic source profitability side-by-side.
+                      Make confident decisions backed by real numbers, not guesswork.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-primary-foreground font-bold">3</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Easy Collaboration</h3>
+                    <p className="text-muted-foreground">
+                      Export professional PNG images and PDF reports with full metrics breakdown. Share visual funnel maps with
+                      developers, designers, and copywriters. Present data-backed proposals to stakeholders. 
+                      Keep everyone aligned on conversion strategy and revenue projections.
                     </p>
                   </div>
                 </div>
@@ -168,26 +237,42 @@ const Index = () => {
               <div className="space-y-6">
                 <div className="flex gap-4">
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-primary-foreground font-bold">3</span>
+                    <span className="text-primary-foreground font-bold">4</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Easy Collaboration</h3>
+                    <h3 className="text-xl font-semibold mb-2">Scale With Confidence</h3>
                     <p className="text-muted-foreground">
-                      Share your funnels with team members, export professional reports, 
-                      and keep everyone aligned on your conversion strategy.
+                      Start with simple 2-step funnels or build complex 10+ step sequences. Add unlimited OTOs and downsells.
+                      Track unlimited traffic sources. Our platform handles everything from beginner funnels to 
+                      enterprise-level multi-product ecosystems. Your tool grows as your business scales.
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex gap-4">
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-primary-foreground font-bold">4</span>
+                    <span className="text-primary-foreground font-bold">5</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Scale With Confidence</h3>
+                    <h3 className="text-xl font-semibold mb-2">Instant ROI Calculations</h3>
                     <p className="text-muted-foreground">
-                      From simple funnels to complex multi-path journeys, our platform grows with your business. 
-                      Handle unlimited traffic sources and products.
+                      Input your traffic costs and see profit calculations automatically. Track spend vs. revenue for each source.
+                      Identify which traffic channels are profitable and which are bleeding money. Calculate break-even points
+                      and optimize for maximum ROI before spending on ads.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-primary-foreground font-bold">6</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Zero Learning Curve</h3>
+                    <p className="text-muted-foreground">
+                      Intuitive drag-and-drop interface anyone can use. No complex software training needed.
+                      Start building your first funnel in under 5 minutes. Built-in examples and smart defaults
+                      help you get started fast. If you can use a flowchart, you can use FunnelSim.
                     </p>
                   </div>
                 </div>
