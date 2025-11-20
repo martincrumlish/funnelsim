@@ -57,11 +57,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        dark: {
+          900: "#0a0a0f",
+          800: "#0f111a",
+          700: "#161922",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Cal Sans", "Inter", "system-ui", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
