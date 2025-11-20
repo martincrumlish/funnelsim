@@ -25,6 +25,10 @@ const FunnelBuilder = () => {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLDivElement>(null);
   const addNodeRef = useRef<((type: "oto" | "downsell") => void) | null>(null);
+  const exportFunctionsRef = useRef<{
+    exportToPNG: () => Promise<void>;
+    exportToPDF: () => Promise<void>;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -278,25 +282,26 @@ const FunnelBuilder = () => {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={() => addNodeRef.current?.("oto")} size="sm" variant="outline">
+            <Button onClick={() => addNodeRef.current?.("oto")} size="sm" variant="outline" className="gap-2">
               <Plus className="h-4 w-4" />
               Add OTO
             </Button>
-            <Button onClick={() => addNodeRef.current?.("downsell")} size="sm" variant="outline">
+            <Button onClick={() => addNodeRef.current?.("downsell")} size="sm" variant="outline" className="gap-2">
               <Plus className="h-4 w-4" />
               Add Downsell
             </Button>
-            <ExportMenu canvasRef={canvasRef} />
+            <ExportMenu exportFunctionsRef={exportFunctionsRef} />
           </div>
         </div>
       </header>
       <ReactFlowProvider>
-        <FunnelCanvas 
-          funnelId={id} 
-          initialData={funnelData} 
+        <FunnelCanvas
+          funnelId={id}
+          initialData={funnelData}
           onNameChange={updateFunnelName}
           canvasRef={canvasRef}
           addNodeRef={addNodeRef}
+          exportFunctionsRef={exportFunctionsRef}
         />
       </ReactFlowProvider>
     </div>

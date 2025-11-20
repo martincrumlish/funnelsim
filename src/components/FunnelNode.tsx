@@ -14,10 +14,11 @@ interface FunnelNodeData {
   traffic?: number;
   onUpdate?: (nodeId: string, field: string, value: any) => void;
   onDelete?: (nodeId: string) => void;
+  isExporting?: boolean;
 }
 
 export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
-  const { name, price, conversion, nodeType, onUpdate, onDelete } = data;
+  const { name, price, conversion, nodeType, onUpdate, onDelete, isExporting } = data;
 
   const nodeColors = {
     frontend: "border-primary/50 bg-primary/20",
@@ -37,14 +38,18 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-primary flex-shrink-0" />
-            <Input
-              value={name}
-              onChange={(e) => onUpdate?.(id, "name", e.target.value)}
-              className="text-sm font-semibold border-0 p-0 h-auto bg-transparent nodrag"
-              placeholder="Step name"
-            />
+            {isExporting ? (
+              <div className="text-sm font-semibold">{name}</div>
+            ) : (
+              <Input
+                value={name}
+                onChange={(e) => onUpdate?.(id, "name", e.target.value)}
+                className="text-sm font-semibold border-0 p-0 h-auto bg-transparent nodrag"
+                placeholder="Step name"
+              />
+            )}
           </div>
-          {nodeType !== "frontend" && (
+          {nodeType !== "frontend" && !isExporting && (
             <Button
               variant="ghost"
               size="icon"
@@ -62,26 +67,32 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               <DollarSign className="h-3 w-3" />
               Price
             </Label>
-            <Input
-              type="number"
-              min="0"
-              max="1000000"
-              step="1"
-              value={price}
-              onChange={(e) => {
-                const value = parseFloat(e.target.value) || 0;
-                if (value > 1000000) return;
-                onUpdate?.(id, "price", value);
-              }}
-              onInput={(e) => {
-                const input = e.target as HTMLInputElement;
-                const value = input.value.replace('.', '').replace('-', '');
-                if (value.length > 7) {
-                  input.value = input.value.slice(0, -1);
-                }
-              }}
-              className="text-sm h-8 nodrag"
-            />
+            {isExporting ? (
+              <div className="text-sm h-8 px-3 py-2 rounded-md border border-input bg-background flex items-center">
+                {price}
+              </div>
+            ) : (
+              <Input
+                type="number"
+                min="0"
+                max="1000000"
+                step="1"
+                value={price}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value) || 0;
+                  if (value > 1000000) return;
+                  onUpdate?.(id, "price", value);
+                }}
+                onInput={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  const value = input.value.replace('.', '').replace('-', '');
+                  if (value.length > 7) {
+                    input.value = input.value.slice(0, -1);
+                  }
+                }}
+                className="text-sm h-8 nodrag"
+              />
+            )}
           </div>
 
           <div className="space-y-1 w-20">
@@ -89,30 +100,36 @@ export const FunnelNode = memo(({ id, data }: NodeProps<FunnelNodeData>) => {
               <Percent className="h-3 w-3" />
               Conv %
             </Label>
-            <Input
-              type="number"
-              min="0"
-              max="100"
-              step="0.1"
-              value={conversion}
-              onChange={(e) => {
-                const value = e.target.value;
-                // Limit to 3 digits before decimal
-                if (value.replace('.', '').length > 5) return; // 3 digits + decimal + 1 decimal place
-                const numValue = parseFloat(value) || 0;
-                if (numValue > 100) return;
-                onUpdate?.(id, "conversion", numValue);
-              }}
-              onInput={(e) => {
-                const input = e.target as HTMLInputElement;
-                const value = input.value;
-                // Remove any characters beyond 3 digits (plus decimal)
-                if (value.replace('.', '').replace('-', '').length > 4) {
-                  input.value = value.slice(0, -1);
-                }
-              }}
-              className="text-sm h-8 nodrag"
-            />
+            {isExporting ? (
+              <div className="text-sm h-8 px-3 py-2 rounded-md border border-input bg-background flex items-center">
+                {conversion}
+              </div>
+            ) : (
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={conversion}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Limit to 3 digits before decimal
+                  if (value.replace('.', '').length > 5) return; // 3 digits + decimal + 1 decimal place
+                  const numValue = parseFloat(value) || 0;
+                  if (numValue > 100) return;
+                  onUpdate?.(id, "conversion", numValue);
+                }}
+                onInput={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  const value = input.value;
+                  // Remove any characters beyond 3 digits (plus decimal)
+                  if (value.replace('.', '').replace('-', '').length > 4) {
+                    input.value = value.slice(0, -1);
+                  }
+                }}
+                className="text-sm h-8 nodrag"
+              />
+            )}
           </div>
         </div>
       </div>
