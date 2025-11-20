@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, Zap } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useNavigate } from 'react-router-dom';
+import logoDark from '@/assets/logo-dark.png';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -21,17 +22,13 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2 group cursor-pointer">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-              <Zap className="text-white w-6 h-6 fill-current" />
-            </div>
-            <span className="text-xl font-display font-bold text-white tracking-tight">Funnel<span className="text-indigo-400">Sim</span></span>
+          <div className="flex items-center group cursor-pointer">
+            <img src={logoDark} alt="FunnelSim" className="h-8 group-hover:scale-105 transition-transform" />
           </div>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Features</a>
-            <a href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">How it Works</a>
             <a href="#pricing" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Pricing</a>
             <div className="flex items-center space-x-4 ml-4">
               <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Sign In</Button>

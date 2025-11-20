@@ -78,7 +78,7 @@ export const Hero: React.FC = () => {
         </div>
 
         {/* APP INTERFACE PLACEHOLDER - NO TILT */}
-        <div className="relative mx-auto max-w-6xl -mt-4">
+        <div className="relative mx-auto max-w-6xl -mt-2">
           
           {/* Float Wrapper */}
           <div className="animate-float" style={{ animationDuration: '8s' }}>
