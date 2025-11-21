@@ -5,6 +5,7 @@ import { Features } from '@/components/landing/Features';
 import { ProductShowcase } from '@/components/landing/ProductShowcase';
 import { Comparison } from '@/components/landing/Comparison';
 import { Testimonials } from '@/components/landing/Testimonials';
+import { FAQ } from '@/components/landing/FAQ';
 import { CTA } from '@/components/landing/CTA';
 import { Footer } from '@/components/landing/Footer';
 
@@ -23,6 +24,7 @@ const Landing: React.FC = () => {
         <Comparison />
         <Testimonials />
         <CTA />
+        <FAQ />
       </main>
 
       <Footer />
