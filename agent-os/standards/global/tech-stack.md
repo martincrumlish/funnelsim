@@ -1,31 +1,33 @@
-## Tech stack
+# Tech Stack
 
-Define your technical stack below. This serves as a reference for all team members and helps maintain consistency across the project.
+## Context
 
-### Framework & Runtime
-- **Application Framework:** [e.g., Rails, Django, Next.js, Express]
-- **Language/Runtime:** [e.g., Ruby, Python, Node.js, Java]
-- **Package Manager:** [e.g., bundler, pip, npm, yarn]
+Global tech stack defaults for Agent OS projects, overridable in project-specific `.agent-os/product/tech-stack.md`.
 
-### Frontend
-- **JavaScript Framework:** [e.g., React, Vue, Svelte, Alpine, vanilla JS]
-- **CSS Framework:** [e.g., Tailwind CSS, Bootstrap, custom]
-- **UI Components:** [e.g., shadcn/ui, Material UI, custom library]
-
-### Database & Storage
-- **Database:** [e.g., PostgreSQL, MySQL, MongoDB]
-- **ORM/Query Builder:** [e.g., ActiveRecord, Prisma, Sequelize]
-- **Caching:** [e.g., Redis, Memcached]
-
-### Testing & Quality
-- **Test Framework:** [e.g., Jest, RSpec, pytest]
-- **Linting/Formatting:** [e.g., ESLint, Prettier, RuboCop]
-
-### Deployment & Infrastructure
-- **Hosting:** [e.g., Heroku, AWS, Vercel, Railway]
-- **CI/CD:** [e.g., GitHub Actions, CircleCI]
-
-### Third-Party Services
-- **Authentication:** [e.g., Auth0, Devise, NextAuth]
-- **Email:** [e.g., SendGrid, Postmark]
-- **Monitoring:** [e.g., Sentry, Datadog]
+- App Framework: Ruby on Rails 8.0+
+- Language: Ruby 3.2+
+- Primary Database: PostgreSQL 17+
+- ORM: Active Record
+- JavaScript Framework: React latest stable
+- Build Tool: Vite
+- Import Strategy: Node.js modules
+- Package Manager: npm
+- Node Version: 22 LTS
+- CSS Framework: TailwindCSS 4.0+
+- UI Components: Instrumental Components latest
+- UI Installation: Via development gems group
+- Font Provider: Google Fonts
+- Font Loading: Self-hosted for performance
+- Icons: Lucide React components
+- Application Hosting: Digital Ocean App Platform/Droplets
+- Hosting Region: Primary region based on user base
+- Database Hosting: Digital Ocean Managed PostgreSQL
+- Database Backups: Daily automated
+- Asset Storage: Amazon S3
+- CDN: CloudFront
+- Asset Access: Private with signed URLs
+- CI/CD Platform: GitHub Actions
+- CI/CD Trigger: Push to main/staging branches
+- Tests: Run before deployment
+- Production Environment: main branch
+- Staging Environment: staging branch

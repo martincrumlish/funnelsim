@@ -69,7 +69,7 @@ export const ProductShowcase: React.FC = () => {
                         <div className="w-2 h-2 rounded-full bg-green-500/20"></div>
                     </div>
                     <div className="flex-1 bg-[#0a0a0f] relative flex items-center justify-center overflow-hidden">
-                         <img src={IMAGES.BUILDER} alt="Visual Builder" className="w-full h-full object-cover opacity-90" />
+                         <img src="/images/funnel1.png" alt="Visual Builder" className="w-full h-full object-cover opacity-90" />
                     </div>
                  </div>
               </div>
@@ -91,7 +91,7 @@ export const ProductShowcase: React.FC = () => {
                         <div className="w-2 h-2 rounded-full bg-slate-700"></div>
                     </div>
                     <div className="flex-1 bg-[#0a0a0f] relative flex items-center justify-center overflow-hidden">
-                         <img src={IMAGES.SIMULATION} alt="Profit Simulation" className="w-full h-full object-cover opacity-90" />
+                         <img src="/images/profit1.png" alt="Profit Simulation" className="w-full h-full object-cover opacity-90" />
                     </div>
                  </div>
               </div>
@@ -182,7 +182,7 @@ export const ProductShowcase: React.FC = () => {
                        <div className="w-2 h-2 rounded-full bg-slate-700"></div>
                     </div>
                     <div className="flex-1 bg-[#0a0a0f] relative flex items-center justify-center overflow-hidden">
-                         <img src={IMAGES.DASHBOARD} alt="Dashboard View" className="w-full h-full object-cover opacity-90" />
+                         <img src="images/dashboard1.png" alt="Dashboard View" className="w-full h-full object-cover opacity-90" />
                     </div>
                  </div>
               </div>
@@ -204,7 +204,7 @@ export const ProductShowcase: React.FC = () => {
                         <div className="w-2 h-2 rounded-full bg-slate-700"></div>
                     </div>
                     <div className="flex-1 bg-[#0a0a0f] relative flex items-center justify-center overflow-hidden">
-                         <img src={IMAGES.WIZARD} alt="Wizard Interface" className="w-full h-full object-cover opacity-90" />
+                         <img src="images/wizard.png" alt="Wizard Interface" className="w-full h-full object-cover opacity-90" />
                     </div>
                  </div>
               </div>

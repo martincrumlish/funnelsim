@@ -4,7 +4,7 @@ import { ArrowRight, PlayCircle, Save, X } from 'lucide-react';
 
 // Custom SVG Data URI for subtle placeholder appearance
 // 2400x1600 resolution, Dark background (#0f111a), Small font size (48px), Low opacity purple/indigo text
-const HERO_IMAGE_URL = "data:image/svg+xml,%3Csvg width='2400' height='1600' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='%230f111a'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-weight='600' font-size='64' text-anchor='middle' dominant-baseline='middle' fill='%236366f1' fill-opacity='0.15' letter-spacing='0.2em'%3EAPP SCREENSHOT%3C/text%3E%3C/svg%3E";
+const HERO_IMAGE_URL = "public/images/screens1.png";
 
 export const Hero: React.FC = () => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
