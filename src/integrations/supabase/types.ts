@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          id: string
+          user_id: string
+          is_admin: boolean
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          is_admin?: boolean
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          is_admin?: boolean
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       funnels: {
         Row: {
           created_at: string | null
@@ -98,12 +119,184 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_tiers: {
+        Row: {
+          id: string
+          name: string
+          stripe_product_id: string | null
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+          stripe_price_id_lifetime: string | null
+          price_monthly: number
+          price_yearly: number
+          price_lifetime: number
+          max_funnels: number
+          features: Json
+          sort_order: number
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          stripe_product_id?: string | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          stripe_price_id_lifetime?: string | null
+          price_monthly?: number
+          price_yearly?: number
+          price_lifetime?: number
+          max_funnels?: number
+          features?: Json
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          stripe_product_id?: string | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          stripe_price_id_lifetime?: string | null
+          price_monthly?: number
+          price_yearly?: number
+          price_lifetime?: number
+          max_funnels?: number
+          features?: Json
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          tier_id: string
+          stripe_subscription_id: string | null
+          stripe_customer_id: string | null
+          status: string
+          current_period_start: string | null
+          current_period_end: string | null
+          cancel_at_period_end: boolean
+          is_lifetime: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          tier_id: string
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
+          status?: string
+          current_period_start?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          is_lifetime?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          tier_id?: string
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
+          status?: string
+          current_period_start?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          is_lifetime?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_tiers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      whitelabel_config: {
+        Row: {
+          id: string
+          brand_name: string
+          tagline: string | null
+          primary_color: string | null
+          logo_light_url: string | null
+          logo_dark_url: string | null
+          favicon_url: string | null
+          hero_headline: string | null
+          hero_subheadline: string | null
+          hero_badge_text: string | null
+          cta_button_text: string | null
+          features: Json | null
+          testimonials: Json | null
+          faq: Json | null
+          footer_text: string | null
+          email_sender_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          brand_name?: string
+          tagline?: string | null
+          primary_color?: string | null
+          logo_light_url?: string | null
+          logo_dark_url?: string | null
+          favicon_url?: string | null
+          hero_headline?: string | null
+          hero_subheadline?: string | null
+          hero_badge_text?: string | null
+          cta_button_text?: string | null
+          features?: Json | null
+          testimonials?: Json | null
+          faq?: Json | null
+          footer_text?: string | null
+          email_sender_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          brand_name?: string
+          tagline?: string | null
+          primary_color?: string | null
+          logo_light_url?: string | null
+          logo_dark_url?: string | null
+          favicon_url?: string | null
+          hero_headline?: string | null
+          hero_subheadline?: string | null
+          hero_badge_text?: string | null
+          cta_button_text?: string | null
+          features?: Json | null
+          testimonials?: Json | null
+          faq?: Json | null
+          footer_text?: string | null
+          email_sender_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: {
+          check_user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
@@ -236,3 +429,54 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+// Convenience type exports for cleaner imports
+export type SubscriptionTier = Tables<'subscription_tiers'>
+export type SubscriptionTierInsert = TablesInsert<'subscription_tiers'>
+export type SubscriptionTierUpdate = TablesUpdate<'subscription_tiers'>
+
+export type UserSubscription = Tables<'user_subscriptions'>
+export type UserSubscriptionInsert = TablesInsert<'user_subscriptions'>
+export type UserSubscriptionUpdate = TablesUpdate<'user_subscriptions'>
+
+export type WhitelabelConfig = Tables<'whitelabel_config'>
+export type WhitelabelConfigInsert = TablesInsert<'whitelabel_config'>
+export type WhitelabelConfigUpdate = TablesUpdate<'whitelabel_config'>
+
+export type AdminUser = Tables<'admin_users'>
+export type AdminUserInsert = TablesInsert<'admin_users'>
+export type AdminUserUpdate = TablesUpdate<'admin_users'>
+
+// Feature type for subscription tier features
+export interface SubscriptionFeature {
+  title: string
+  description: string
+  icon?: string
+}
+
+// Whitelabel feature type
+export interface WhitelabelFeature {
+  title: string
+  description: string
+  icon?: string
+}
+
+// Testimonial type for whitelabel
+export interface WhitelabelTestimonial {
+  quote: string
+  author: string
+  role?: string
+  image?: string | null
+}
+
+// FAQ type for whitelabel
+export interface WhitelabelFAQ {
+  question: string
+  answer: string
+}
+
+// Subscription status enum-like type
+export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'refunded' | 'trialing'
+
+// Billing interval type for checkout
+export type BillingInterval = 'monthly' | 'yearly' | 'lifetime'

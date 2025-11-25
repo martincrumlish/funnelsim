@@ -12,6 +12,14 @@ import Profile from "./pages/Profile";
 import FunnelBuilder from "./pages/FunnelBuilder";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import {
+  AdminLayout,
+  AdminDashboard,
+  AdminUsers,
+  AdminProducts,
+  AdminSubscriptions,
+  AdminSettings,
+} from "./pages/admin";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +38,16 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/funnel/:id" element={<FunnelBuilder />} />
+
+              {/* Admin Routes - Protected by AdminLayout */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="subscriptions" element={<AdminSubscriptions />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

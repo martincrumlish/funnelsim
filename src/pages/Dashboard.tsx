@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, Edit, User, Copy, Search, X, BarChart3, TrendingUp, Folder, DollarSign } from "lucide-react";
+import { Plus, LogOut, Trash2, User, Copy, Search, X, BarChart3, Folder, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations";
 import { Badge } from "@/components/ui/badge";
 import { NewFunnelDialog } from "@/components/NewFunnelDialog";
+import { SubscriptionProvider, useSubscription } from "@/hooks/useSubscription";
+import { FunnelUsage, UpgradePrompt } from "@/components/subscription";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
@@ -37,7 +40,10 @@ interface Funnel {
   logo_url?: string | null;
 }
 
-const Dashboard = () => {
+/**
+ * Inner Dashboard component that uses subscription context
+ */
+const DashboardContent = () => {
   const { user, signOut, loading } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -53,6 +59,22 @@ const Dashboard = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [newFunnelDialogOpen, setNewFunnelDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Subscription context for limit enforcement
+  const {
+    tier,
+    canCreateFunnel,
+    funnelCount,
+    funnelLimit,
+    isUnlimited,
+    isOverLimit,
+    isLoading: subscriptionLoading,
+    refreshSubscription,
+    initiateCheckout,
+  } = useSubscription();
+
+  // Fetch recommended tier for upgrade prompt
+  const [recommendedTier, setRecommendedTier] = useState<any>(null);
 
   const ITEMS_PER_PAGE = 15;
 
@@ -76,6 +98,23 @@ const Dashboard = () => {
       loadFunnels(true);
     }
   }, [user, debouncedSearch]);
+
+  // Fetch recommended tier (Pro) for upgrade prompt
+  useEffect(() => {
+    const fetchRecommendedTier = async () => {
+      const { data, error } = await supabase
+        .from('subscription_tiers')
+        .select('*')
+        .eq('name', 'Pro')
+        .single();
+
+      if (!error && data) {
+        setRecommendedTier(data);
+      }
+    };
+
+    fetchRecommendedTier();
+  }, []);
 
   const loadFunnels = async (reset = false) => {
     if (reset) {
@@ -141,6 +180,16 @@ const Dashboard = () => {
   };
 
   const createNewFunnel = async () => {
+    // Double-check funnel limit before creating
+    if (!canCreateFunnel) {
+      toast({
+        title: "Funnel limit reached",
+        description: `You've reached the maximum of ${funnelLimit} funnels on your ${tier?.name || "Free"} plan. Upgrade to create more.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { data, error } = await supabase
       .from("funnels")
       .insert({
@@ -160,8 +209,22 @@ const Dashboard = () => {
         variant: "destructive",
       });
     } else {
+      // Refresh subscription data to update funnel count
+      refreshSubscription();
       navigate(`/funnel/${data.id}`);
     }
+  };
+
+  const handleNewFunnelClick = () => {
+    if (!canCreateFunnel) {
+      // Don't open dialog, show upgrade toast instead
+      toast({
+        title: "Funnel limit reached",
+        description: `Upgrade your plan to create more funnels.`,
+      });
+      return;
+    }
+    setNewFunnelDialogOpen(true);
   };
 
   const openDeleteDialog = (id: string, name: string) => {
@@ -187,14 +250,26 @@ const Dashboard = () => {
       });
       // Remove the funnel from local state instead of reloading
       setFunnels((prev) => prev.filter((funnel) => funnel.id !== funnelToDelete.id));
+      // Refresh subscription to update funnel count
+      refreshSubscription();
     }
-    
+
     setDeleteDialogOpen(false);
     setFunnelToDelete(null);
   };
 
 
   const cloneFunnel = async (funnelId: string) => {
+    // Check funnel limit before cloning
+    if (!canCreateFunnel) {
+      toast({
+        title: "Funnel limit reached",
+        description: `You've reached the maximum of ${funnelLimit} funnels on your ${tier?.name || "Free"} plan. Upgrade to create more.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     // First, fetch the complete funnel data
     const { data: funnelData, error: fetchError } = await supabase
       .from("funnels")
@@ -240,6 +315,25 @@ const Dashboard = () => {
         const filtered = prev.filter(f => f.id !== clonedFunnel.id);
         return [clonedFunnel, ...filtered];
       });
+      // Refresh subscription to update funnel count
+      refreshSubscription();
+    }
+  };
+
+  const handleUpgrade = async () => {
+    if (recommendedTier?.stripe_price_id_monthly) {
+      try {
+        await initiateCheckout(recommendedTier.stripe_price_id_monthly);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to start checkout",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Navigate to profile for upgrade options
+      navigate("/profile");
     }
   };
 
@@ -251,12 +345,25 @@ const Dashboard = () => {
     );
   }
 
+  const isAtLimit = !canCreateFunnel && !isUnlimited;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-8" />
           <div className="flex items-center gap-2">
+            {/* Funnel Usage Indicator in Header */}
+            {!subscriptionLoading && (
+              <div className="hidden md:flex items-center mr-2">
+                <FunnelUsage
+                  funnelCount={funnelCount}
+                  funnelLimit={isUnlimited ? -1 : funnelLimit}
+                  showIcon={false}
+                  className="min-w-[140px]"
+                />
+              </div>
+            )}
             <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
             <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
@@ -270,13 +377,28 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+        {/* Over Limit Warning (after downgrade) */}
+        {isOverLimit && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Funnel Limit Exceeded</AlertTitle>
+            <AlertDescription>
+              You have {funnelCount} funnels but your {tier?.name || "current"} plan only allows {funnelLimit}.
+              Your existing funnels are still accessible, but you cannot create new ones until you upgrade or delete some funnels.
+              <Button variant="link" className="p-0 h-auto ml-1" onClick={handleUpgrade}>
+                Upgrade now
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Your Funnels</h2>
             <p className="text-muted-foreground">View and manage all your conversion funnels</p>
           </div>
-          
+
           <div className="flex items-center gap-3 w-full sm:w-auto">
             {/* Search Bar */}
             <div className="relative flex-1 sm:w-72">
@@ -299,13 +421,38 @@ const Dashboard = () => {
                 </Button>
               )}
             </div>
-            
-            <Button onClick={() => setNewFunnelDialogOpen(true)}>
+
+            <Button
+              onClick={handleNewFunnelClick}
+              disabled={isAtLimit}
+              title={isAtLimit ? `You've reached your ${funnelLimit} funnel limit. Upgrade to create more.` : "Create a new funnel"}
+            >
               <Plus className="mr-2 h-4 w-4" />
               New Funnel
             </Button>
           </div>
         </div>
+
+        {/* Mobile Funnel Usage Indicator */}
+        {!subscriptionLoading && (
+          <div className="md:hidden">
+            <FunnelUsage
+              funnelCount={funnelCount}
+              funnelLimit={isUnlimited ? -1 : funnelLimit}
+            />
+          </div>
+        )}
+
+        {/* Upgrade Prompt when at limit */}
+        {isAtLimit && !isOverLimit && (
+          <UpgradePrompt
+            currentTier={tier}
+            funnelCount={funnelCount}
+            funnelLimit={funnelLimit}
+            onUpgrade={handleUpgrade}
+            recommendedTier={recommendedTier}
+          />
+        )}
 
         {/* Funnels Grid */}
         {funnels.length === 0 && !loadingFunnels ? (
@@ -328,7 +475,11 @@ const Dashboard = () => {
                     Clear Search
                   </Button>
                 ) : (
-                  <Button onClick={() => setNewFunnelDialogOpen(true)} size="lg">
+                  <Button
+                    onClick={handleNewFunnelClick}
+                    size="lg"
+                    disabled={isAtLimit}
+                  >
                     <Plus className="mr-2 h-5 w-5" />
                     Create Your First Funnel
                   </Button>
@@ -345,20 +496,20 @@ const Dashboard = () => {
                   Array.isArray(funnel.edges) ? funnel.edges : [],
                   Array.isArray(funnel.traffic_sources) ? funnel.traffic_sources : []
                 );
-                
+
                 return (
-                  <Card 
-                    key={funnel.id} 
+                  <Card
+                    key={funnel.id}
                     className="group hover:shadow-md transition-all duration-200 hover:border-primary/50 relative cursor-pointer"
                     onClick={() => navigate(`/funnel/${funnel.id}`)}
                   >
                     <CardHeader className="pb-4">
                       <div className="absolute top-4 right-4">
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className={`${
-                            revenue > 0 
-                              ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' 
+                            revenue > 0
+                              ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20'
                               : revenue < 0
                               ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
                               : 'bg-muted text-muted-foreground border-border'
@@ -369,9 +520,9 @@ const Dashboard = () => {
                       </div>
                       <div className="space-y-3 pr-20">
                         {funnel.logo_url ? (
-                          <img 
-                            src={funnel.logo_url} 
-                            alt="Funnel logo" 
+                          <img
+                            src={funnel.logo_url}
+                            alt="Funnel logo"
                             className="h-[30px] w-auto object-contain"
                           />
                         ) : (
@@ -394,6 +545,8 @@ const Dashboard = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            disabled={isAtLimit}
+                            title={isAtLimit ? "Upgrade to clone funnels" : "Clone funnel"}
                             onClick={(e) => {
                               e.stopPropagation();
                               cloneFunnel(funnel.id);
@@ -461,6 +614,17 @@ const Dashboard = () => {
         userId={user?.id}
       />
     </div>
+  );
+};
+
+/**
+ * Dashboard page wrapped with SubscriptionProvider
+ */
+const Dashboard = () => {
+  return (
+    <SubscriptionProvider>
+      <DashboardContent />
+    </SubscriptionProvider>
   );
 };
 

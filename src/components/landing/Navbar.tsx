@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useNavigate } from 'react-router-dom';
+import { useWhitelabel } from '@/hooks/useWhitelabel';
 import logoDark from '@/assets/logo-dark.png';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { config, isLoading } = useWhitelabel();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -17,13 +19,31 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Determine which logo to use
+  // Priority: config.logo_dark_url > default logoDark
+  const logoUrl = config.logo_dark_url || logoDark;
+  const brandName = config.brand_name || 'FunnelSim';
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-dark-900/80 backdrop-blur-md py-4 shadow-lg shadow-indigo-500/5' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center group cursor-pointer">
-            <img src={logoDark} alt="FunnelSim" className="h-8 group-hover:scale-105 transition-transform" />
+          <div className="flex items-center gap-2 group cursor-pointer">
+            {!isLoading && (
+              <>
+                <img
+                  src={logoUrl}
+                  alt={brandName}
+                  className="h-8 group-hover:scale-105 transition-transform"
+                  onError={(e) => {
+                    // Fallback to default logo if custom logo fails to load
+                    (e.target as HTMLImageElement).src = logoDark;
+                  }}
+                />
+                <span className="text-white font-semibold text-lg">{brandName}</span>
+              </>
+            )}
           </div>
 
           {/* Desktop Nav */}
