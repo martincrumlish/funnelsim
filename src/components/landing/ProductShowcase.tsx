@@ -216,7 +216,7 @@ export const ProductShowcase: React.FC = () => {
                     <span>Quick Build</span>
                 </div>
                 <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-6 leading-tight">
-                  Build Your Entire Funnel <br/>
+                  Model Your Entire Funnel <br/>
                   <span className="text-amber-400">In Seconds.</span>
                 </h2>
                 <p className="text-lg text-slate-400 mb-8 leading-relaxed">
