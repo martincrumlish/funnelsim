@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useWhitelabel } from "@/hooks/useWhitelabel";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
@@ -16,6 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Auth = () => {
   const { theme } = useTheme();
+  const { config } = useWhitelabel();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
@@ -105,7 +107,13 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-12" />
+            <img
+              src={theme === "dark"
+                ? (config.logo_dark_url || logoDark)
+                : (config.logo_light_url || logo)}
+              alt={config.brand_name || "Funnel Builder"}
+              className="h-12"
+            />
           </div>
           <CardDescription className="text-center">
             Create, save, and manage your conversion funnels

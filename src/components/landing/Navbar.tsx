@@ -31,18 +31,15 @@ export const Navbar: React.FC = () => {
           {/* Logo */}
           <div className="flex items-center gap-2 group cursor-pointer">
             {!isLoading && (
-              <>
-                <img
-                  src={logoUrl}
-                  alt={brandName}
-                  className="h-8 group-hover:scale-105 transition-transform"
-                  onError={(e) => {
-                    // Fallback to default logo if custom logo fails to load
-                    (e.target as HTMLImageElement).src = logoDark;
-                  }}
-                />
-                <span className="text-white font-semibold text-lg">{brandName}</span>
-              </>
+              <img
+                src={logoUrl}
+                alt={brandName}
+                className="h-8 group-hover:scale-105 transition-transform"
+                onError={(e) => {
+                  // Fallback to default logo if custom logo fails to load
+                  (e.target as HTMLImageElement).src = logoDark;
+                }}
+              />
             )}
           </div>
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Settings, AlertCircle, CheckCircle2, Info } from "lucide-react";
+import { Settings, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { WhitelabelEditor } from "@/components/admin/WhitelabelEditor";
@@ -219,16 +219,6 @@ export const AdminSettings = () => {
           <Settings className="h-5 w-5 text-muted-foreground" />
         </div>
       </div>
-
-      {/* Environment Override Notice */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>Environment Variables</AlertTitle>
-        <AlertDescription>
-          Some settings can be overridden by environment variables (VITE_BRAND_NAME, VITE_PRIMARY_COLOR, VITE_LOGO_URL, etc.).
-          Environment variables take precedence over database values.
-        </AlertDescription>
-      </Alert>
 
       {/* Last Updated */}
       {config?.updated_at && (

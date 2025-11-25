@@ -6,6 +6,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { LogOut, Shield } from "lucide-react";
+import { useWhitelabel } from "@/hooks/useWhitelabel";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
@@ -23,6 +24,7 @@ export const AdminLayout = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const { theme } = useTheme();
+  const { config } = useWhitelabel();
   const navigate = useNavigate();
 
   // Redirect to auth if not logged in
@@ -98,8 +100,10 @@ export const AdminLayout = () => {
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
-              src={theme === "dark" ? logoDark : logo}
-              alt="FunnelSim"
+              src={theme === "dark"
+                ? (config.logo_dark_url || logoDark)
+                : (config.logo_light_url || logo)}
+              alt={config.brand_name || "FunnelSim"}
               className="h-8"
             />
             <div className="flex items-center gap-2 px-2 py-1 bg-primary/10 rounded-md">

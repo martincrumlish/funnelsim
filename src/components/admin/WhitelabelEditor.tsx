@@ -33,7 +33,6 @@ export const WhitelabelEditor = ({
   // Branding
   const [brandName, setBrandName] = useState(config.brand_name);
   const [tagline, setTagline] = useState(config.tagline || '');
-  const [primaryColor, setPrimaryColor] = useState(config.primary_color || '#6366f1');
   const [logoLightUrl, setLogoLightUrl] = useState(config.logo_light_url || '');
   const [logoDarkUrl, setLogoDarkUrl] = useState(config.logo_dark_url || '');
   const [faviconUrl, setFaviconUrl] = useState(config.favicon_url || '');
@@ -122,7 +121,6 @@ export const WhitelabelEditor = ({
     const updates: WhitelabelConfigUpdate = {
       brand_name: brandName,
       tagline: tagline || null,
-      primary_color: primaryColor || null,
       logo_light_url: logoLightUrl || null,
       logo_dark_url: logoDarkUrl || null,
       favicon_url: faviconUrl || null,
@@ -198,28 +196,6 @@ export const WhitelabelEditor = ({
                     placeholder="e.g., Build better funnels"
                   />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="primaryColor">Primary Color</Label>
-                <div className="flex items-center gap-4">
-                  <Input
-                    id="primaryColor"
-                    type="color"
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-16 h-10 p-1 cursor-pointer"
-                  />
-                  <Input
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    placeholder="#6366f1"
-                    className="flex-1"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Used for buttons, links, and accent elements
-                </p>
               </div>
 
               <div className="space-y-4">

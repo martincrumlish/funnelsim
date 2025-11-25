@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ArrowLeft, User, Mail, Lock, LogOut, Zap, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useWhitelabel } from "@/hooks/useWhitelabel";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { useTheme } from "next-themes";
@@ -28,6 +29,7 @@ import {
 const ProfileContent = () => {
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
+  const { config } = useWhitelabel();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -264,7 +266,13 @@ const ProfileContent = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-6" />
+            <img
+              src={theme === "dark"
+                ? (config.logo_dark_url || logoDark)
+                : (config.logo_light_url || logo)}
+              alt={config.brand_name || "Funnel Builder"}
+              className="h-6"
+            />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>
