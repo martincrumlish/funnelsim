@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef, useEffect } from "react";
+import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -22,6 +22,7 @@ import { CustomEdge } from "./CustomEdge";
 import { ContextMenu } from "./ContextMenu";
 import { TrafficInput } from "./TrafficInput";
 import { FunnelMetricsTable } from "./FunnelMetricsTable";
+import { BreakevenPanel } from "./BreakevenPanel";
 import { ExportMenu } from "./ExportMenu";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -29,6 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { calculateFunnelMetricsWithDetails } from "@/lib/funnelCalculations";
 
 const nodeTypes = {
   funnelStep: FunnelNode,
@@ -43,9 +45,9 @@ const initialNodes: Node[] = [
     id: "1",
     type: "funnelStep",
     position: { x: 250, y: 50 },
-    data: { 
-      name: "Front End", 
-      price: 47, 
+    data: {
+      name: "Front End",
+      price: 47,
       conversion: 10,
       nodeType: "frontend",
     },
@@ -54,9 +56,9 @@ const initialNodes: Node[] = [
     id: "2",
     type: "funnelStep",
     position: { x: 250, y: 200 },
-    data: { 
-      name: "OTO 2", 
-      price: 197, 
+    data: {
+      name: "OTO 2",
+      price: 197,
       conversion: 10,
       nodeType: "oto",
     },
@@ -65,9 +67,9 @@ const initialNodes: Node[] = [
     id: "3",
     type: "funnelStep",
     position: { x: 500, y: 350 },
-    data: { 
-      name: "Downsell 5", 
-      price: 47, 
+    data: {
+      name: "Downsell 5",
+      price: 47,
       conversion: 100,
       nodeType: "downsell",
     },
@@ -76,9 +78,9 @@ const initialNodes: Node[] = [
     id: "4",
     type: "funnelStep",
     position: { x: 350, y: 500 },
-    data: { 
-      name: "OTO 3", 
-      price: 197, 
+    data: {
+      name: "OTO 3",
+      price: 197,
       conversion: 100,
       nodeType: "oto",
     },
@@ -219,7 +221,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
   // Auto-save functionality
   useEffect(() => {
     if (!funnelId) return;
-    
+
     const autoSave = setTimeout(() => {
       saveFunnel();
     }, 2000);
@@ -229,7 +231,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
 
   const saveFunnel = async () => {
     if (!funnelId) return;
-    
+
     const { error } = await supabase
       .from("funnels")
       .update({
@@ -253,7 +255,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
       const existingConnection = edges.find(
         (e) => e.source === params.source && e.sourceHandle === params.sourceHandle
       );
-      
+
       if (existingConnection) {
         toast.error("Each output can only connect to one node. Delete the existing connection first.");
         return;
@@ -305,14 +307,14 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
   const addNode = useCallback((type: "oto" | "downsell", position?: { x: number; y: number }) => {
     const maxY = nodes.reduce((max, node) => Math.max(max, node.position.y), 0);
     const nodePosition = position || { x: 250 + Math.random() * 100, y: maxY + 150 };
-    
+
     // Count existing nodes of this type to determine the number
     const existingCount = nodes.filter(n => n.data.nodeType === type).length;
     const nodeNumber = existingCount + 1;
-    
+
     // Generate a unique ID
     const newNodeId = `${type}-${Date.now()}`;
-    
+
     const newNode: Node = {
       id: newNodeId,
       type: "funnelStep",
@@ -345,7 +347,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
 
   const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
-    
+
     const position = screenToFlowPosition({
       x: event.clientX,
       y: event.clientY,
@@ -361,7 +363,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
   // Calculate metrics based on flow
   const calculateMetrics = () => {
     const nodeMap = new Map(nodes.map((n) => [n.id, { ...n.data, buyers: 0, revenue: 0, trafficIn: 0 }]));
-    
+
     // Start with front end node
     const frontEndNode = nodes.find((n) => n.data.nodeType === "frontend");
     if (!frontEndNode) return { stepMetrics: [], totalRevenue: 0 };
@@ -381,7 +383,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
 
       const buyers = Math.floor((incomingTraffic * node.conversion) / 100);
       const revenue = buyers * node.price;
-      
+
       // Aggregate metrics for this node
       const existing = metricsMap.get(nodeId);
       if (existing) {
@@ -432,16 +434,94 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
 
   const { stepMetrics, totalRevenue } = calculateMetrics();
 
+  // Compute detailed metrics with debounce for analytics display
+  const [debouncedAnalytics, setDebouncedAnalytics] = useState<{
+    nodeMetrics: Map<string, { revenue: number; traffic: number; buyers: number }>;
+    edgeTraffic: Map<string, { count: number; type: "buyers" | "pass" }>;
+    epc: number;
+  }>({
+    nodeMetrics: new Map(),
+    edgeTraffic: new Map(),
+    epc: 0,
+  });
+
+  // Debounced analytics calculation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trafficSourcesForCalc = trafficSources.map((s) => ({
+        visits: s.visits,
+        cost: s.cost,
+      }));
+
+      const detailedMetrics = calculateFunnelMetricsWithDetails(
+        nodes.map((n) => ({ id: n.id, data: n.data })),
+        edges.map((e) => ({
+          source: e.source,
+          target: e.target,
+          sourceHandle: e.sourceHandle,
+        })),
+        trafficSourcesForCalc
+      );
+
+      const epc = detailedMetrics.totalTraffic > 0
+        ? detailedMetrics.totalRevenue / detailedMetrics.totalTraffic
+        : 0;
+
+      setDebouncedAnalytics({
+        nodeMetrics: detailedMetrics.nodeMetrics,
+        edgeTraffic: detailedMetrics.edgeTraffic,
+        epc,
+      });
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [nodes, edges, trafficSources]);
+
   // Update node data with calculated metrics
-  const nodesWithMetrics = nodes.map((node) => ({
-    ...node,
-    data: {
-      ...node.data,
-      onUpdate: updateNodeData,
-      onDelete: deleteNode,
-      isExporting,
-    },
-  }));
+  const nodesWithMetrics = useMemo(() => {
+    return nodes.map((node) => {
+      const nodeMetrics = debouncedAnalytics.nodeMetrics.get(node.id);
+      // Calculate buyers and pass counts for traffic indicators
+      const traffic = nodeMetrics?.traffic || 0;
+      const buyers = nodeMetrics?.buyers || 0;
+      const passCount = traffic - buyers;
+
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          onUpdate: updateNodeData,
+          onDelete: deleteNode,
+          isExporting,
+          revenue: nodeMetrics?.revenue,
+          buyersCount: buyers,
+          passCount: passCount > 0 ? passCount : undefined,
+          // Pass funnel data for sensitivity calculation
+          allNodes: nodes.map((n) => ({ id: n.id, data: n.data })),
+          allEdges: edges.map((e) => ({
+            source: e.source,
+            target: e.target,
+            sourceHandle: e.sourceHandle,
+          })),
+          trafficSources: trafficSources.map((s) => ({
+            visits: s.visits,
+            cost: s.cost,
+          })),
+        },
+      };
+    });
+  }, [nodes, edges, trafficSources, debouncedAnalytics.nodeMetrics, updateNodeData, deleteNode, isExporting]);
+
+  // Update edges with delete callback
+  const edgesWithCallbacks = useMemo(() => {
+    return edges.map((edge) => ({
+      ...edge,
+      data: {
+        ...edge.data,
+        onDelete: deleteEdge,
+      },
+    }));
+  }, [edges, deleteEdge]);
 
   // Helper function to create export HTML
   const createExportHTML = useCallback(() => {
@@ -858,7 +938,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
           onClose={() => setContextMenu(null)}
         />
       )}
-      
+
       {!funnelId && (
         <div className="p-4">
           <header className="text-center space-y-1">
@@ -887,9 +967,19 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
           />
         </div>
 
+        {/* Breakeven Panel - top right */}
+        {!isExporting && (
+          <BreakevenPanel
+            totalCost={totalCost}
+            totalRevenue={totalRevenue}
+            totalTraffic={totalVisits}
+            epc={debouncedAnalytics.epc}
+          />
+        )}
+
         <ReactFlow
           nodes={nodesWithMetrics}
-          edges={edges}
+          edges={edgesWithCallbacks}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}

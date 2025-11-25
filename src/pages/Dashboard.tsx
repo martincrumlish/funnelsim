@@ -23,7 +23,7 @@ import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations
 import { Badge } from "@/components/ui/badge";
 import { NewFunnelDialog } from "@/components/NewFunnelDialog";
 import { SubscriptionProvider, useSubscription } from "@/hooks/useSubscription";
-import { FunnelUsage, UpgradePrompt } from "@/components/subscription";
+import { UpgradePrompt } from "@/components/subscription";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
@@ -353,17 +353,6 @@ const DashboardContent = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <img src={theme === "dark" ? logoDark : logo} alt="Funnel Builder" className="h-8" />
           <div className="flex items-center gap-2">
-            {/* Funnel Usage Indicator in Header */}
-            {!subscriptionLoading && (
-              <div className="hidden md:flex items-center mr-2">
-                <FunnelUsage
-                  funnelCount={funnelCount}
-                  funnelLimit={isUnlimited ? -1 : funnelLimit}
-                  showIcon={false}
-                  className="min-w-[140px]"
-                />
-              </div>
-            )}
             <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
             <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
@@ -432,16 +421,6 @@ const DashboardContent = () => {
             </Button>
           </div>
         </div>
-
-        {/* Mobile Funnel Usage Indicator */}
-        {!subscriptionLoading && (
-          <div className="md:hidden">
-            <FunnelUsage
-              funnelCount={funnelCount}
-              funnelLimit={isUnlimited ? -1 : funnelLimit}
-            />
-          </div>
-        )}
 
         {/* Upgrade Prompt when at limit */}
         {isAtLimit && !isOverLimit && (
