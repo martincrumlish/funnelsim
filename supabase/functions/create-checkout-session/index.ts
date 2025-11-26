@@ -20,11 +20,12 @@ const corsHeaders = {
 
 interface CheckoutSessionRequest {
   price_id: string;
-  user_id: string;
-  user_email: string;
+  user_id?: string;        // Optional: not provided for unauthenticated checkout
+  user_email?: string;     // Optional: not provided for unauthenticated checkout
   success_url?: string;
   cancel_url?: string;
   billing_interval?: 'monthly' | 'yearly' | 'lifetime';
+  origin?: string;         // Optional: the origin URL for redirects (e.g., https://example.com)
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -40,15 +41,27 @@ const handler = async (req: Request): Promise<Response> => {
       user_email,
       success_url,
       cancel_url,
-      billing_interval = 'monthly'
+      billing_interval = 'monthly',
+      origin
     }: CheckoutSessionRequest = await req.json();
 
-    console.log("Creating checkout session for user:", user_id, "with price:", price_id, "interval:", billing_interval);
+    // Determine base URL from origin parameter or fall back to environment/default
+    const siteUrl = origin || Deno.env.get('SITE_URL') || 'https://funnelsim.app';
 
-    // Validate required parameters
-    if (!price_id || !user_id || !user_email) {
+    // Determine if this is an authenticated (existing user upgrade) or unauthenticated (new user) checkout
+    const isAuthenticated = Boolean(user_id && user_email);
+
+    console.log("Creating checkout session:", {
+      authenticated: isAuthenticated,
+      user_id: user_id || 'none',
+      price_id,
+      billing_interval
+    });
+
+    // Validate required parameter (only price_id is required for both flows)
+    if (!price_id) {
       return new Response(
-        JSON.stringify({ error: "Missing required parameters: price_id, user_id, user_email" }),
+        JSON.stringify({ error: "Missing required parameter: price_id" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -56,39 +69,53 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check if user already has a Stripe customer ID
-    const { data: existingSubscription, error: subError } = await supabase
-      .from('user_subscriptions')
-      .select('stripe_customer_id')
-      .eq('user_id', user_id)
-      .single();
-
-    let customerId = existingSubscription?.stripe_customer_id;
-
-    // If no existing customer, create one
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user_email,
-        metadata: {
-          user_id: user_id,
-        },
-      });
-      customerId = customer.id;
-      console.log("Created new Stripe customer:", customerId);
-    }
-
-    // Use provided URLs or fall back to production domain
-    const baseUrl = success_url?.replace(/\/success.*$/, '') || 'https://userapps.kickpages.com';
-    const finalSuccessUrl = success_url || `${baseUrl}/profile?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
-    const finalCancelUrl = cancel_url || `${baseUrl}/profile?checkout=canceled`;
-
     // Determine if this is a lifetime (one-time payment) or subscription
     const isLifetime = billing_interval === 'lifetime';
 
-    // Create Stripe Checkout Session with appropriate mode
+    let customerId: string | undefined;
+    let finalSuccessUrl: string;
+    let finalCancelUrl: string;
+
+    if (isAuthenticated) {
+      // AUTHENTICATED FLOW: Existing user upgrading subscription
+      // Check if user already has a Stripe customer ID
+      const { data: existingSubscription } = await supabase
+        .from('user_subscriptions')
+        .select('stripe_customer_id')
+        .eq('user_id', user_id)
+        .single();
+
+      customerId = existingSubscription?.stripe_customer_id;
+
+      // If no existing customer, create one
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user_email,
+          metadata: {
+            user_id: user_id!,
+          },
+        });
+        customerId = customer.id;
+        console.log("Created new Stripe customer for authenticated user:", customerId);
+      }
+
+      // Use provided URLs or fall back to siteUrl with profile page
+      finalSuccessUrl = success_url || `${siteUrl}/profile?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      finalCancelUrl = cancel_url || `${siteUrl}/profile?checkout=canceled`;
+    } else {
+      // UNAUTHENTICATED FLOW: New user purchasing before account creation
+      // Do not create Stripe customer upfront - let Stripe Checkout create one
+      customerId = undefined;
+
+      // Set URLs for unauthenticated checkout flow using origin
+      finalSuccessUrl = `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
+      finalCancelUrl = `${siteUrl}/`;
+
+      console.log("Unauthenticated checkout - customer will be created by Stripe, redirecting to:", siteUrl);
+    }
+
+    // Create Stripe Checkout Session configuration
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
-      customer: customerId,
-      client_reference_id: user_id,
       payment_method_types: ['card'],
       line_items: [
         {
@@ -100,24 +127,34 @@ const handler = async (req: Request): Promise<Response> => {
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
       metadata: {
-        user_id: user_id,
         billing_interval: billing_interval,
         is_lifetime: isLifetime ? 'true' : 'false',
       },
     };
 
-    // Only add subscription_data for recurring subscriptions
-    if (!isLifetime) {
-      sessionConfig.subscription_data = {
-        metadata: {
-          user_id: user_id,
-        },
-      };
+    // Set customer for authenticated flow only
+    if (customerId) {
+      sessionConfig.customer = customerId;
+    }
+
+    // Set client_reference_id and user_id metadata only when authenticated
+    if (isAuthenticated && user_id) {
+      sessionConfig.client_reference_id = user_id;
+      sessionConfig.metadata!.user_id = user_id;
+
+      // Only add subscription_data for recurring subscriptions with authenticated users
+      if (!isLifetime) {
+        sessionConfig.subscription_data = {
+          metadata: {
+            user_id: user_id,
+          },
+        };
+      }
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    console.log("Created checkout session:", session.id, "mode:", session.mode);
+    console.log("Created checkout session:", session.id, "mode:", session.mode, "authenticated:", isAuthenticated);
 
     return new Response(
       JSON.stringify({

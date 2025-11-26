@@ -42,6 +42,7 @@ async function getTierIdByPriceId(priceId: string): Promise<string | null> {
  * Handle checkout.session.completed event
  * Creates or updates user subscription when checkout is complete
  * Supports both subscription mode and one-time payment mode (lifetime)
+ * Handles both authenticated (user_id present) and unauthenticated (no user_id) checkouts
  */
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session): Promise<void> {
   console.log("Processing checkout.session.completed:", session.id, "mode:", session.mode);
@@ -49,11 +50,65 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session):
   const userId = session.client_reference_id || session.metadata?.user_id;
   const customerId = session.customer as string;
   const isLifetime = session.metadata?.is_lifetime === 'true' || session.mode === 'payment';
+  const customerEmail = session.customer_details?.email || session.customer_email;
 
+  // Check if this is an authenticated or unauthenticated checkout
   if (!userId) {
-    console.error("No user ID found in checkout session");
+    // UNAUTHENTICATED CHECKOUT: Create pending subscription entry
+    console.log("Processing unauthenticated checkout - creating pending subscription");
+
+    // Get the price ID from line items
+    let priceId: string | undefined;
+    let subscriptionId: string | null = null;
+
+    if (isLifetime || session.mode === 'payment') {
+      // For one-time payments, get price from line_items
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+      priceId = lineItems.data[0]?.price?.id;
+    } else {
+      // For subscriptions, get from subscription object
+      subscriptionId = session.subscription as string;
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        priceId = subscription.items.data[0]?.price.id;
+      }
+    }
+
+    if (!priceId) {
+      console.error("Could not find price ID for unauthenticated checkout");
+      return;
+    }
+
+    // Get the tier ID
+    const tierId = await getTierIdByPriceId(priceId);
+    if (!tierId) {
+      console.error("Could not find matching tier for price:", priceId);
+      return;
+    }
+
+    // Create entry in pending_subscriptions table
+    const { error: pendingError } = await supabase
+      .from('pending_subscriptions')
+      .insert({
+        stripe_customer_id: customerId,
+        stripe_session_id: session.id,
+        stripe_subscription_id: subscriptionId,
+        tier_id: tierId,
+        customer_email: customerEmail || '',
+        status: 'pending',
+      });
+
+    if (pendingError) {
+      console.error("Error creating pending subscription:", pendingError);
+      throw pendingError;
+    }
+
+    console.log("Successfully created pending subscription for session:", session.id, "email:", customerEmail);
     return;
   }
+
+  // AUTHENTICATED CHECKOUT: Existing user upgrading subscription
+  console.log("Processing authenticated checkout for user:", userId);
 
   if (isLifetime || session.mode === 'payment') {
     // Handle lifetime (one-time payment) purchase

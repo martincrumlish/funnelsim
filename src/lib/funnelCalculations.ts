@@ -220,5 +220,5 @@ export const formatCurrency = (amount: number): string => {
   } else if (absAmount >= 1000) {
     return `${prefix}${(absAmount / 1000).toFixed(1)}K`;
   }
-  return `${prefix}${absAmount.toLocaleString()}`;
+  return `${prefix}${absAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };

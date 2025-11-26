@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, LogOut, Trash2, User, Copy, Search, X, BarChart3, Folder, AlertTriangle } from "lucide-react";
+import { Plus, LogOut, Trash2, User, Copy, Search, X, BarChart3, Folder, AlertTriangle, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import { calculateFunnelRevenue, formatCurrency } from "@/lib/funnelCalculations
 import { Badge } from "@/components/ui/badge";
 import { NewFunnelDialog } from "@/components/NewFunnelDialog";
 import { SubscriptionProvider, useSubscription } from "@/hooks/useSubscription";
+import { useAdmin } from "@/hooks/useAdmin";
 import { UpgradePrompt } from "@/components/subscription";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useWhitelabel } from "@/hooks/useWhitelabel";
@@ -48,6 +49,7 @@ const DashboardContent = () => {
   const { user, signOut, loading } = useAuth();
   const { theme } = useTheme();
   const { config } = useWhitelabel();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [funnels, setFunnels] = useState<Funnel[]>([]);
   const [loadingFunnels, setLoadingFunnels] = useState(true);
@@ -362,6 +364,11 @@ const DashboardContent = () => {
             />
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
+            {isAdmin && (
+              <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} title="Admin">
+                <Shield className="h-4 w-4" />
+              </Button>
+            )}
             <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
               <User className="h-4 w-4" />

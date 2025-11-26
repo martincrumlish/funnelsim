@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import FunnelBuilder from "./pages/FunnelBuilder";
 import ResetPassword from "./pages/ResetPassword";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 import {
   AdminLayout,
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/checkout/success" element={<CheckoutSuccess />} />
                 <Route path="/funnel/:id" element={<FunnelBuilder />} />
 
                 {/* Admin Routes - Protected by AdminLayout */}

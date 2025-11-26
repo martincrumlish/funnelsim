@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWhitelabel } from "@/hooks/useWhitelabel";
@@ -26,12 +26,21 @@ const Auth = () => {
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      // Check if there's a pending checkout
+      const hasPendingCheckout = searchParams.get('checkout') === 'pending' ||
+        localStorage.getItem('pendingCheckoutPriceId');
+
+      if (hasPendingCheckout) {
+        navigate("/profile?initCheckout=true");
+      } else {
+        navigate("/dashboard");
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, searchParams]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

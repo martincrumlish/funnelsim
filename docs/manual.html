@@ -468,6 +468,10 @@ supabase link --project-ref YOUR_PROJECT_ID</code></pre>
                     <td><code>password_reset_tokens</code></td>
                     <td>Password reset flow</td>
                 </tr>
+                <tr>
+                    <td><code>pending_subscriptions</code></td>
+                    <td>Stores purchases made before account creation (unauthenticated checkout)</td>
+                </tr>
             </table>
 
             <h3>Create Storage Bucket</h3>
@@ -714,6 +718,8 @@ supabase functions deploy
 supabase functions deploy create-checkout-session --no-verify-jwt
 supabase functions deploy create-portal-session --no-verify-jwt
 supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy retrieve-checkout-session --no-verify-jwt
+supabase functions deploy link-pending-subscription --no-verify-jwt
 supabase functions deploy send-password-reset --no-verify-jwt
 supabase functions deploy reset-password-with-token --no-verify-jwt
 supabase functions deploy admin-create-user
@@ -870,6 +876,32 @@ VITE_FAVICON_URL=""</code></pre>
                 </ul>
                 <p>Use any future date for expiry and any 3 digits for CVC.</p>
             </div>
+
+            <h3>Unauthenticated Checkout Flow (Landing Page)</h3>
+            <p>Users can purchase directly from the landing page without creating an account first. This reduces friction and increases conversions.</p>
+
+            <h4>How It Works</h4>
+            <ol>
+                <li>User clicks a paid plan on the landing page pricing section</li>
+                <li>They're redirected to Stripe Checkout (no login required)</li>
+                <li>After payment, Stripe webhook creates a <code>pending_subscription</code> entry</li>
+                <li>User is redirected to <code>/checkout/success</code> page</li>
+                <li>They create an account with the email used during checkout</li>
+                <li>The pending subscription is linked to their new account</li>
+            </ol>
+
+            <div class="purple-box">
+                <strong>Email Collision Handling</strong>
+                <p>If the checkout email already has an account, the user is prompted to log in instead of creating a new account. This prevents duplicate accounts and ensures existing users can access their purchases.</p>
+            </div>
+
+            <h3>Shared Stripe Account (Multiple Apps)</h3>
+            <p>If you use the same Stripe account for multiple apps, the webhook automatically filters events by checking if the purchased price ID exists in the <code>subscription_tiers</code> table.</p>
+            <ul>
+                <li>Events for products not in this app's database are ignored</li>
+                <li>No configuration needed - filtering happens automatically</li>
+                <li>Each app only processes its own products</li>
+            </ul>
         </section>
 
         <!-- Section 11: Whitelabel Branding -->
@@ -973,12 +1005,20 @@ serve -s dist</code></pre>
             <h3>Common Issues</h3>
 
             <h4>Checkout redirects but subscription not created</h4>
-            <p>This usually means the webhook isn't receiving events:</p>
+            <p>This usually means the webhook isn't receiving or processing events:</p>
             <ul>
-                <li>Check webhook endpoint URL is correct</li>
+                <li>Check webhook endpoint URL is correct in Stripe Dashboard</li>
                 <li>Verify <code>STRIPE_WEBHOOK_SECRET</code> is set correctly</li>
                 <li>Check edge function logs: <code>supabase functions logs stripe-webhook</code></li>
+                <li><strong>401 errors?</strong> Redeploy with <code>--no-verify-jwt</code> flag (see below)</li>
             </ul>
+
+            <h4>Webhook returns 401 Unauthorized</h4>
+            <p>Supabase Edge Functions require JWT authentication by default. Stripe sends webhooks without JWT tokens, causing 401 errors.</p>
+            <p><strong>Fix:</strong> Redeploy the webhook function without JWT verification:</p>
+            <pre><code>supabase functions deploy stripe-webhook --no-verify-jwt</code></pre>
+            <p>Check the edge function logs to verify it's now receiving events:</p>
+            <pre><code>supabase functions logs stripe-webhook</code></pre>
 
             <h4>Lifetime checkout fails</h4>
             <p>If lifetime purchases aren't working:</p>
@@ -995,6 +1035,35 @@ serve -s dist</code></pre>
                 <li>Check <code>user_subscriptions.is_lifetime</code> is <code>true</code></li>
                 <li>Verify <code>tier_id</code> matches the correct tier</li>
                 <li>Confirm <code>status</code> is <code>active</code></li>
+            </ul>
+
+            <h4>Unauthenticated checkout: User still on Free tier after purchase</h4>
+            <p>If a user purchased from the landing page but shows Free tier:</p>
+            <ol>
+                <li><strong>Check pending_subscriptions table:</strong> Verify a row exists with the session_id
+                    <pre><code>SELECT * FROM pending_subscriptions WHERE customer_email = 'user@email.com';</code></pre>
+                </li>
+                <li><strong>If no row exists:</strong> The webhook didn't fire or failed
+                    <ul>
+                        <li>Check webhook is deployed with <code>--no-verify-jwt</code></li>
+                        <li>Verify webhook signing secret is correct</li>
+                        <li>Check Stripe Dashboard > Webhooks for failed deliveries</li>
+                    </ul>
+                </li>
+                <li><strong>If row exists but status='pending':</strong> The linking step failed
+                    <ul>
+                        <li>User may have refreshed or closed the checkout success page</li>
+                        <li>Manually link by updating <code>user_subscriptions</code> with the pending data</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>Checkout success page shows "Session not found"</h4>
+            <p>The <code>retrieve-checkout-session</code> function couldn't find the Stripe session:</p>
+            <ul>
+                <li>Verify the session_id in the URL is valid</li>
+                <li>Check the <code>STRIPE_SECRET_KEY</code> is set in edge function secrets</li>
+                <li>Session may have expired (Stripe sessions expire after 24 hours)</li>
             </ul>
 
             <h4>RLS Policy Violations</h4>
@@ -1041,7 +1110,7 @@ WHERE id NOT IN (SELECT id FROM public.profiles);</code></pre>
         </section>
 
         <footer>
-            <p>FunnelSim Setup Manual &bull; Last updated: November 2025</p>
+            <p>FunnelSim Setup Manual &bull; Last updated: November 26, 2025</p>
         </footer>
     </div>
 </body>
