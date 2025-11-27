@@ -351,7 +351,7 @@
             <ul>
                 <li><strong>Supabase Account</strong> - <a href="https://supabase.com" target="_blank">Create free account</a></li>
                 <li><strong>Stripe Account</strong> - <a href="https://stripe.com" target="_blank">Create account</a></li>
-                <li><strong>Email Provider</strong> - Elastic Email or similar (for password reset emails)</li>
+                <li><strong>Email Configuration</strong> - Supabase handles auth emails (password reset, email verification). Optionally configure custom SMTP in Supabase Dashboard for branded emails.</li>
             </ul>
 
             <h3>Install Supabase CLI</h3>
@@ -463,10 +463,6 @@ supabase link --project-ref YOUR_PROJECT_ID</code></pre>
                 <tr>
                     <td><code>whitelabel_config</code></td>
                     <td>Branding configuration</td>
-                </tr>
-                <tr>
-                    <td><code>password_reset_tokens</code></td>
-                    <td>Password reset flow</td>
                 </tr>
                 <tr>
                     <td><code>pending_subscriptions</code></td>
@@ -705,10 +701,12 @@ WITH CHECK (
 supabase secrets set STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 
 # Set Stripe webhook secret
-supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret</code></pre>
 
-# Set email API key (for password resets)
-supabase secrets set ELASTIC_EMAIL_API_KEY=your_elastic_email_key</code></pre>
+            <div class="info-box">
+                <strong>Email Configuration</strong>
+                <p>Password reset and email verification are handled by Supabase's built-in auth system. No additional email API keys are required. To use a custom sender domain, configure SMTP in Supabase Dashboard > Authentication > SMTP Settings.</p>
+            </div>
 
             <h3>Deploy Edge Functions</h3>
             <pre><code># Deploy all edge functions
@@ -720,8 +718,6 @@ supabase functions deploy create-portal-session --no-verify-jwt
 supabase functions deploy stripe-webhook --no-verify-jwt
 supabase functions deploy retrieve-checkout-session --no-verify-jwt
 supabase functions deploy link-pending-subscription --no-verify-jwt
-supabase functions deploy send-password-reset --no-verify-jwt
-supabase functions deploy reset-password-with-token --no-verify-jwt
 supabase functions deploy admin-create-user
 supabase functions deploy admin-delete-user
 supabase functions deploy admin-reset-password</code></pre>

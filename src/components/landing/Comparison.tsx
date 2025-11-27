@@ -1,7 +1,11 @@
 import React from 'react';
 import { X, Check, FileSpreadsheet, Zap } from 'lucide-react';
+import { useWhitelabel } from '@/hooks/useWhitelabel';
 
 export const Comparison: React.FC = () => {
+  const { config } = useWhitelabel();
+  const brandName = config.brand_name || 'FunnelSim';
+
   return (
     <section className="py-24 relative border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,7 +74,7 @@ export const Comparison: React.FC = () => {
                 </div>
             </div>
 
-            <h3 className="text-xl font-bold text-white text-center mt-4 mb-8 relative z-10">The FunnelSim Way</h3>
+            <h3 className="text-xl font-bold text-white text-center mt-4 mb-8 relative z-10">The {brandName} Way</h3>
             
             <ul className="space-y-6 relative z-10">
               {[

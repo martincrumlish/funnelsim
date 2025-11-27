@@ -79,10 +79,11 @@ export const Testimonials: React.FC = () => {
     ? config.testimonials
     : DEFAULT_TESTIMONIALS;
 
+  // Only show content once loaded - no flash of default content (FOUC)
+  const dataLoading = tiersLoading || configLoading;
+
   // Build plans from database tiers or use defaults
-  const plans: PlanType[] = tiersLoading
-    ? DEFAULT_PLANS
-    : tiers.length > 0
+  const plans: PlanType[] = tiers.length > 0
     ? tiers.map((tier, index) => {
         // Parse features from JSONB
         let features: string[] = [];
@@ -196,39 +197,55 @@ export const Testimonials: React.FC = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-32">
-          {testimonials.map((t, i) => (
-            <div key={i} className="bg-dark-800/40 border border-white/5 p-8 rounded-2xl relative group hover:bg-dark-800/60 transition-colors">
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-indigo-500/10 group-hover:text-indigo-500/20 transition-colors" />
-
-              <p className="text-slate-300 leading-relaxed mb-8 relative z-10">
-                "{t.quote}"
-              </p>
-
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 overflow-hidden">
-                    {/* Using colored placeholder if image fails, or actual image */}
-                   {t.image ? (
-                     <img
-                       src={t.image}
-                       alt={t.author}
-                       className="w-full h-full object-cover opacity-80"
-                       onError={(e) => {
-                         (e.target as HTMLImageElement).style.display = 'none';
-                       }}
-                     />
-                   ) : (
-                     <div className="w-full h-full flex items-center justify-center text-indigo-400 font-bold">
-                       {t.author.charAt(0)}
-                     </div>
-                   )}
-                </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm">{t.author}</h4>
-                  {t.role && <p className="text-indigo-400 text-xs">{t.role}</p>}
+          {dataLoading ? (
+            // Skeleton loaders for testimonials
+            [...Array(3)].map((_, i) => (
+              <div key={i} className="bg-dark-800/40 border border-white/5 p-8 rounded-2xl animate-pulse">
+                <div className="h-24 bg-white/5 rounded mb-8"></div>
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 rounded-full bg-white/5"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-24 bg-white/5 rounded"></div>
+                    <div className="h-3 w-16 bg-white/5 rounded"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            testimonials.map((t, i) => (
+              <div key={i} className="bg-dark-800/40 border border-white/5 p-8 rounded-2xl relative group hover:bg-dark-800/60 transition-colors">
+                <Quote className="absolute top-6 right-6 w-8 h-8 text-indigo-500/10 group-hover:text-indigo-500/20 transition-colors" />
+
+                <p className="text-slate-300 leading-relaxed mb-8 relative z-10">
+                  "{t.quote}"
+                </p>
+
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 overflow-hidden">
+                      {/* Using colored placeholder if image fails, or actual image */}
+                     {t.image ? (
+                       <img
+                         src={t.image}
+                         alt={t.author}
+                         className="w-full h-full object-cover opacity-80"
+                         onError={(e) => {
+                           (e.target as HTMLImageElement).style.display = 'none';
+                         }}
+                       />
+                     ) : (
+                       <div className="w-full h-full flex items-center justify-center text-indigo-400 font-bold">
+                         {t.author.charAt(0)}
+                       </div>
+                     )}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-sm">{t.author}</h4>
+                    {t.role && <p className="text-indigo-400 text-xs">{t.role}</p>}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* --- PRICING PART (Merged into same section) --- */}
@@ -242,63 +259,84 @@ export const Testimonials: React.FC = () => {
             </p>
             </div>
 
-            <div className={`grid gap-8 max-w-4xl mx-auto ${plans.length === 2 ? 'md:grid-cols-2' : plans.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
-            {plans.map((plan, idx) => {
-                const isLoading = checkoutLoading !== null && checkoutLoading === plan.priceId;
-                return (
-                <div
-                key={idx}
-                className={`relative p-8 rounded-2xl border flex flex-col transition-all duration-300 ${
-                    plan.featured
-                    ? 'bg-white/[0.02] border-indigo-500/30 shadow-2xl shadow-indigo-500/10 backdrop-blur-sm'
-                    : 'bg-transparent border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
-                }`}
-                >
-                {plan.featured && (
-                    <>
-                    <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none rounded-2xl"></div>
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-lg shadow-indigo-500/20">
-                        Most Popular
+            {dataLoading ? (
+              // Skeleton loaders for pricing cards
+              <div className="grid gap-8 max-w-4xl mx-auto md:grid-cols-2">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="p-8 rounded-2xl border border-white/5 animate-pulse">
+                    <div className="mb-8">
+                      <div className="h-5 w-20 bg-white/5 rounded mb-4"></div>
+                      <div className="h-10 w-32 bg-white/5 rounded mb-4"></div>
+                      <div className="h-4 w-48 bg-white/5 rounded"></div>
                     </div>
-                    </>
-                )}
-
-                <div className="mb-8 relative z-10">
-                    <h3 className="text-lg font-medium text-white mb-2">{plan.name}</h3>
-                    <div className="flex items-baseline text-white">
-                    <span className="text-4xl font-bold tracking-tight">${plan.price}</span>
-                    <span className="text-slate-500 ml-2">/month</span>
+                    <div className="space-y-4 mb-8">
+                      {[...Array(4)].map((_, j) => (
+                        <div key={j} className="h-4 bg-white/5 rounded w-3/4"></div>
+                      ))}
                     </div>
-                    <p className="text-slate-400 mt-4 text-sm">{plan.description}</p>
-                </div>
-
-                <ul className="space-y-4 mb-8 flex-1 relative z-10">
-                    {plan.features.map((feat, i) => (
-                    <li key={i} className="flex items-center text-slate-300 text-sm">
-                        <Check className="w-4 h-4 text-indigo-400 mr-3 shrink-0" />
-                        {feat}
-                    </li>
-                    ))}
-                </ul>
-
-                <Button
-                    variant={plan.featured ? 'primary' : 'outline'}
-                    className="w-full relative z-10"
-                    onClick={() => handlePlanClick(plan)}
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
+                    <div className="h-12 bg-white/5 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`grid gap-8 max-w-4xl mx-auto ${plans.length === 2 ? 'md:grid-cols-2' : plans.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
+              {plans.map((plan, idx) => {
+                  const isCheckingOut = checkoutLoading !== null && checkoutLoading === plan.priceId;
+                  return (
+                  <div
+                  key={idx}
+                  className={`relative p-8 rounded-2xl border flex flex-col transition-all duration-300 ${
+                      plan.featured
+                      ? 'bg-white/[0.02] border-indigo-500/30 shadow-2xl shadow-indigo-500/10 backdrop-blur-sm'
+                      : 'bg-transparent border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
+                  }`}
+                  >
+                  {plan.featured && (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processing...
+                      <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none rounded-2xl"></div>
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-lg shadow-indigo-500/20">
+                          Most Popular
+                      </div>
                       </>
-                    ) : (
-                      plan.cta
-                    )}
-                </Button>
-                </div>
-            )})}
-            </div>
+                  )}
+
+                  <div className="mb-8 relative z-10">
+                      <h3 className="text-lg font-medium text-white mb-2">{plan.name}</h3>
+                      <div className="flex items-baseline text-white">
+                      <span className="text-4xl font-bold tracking-tight">${plan.price}</span>
+                      <span className="text-slate-500 ml-2">/month</span>
+                      </div>
+                      <p className="text-slate-400 mt-4 text-sm">{plan.description}</p>
+                  </div>
+
+                  <ul className="space-y-4 mb-8 flex-1 relative z-10">
+                      {plan.features.map((feat, i) => (
+                      <li key={i} className="flex items-center text-slate-300 text-sm">
+                          <Check className="w-4 h-4 text-indigo-400 mr-3 shrink-0" />
+                          {feat}
+                      </li>
+                      ))}
+                  </ul>
+
+                  <Button
+                      variant={plan.featured ? 'primary' : 'outline'}
+                      className="w-full relative z-10"
+                      onClick={() => handlePlanClick(plan)}
+                      disabled={isCheckingOut}
+                  >
+                      {isCheckingOut ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        plan.cta
+                      )}
+                  </Button>
+                  </div>
+              )})}
+              </div>
+            )}
         </div>
       </div>
     </section>
