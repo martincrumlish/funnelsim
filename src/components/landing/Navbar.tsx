@@ -49,7 +49,7 @@ export const Navbar: React.FC = () => {
             <a href="#pricing" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Pricing</a>
             <div className="flex items-center space-x-4 ml-4">
               <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Sign In</Button>
-              <Button variant="primary" size="sm" onClick={() => navigate('/auth')}>Get Started</Button>
+              <a href="#pricing"><Button variant="primary" size="sm">Get Started</Button></a>
             </div>
           </div>
 
@@ -71,7 +71,7 @@ export const Navbar: React.FC = () => {
             <a href="#pricing" className="text-slate-300 hover:text-white py-2">Pricing</a>
             <div className="h-px bg-white/10 my-2"></div>
             <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/auth')}>Sign In</Button>
-            <Button variant="primary" className="w-full" onClick={() => navigate('/auth')}>Get Started Free</Button>
+            <a href="#pricing"><Button variant="primary" className="w-full">Get Started</Button></a>
           </div>
         </div>
       )}

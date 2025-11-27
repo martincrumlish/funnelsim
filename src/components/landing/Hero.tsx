@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/Button';
 import { ArrowRight, PlayCircle, Save, X } from 'lucide-react';
 import { useWhitelabel } from '@/hooks/useWhitelabel';
-import { useNavigate } from 'react-router-dom';
 
 // Default hero image
 const HERO_IMAGE_URL = "public/images/screens1.png";
@@ -11,10 +10,9 @@ const HERO_IMAGE_URL = "public/images/screens1.png";
 const DEFAULT_HEADLINE = "Simulate High-Converting Sales Funnels Instantly";
 const DEFAULT_SUBHEADLINE = "The first visual funnel builder that predicts your profit before you build. Map out flows, calculate conversions, and optimize ROI in real-time.";
 const DEFAULT_BADGE_TEXT = "Early Bird Deal Now Available";
-const DEFAULT_CTA_TEXT = "Get Started Now";
+const DEFAULT_CTA_TEXT = "Get Started";
 
 export const Hero: React.FC = () => {
-  const navigate = useNavigate();
   const { config, isLoading } = useWhitelabel();
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
@@ -98,15 +96,16 @@ export const Hero: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full sm:w-auto group px-8 h-14 text-lg"
-              onClick={() => navigate('/auth')}
-            >
-              {ctaText}
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <a href="#pricing">
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-full sm:w-auto group px-8 h-14 text-lg"
+              >
+                {ctaText}
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </a>
             <Button
               variant="outline"
               size="lg"
@@ -118,11 +117,6 @@ export const Hero: React.FC = () => {
             </Button>
           </div>
 
-          <div className="mt-8 text-sm text-slate-500 font-medium flex items-center space-x-6">
-            <span>No credit card required</span>
-            <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-            <span>Free forever plan</span>
-          </div>
         </div>
 
         {/* APP INTERFACE PLACEHOLDER - NO TILT */}

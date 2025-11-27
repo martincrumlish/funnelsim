@@ -1,10 +1,7 @@
 import React from 'react';
 import { Button } from './ui/Button';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
 export const CTA: React.FC = () => {
-  const navigate = useNavigate();
   return (
     <section className="py-12 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto relative rounded-[2.5rem] overflow-hidden border border-white/10 bg-[#0a0a0f] shadow-2xl">
@@ -43,10 +40,12 @@ export const CTA: React.FC = () => {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button variant="primary" size="lg" className="w-full sm:w-auto px-10 h-14 text-lg shadow-xl shadow-indigo-500/20 group" onClick={() => navigate('/auth')}>
-              Get Started Now
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <a href="#pricing">
+              <Button variant="primary" size="lg" className="w-full sm:w-auto px-10 h-14 text-lg shadow-xl shadow-indigo-500/20 group">
+                Get Started Now
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </a>
           </div>
 
           {/* Trust Indicators */}
