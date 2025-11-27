@@ -46,9 +46,9 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Creating checkout session for user:", user_id, "with price:", price_id, "interval:", billing_interval);
 
     // Validate required parameters
-    if (!price_id || !user_id || !user_email) {
+    if (!price_id || !user_id || !user_email || !success_url || !cancel_url) {
       return new Response(
-        JSON.stringify({ error: "Missing required parameters: price_id, user_id, user_email" }),
+        JSON.stringify({ error: "Missing required parameters: price_id, user_id, user_email, success_url, cancel_url" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -77,10 +77,9 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Created new Stripe customer:", customerId);
     }
 
-    // Use provided URLs or fall back to production domain
-    const baseUrl = success_url?.replace(/\/success.*$/, '') || 'https://userapps.kickpages.com';
-    const finalSuccessUrl = success_url || `${baseUrl}/profile?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
-    const finalCancelUrl = cancel_url || `${baseUrl}/profile?checkout=canceled`;
+    // Use provided URLs (required, validated above)
+    const finalSuccessUrl = success_url;
+    const finalCancelUrl = cancel_url;
 
     // Determine if this is a lifetime (one-time payment) or subscription
     const isLifetime = billing_interval === 'lifetime';

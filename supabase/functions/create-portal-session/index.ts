@@ -30,9 +30,9 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Creating portal session for customer:", customer_id);
 
     // Validate required parameters
-    if (!customer_id) {
+    if (!customer_id || !return_url) {
       return new Response(
-        JSON.stringify({ error: "Missing required parameter: customer_id" }),
+        JSON.stringify({ error: "Missing required parameters: customer_id, return_url" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -40,8 +40,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Use provided return URL or fall back to production domain
-    const finalReturnUrl = return_url || 'https://userapps.kickpages.com/profile';
+    // Use provided return URL (required, validated above)
+    const finalReturnUrl = return_url;
 
     // Create Stripe Customer Portal Session
     const session = await stripe.billingPortal.sessions.create({

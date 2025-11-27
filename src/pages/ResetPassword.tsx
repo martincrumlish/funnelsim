@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,19 +14,37 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { theme } = useTheme();
   const { config } = useWhitelabel();
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const token = searchParams.get("token");
+  const [isValidSession, setIsValidSession] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
-  if (!token) {
-    navigate("/auth");
-    return null;
-  }
+  // Check if user has a valid recovery session from Supabase email link
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Supabase sets up a session when user clicks the recovery link
+      if (session) {
+        setIsValidSession(true);
+      } else {
+        // No valid session - redirect to auth
+        toast({
+          variant: "destructive",
+          title: "Invalid or expired link",
+          description: "Please request a new password reset link.",
+        });
+        navigate("/auth");
+      }
+      setCheckingSession(false);
+    };
+
+    checkSession();
+  }, [navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,17 +70,19 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('reset-password-with-token', {
-        body: { token, newPassword }
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
       });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Your password has been reset successfully. You can now log in with your new password.",
+        description: "Your password has been reset successfully.",
       });
 
+      // Sign out and redirect to login
+      await supabase.auth.signOut();
       navigate("/auth");
     } catch (error: any) {
       toast({
@@ -74,6 +94,18 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-muted-foreground">Verifying reset link...</div>
+      </div>
+    );
+  }
+
+  if (!isValidSession) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">

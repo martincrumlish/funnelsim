@@ -1,9 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
-const ELASTIC_EMAIL_API_KEY = Deno.env.get("ELASTIC_EMAIL_API_KEY");
-const ELASTIC_EMAIL_API_URL = "https://api.elasticemail.com/v2/email/send";
-
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -22,14 +19,7 @@ const corsHeaders = {
 interface ResetPasswordRequest {
   user_id: string;
   email: string;
-  redirectUrl?: string;
-}
-
-// Generate a secure random token
-function generateToken(): string {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  redirectUrl: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -87,9 +77,9 @@ const handler = async (req: Request): Promise<Response> => {
     const { user_id, email, redirectUrl }: ResetPasswordRequest = await req.json();
 
     // Validate required parameters
-    if (!user_id || !email) {
+    if (!user_id || !email || !redirectUrl) {
       return new Response(
-        JSON.stringify({ error: "Missing required parameters: user_id, email" }),
+        JSON.stringify({ error: "Missing required parameters: user_id, email, redirectUrl" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -98,9 +88,6 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("Admin sending password reset for user:", email, "by admin:", requestingUser.email);
-
-    // Use provided redirectUrl or fall back to production domain
-    const baseUrl = redirectUrl || 'https://userapps.kickpages.com';
 
     // Verify user exists
     const { data: targetUser, error: userError } = await supabase.auth.admin.getUserById(user_id);
@@ -115,105 +102,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Generate reset token
-    const resetToken = generateToken();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-
-    // Store token in database
-    const { error: tokenError } = await supabase
-      .from('password_reset_tokens')
-      .insert({
-        user_id: user_id,
-        token: resetToken,
-        expires_at: expiresAt.toISOString()
-      });
-
-    if (tokenError) {
-      console.error("Error storing token:", tokenError);
-      return new Response(
-        JSON.stringify({ error: `Error storing token: ${tokenError.message}` }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-
-    // Create reset link
-    const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
-
-    // Send reset email
-    const params = new URLSearchParams({
-      apikey: ELASTIC_EMAIL_API_KEY!,
-      from: "noreply@kickpages.com",
-      fromName: "Funnel Builder",
-      to: email,
-      subject: "Password Reset Request (Admin)",
-      bodyHtml: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #f4f4f4; padding: 20px; text-align: center; }
-            .content { padding: 20px; background-color: #ffffff; }
-            .button {
-              display: inline-block;
-              padding: 12px 24px;
-              background-color: #007bff;
-              color: #ffffff !important;
-              text-decoration: none;
-              border-radius: 4px;
-              margin: 20px 0;
-            }
-            .note {
-              background-color: #f8f9fa;
-              padding: 10px;
-              border-radius: 4px;
-              font-size: 14px;
-              margin-top: 20px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>Password Reset Request</h1>
-            </div>
-            <div class="content">
-              <p>Hello,</p>
-              <p>An administrator has initiated a password reset for your account. Click the button below to create a new password:</p>
-              <p style="text-align: center;">
-                <a href="${resetLink}" class="button">Reset Password</a>
-              </p>
-              <p>If you did not expect this email, please contact your administrator.</p>
-              <p>This link will expire in 1 hour.</p>
-              <div class="note">
-                <strong>Note:</strong> This password reset was requested by an administrator on your behalf.
-              </div>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-      isTransactional: "true",
-    });
-
-    const response = await fetch(ELASTIC_EMAIL_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+    // Use Supabase's built-in password reset email
+    // This uses the email template configured in Supabase Dashboard
+    const { error: resetError } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email: email,
+      options: {
+        redirectTo: `${redirectUrl}/reset-password`,
       },
-      body: params.toString(),
     });
 
-    const result = await response.text();
-    console.log("ElasticEmail API response:", result);
-
-    if (!response.ok) {
+    if (resetError) {
+      console.error("Error generating reset link:", resetError);
       return new Response(
-        JSON.stringify({ error: `Email API error: ${result}` }),
+        JSON.stringify({ error: `Error sending reset email: ${resetError.message}` }),
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
