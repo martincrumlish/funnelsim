@@ -95,7 +95,7 @@ export const Hero: React.FC = () => {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
             <a href="#pricing">
               <Button
                 variant="primary"
@@ -120,7 +120,7 @@ export const Hero: React.FC = () => {
         </div>
 
         {/* APP INTERFACE PLACEHOLDER - NO TILT */}
-        <div className="relative mx-auto max-w-6xl -mt-2">
+        <div className="relative mx-auto max-w-6xl -mt-1">
 
           {/* Float Wrapper */}
           <div className="animate-float" style={{ animationDuration: '8s' }}>
