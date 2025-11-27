@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -31,6 +31,7 @@ export const useAdmin = (): UseAdminReturn => {
   const { user, session, loading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const hasCheckedRef = useRef(false);
 
   const checkAdminStatus = useCallback(async () => {
     // Wait for auth to finish loading
@@ -42,11 +43,15 @@ export const useAdmin = (): UseAdminReturn => {
     if (!user?.id || !session) {
       setIsAdmin(false);
       setIsLoading(false);
+      hasCheckedRef.current = true;
       return;
     }
 
     try {
-      setIsLoading(true);
+      // Only show loading on initial check, not on re-checks (e.g., tab focus)
+      if (!hasCheckedRef.current) {
+        setIsLoading(true);
+      }
 
       // Query the admin_users table for the current user
       const { data, error } = await supabase
@@ -67,6 +72,7 @@ export const useAdmin = (): UseAdminReturn => {
       setIsAdmin(false);
     } finally {
       setIsLoading(false);
+      hasCheckedRef.current = true;
     }
   }, [user?.id, session, authLoading]);
 

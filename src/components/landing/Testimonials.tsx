@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Quote, Check } from 'lucide-react';
+import { Quote, Check, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { useWhitelabel, DEFAULT_TESTIMONIALS } from '@/hooks/useWhitelabel';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import type { SubscriptionTier } from '@/integrations/supabase/types';
 
 // Default pricing plans (fallback when no tiers in database)
@@ -28,11 +30,24 @@ const DEFAULT_PLANS = [
   },
 ];
 
+interface PlanType {
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  cta: string;
+  featured: boolean;
+  priceId: string | null;
+}
+
 export const Testimonials: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { config, isLoading: configLoading } = useWhitelabel();
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [tiersLoading, setTiersLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   // Fetch subscription tiers from database
   useEffect(() => {
@@ -65,7 +80,7 @@ export const Testimonials: React.FC = () => {
     : DEFAULT_TESTIMONIALS;
 
   // Build plans from database tiers or use defaults
-  const plans = tiersLoading
+  const plans: PlanType[] = tiersLoading
     ? DEFAULT_PLANS
     : tiers.length > 0
     ? tiers.map((tier, index) => {
@@ -102,10 +117,67 @@ export const Testimonials: React.FC = () => {
       })
     : DEFAULT_PLANS;
 
-  const handlePlanClick = (plan: typeof plans[0]) => {
-    // For now, navigate to auth page
-    // In future, could initiate checkout directly if user is logged in
-    navigate('/auth');
+  const handlePlanClick = async (plan: PlanType) => {
+    // Free plan - just go to auth or dashboard
+    if (!plan.priceId || plan.price === "0") {
+      navigate(user ? '/dashboard' : '/auth');
+      return;
+    }
+
+    // Paid plan - initiate checkout
+    // For logged-in users, redirect to profile to use the existing authenticated checkout flow
+    if (user) {
+      // Store priceId for checkout after navigating to profile
+      localStorage.setItem('pendingCheckoutPriceId', plan.priceId);
+      navigate('/profile?initCheckout=true');
+      return;
+    }
+
+    // For unauthenticated users - call create-checkout-session directly
+    setCheckoutLoading(plan.priceId);
+
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://lntraljilztlwwsggtfa.supabase.co';
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/create-checkout-session`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+            'apikey': anonKey,
+          },
+          body: JSON.stringify({
+            price_id: plan.priceId,
+            origin: window.location.origin,
+            // No user_id or user_email - unauthenticated checkout
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error: any) {
+      console.error('Error creating checkout session:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Checkout Error',
+        description: error.message || 'Failed to initiate checkout. Please try again.',
+      });
+    } finally {
+      setCheckoutLoading(null);
+    }
   };
 
   return (
@@ -171,7 +243,9 @@ export const Testimonials: React.FC = () => {
             </div>
 
             <div className={`grid gap-8 max-w-4xl mx-auto ${plans.length === 2 ? 'md:grid-cols-2' : plans.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
-            {plans.map((plan, idx) => (
+            {plans.map((plan, idx) => {
+                const isLoading = checkoutLoading !== null && checkoutLoading === plan.priceId;
+                return (
                 <div
                 key={idx}
                 className={`relative p-8 rounded-2xl border flex flex-col transition-all duration-300 ${
@@ -211,11 +285,19 @@ export const Testimonials: React.FC = () => {
                     variant={plan.featured ? 'primary' : 'outline'}
                     className="w-full relative z-10"
                     onClick={() => handlePlanClick(plan)}
+                    disabled={isLoading}
                 >
-                    {plan.cta}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      plan.cta
+                    )}
                 </Button>
                 </div>
-            ))}
+            )})}
             </div>
         </div>
       </div>

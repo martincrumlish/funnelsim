@@ -11,7 +11,7 @@ const HERO_IMAGE_URL = "public/images/screens1.png";
 const DEFAULT_HEADLINE = "Simulate High-Converting Sales Funnels Instantly";
 const DEFAULT_SUBHEADLINE = "The first visual funnel builder that predicts your profit before you build. Map out flows, calculate conversions, and optimize ROI in real-time.";
 const DEFAULT_BADGE_TEXT = "Early Bird Deal Now Available";
-const DEFAULT_CTA_TEXT = "Start Modeling Free";
+const DEFAULT_CTA_TEXT = "Get Started Now";
 
 export const Hero: React.FC = () => {
   const navigate = useNavigate();

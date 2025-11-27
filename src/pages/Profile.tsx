@@ -77,6 +77,32 @@ const ProfileContent = () => {
     }
   }, [searchParams, toast, navigate, refreshSubscription]);
 
+  // Handle pending checkout from landing page pricing
+  useEffect(() => {
+    const shouldInitCheckout = searchParams.get('initCheckout') === 'true';
+    const pendingPriceId = localStorage.getItem('pendingCheckoutPriceId');
+
+    if (shouldInitCheckout && pendingPriceId && !isCheckingOut) {
+      // Clear localStorage and URL params immediately to prevent re-triggering
+      localStorage.removeItem('pendingCheckoutPriceId');
+      navigate('/profile', { replace: true });
+
+      // Initiate checkout
+      setIsCheckingOut(true);
+      initiateCheckout(pendingPriceId)
+        .catch((error) => {
+          toast({
+            title: "Checkout failed",
+            description: error.message || "Failed to start checkout",
+            variant: "destructive",
+          });
+        })
+        .finally(() => {
+          setIsCheckingOut(false);
+        });
+    }
+  }, [searchParams, initiateCheckout, navigate, toast, isCheckingOut]);
+
   // Fetch pricing tiers for upgrade dialog
   useEffect(() => {
     const fetchTiers = async () => {
