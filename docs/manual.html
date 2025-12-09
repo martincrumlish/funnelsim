@@ -952,6 +952,30 @@ VITE_FAVICON_URL="https://example.com/favicon.png"</code></pre>
                 <li>Deploy!</li>
             </ol>
 
+            <h4>Adding a Custom Domain on Vercel</h4>
+            <ol>
+                <li>Go to your project in Vercel Dashboard</li>
+                <li>Click <strong>Settings</strong> → <strong>Domains</strong></li>
+                <li>Enter your domain (e.g., <code>funnelsim.com</code>) and click <strong>Add</strong></li>
+                <li>Vercel will show you DNS records to add. At your domain registrar:
+                    <ul>
+                        <li><strong>For apex domain</strong> (funnelsim.com): Add an <code>A</code> record pointing to <code>76.76.21.21</code></li>
+                        <li><strong>For www subdomain</strong>: Add a <code>CNAME</code> record pointing to <code>cname.vercel-dns.com</code></li>
+                    </ul>
+                </li>
+                <li>Wait for DNS propagation (usually 5-30 minutes, can take up to 48 hours)</li>
+                <li>Vercel automatically provisions SSL certificate</li>
+            </ol>
+
+            <div class="info-box">
+                <strong>Update Supabase Auth Settings</strong>
+                <p>After adding your custom domain, go to Supabase Dashboard → Authentication → URL Configuration:</p>
+                <ul>
+                    <li><strong>Site URL</strong>: <code>https://yourdomain.com</code></li>
+                    <li><strong>Redirect URLs</strong>: Add <code>https://yourdomain.com/**</code></li>
+                </ul>
+            </div>
+
             <h3>Option B: Netlify</h3>
             <ol>
                 <li>Create a <code>netlify.toml</code> file:
@@ -967,6 +991,21 @@ VITE_FAVICON_URL="https://example.com/favicon.png"</code></pre>
                 <li>Connect your repo to Netlify</li>
                 <li>Add environment variables</li>
                 <li>Deploy!</li>
+            </ol>
+
+            <h4>Adding a Custom Domain on Netlify</h4>
+            <ol>
+                <li>Go to your site in Netlify Dashboard</li>
+                <li>Click <strong>Domain settings</strong> → <strong>Add custom domain</strong></li>
+                <li>Enter your domain and click <strong>Verify</strong></li>
+                <li>At your domain registrar, add DNS records:
+                    <ul>
+                        <li><strong>For apex domain</strong>: Add an <code>A</code> record pointing to <code>75.2.60.5</code></li>
+                        <li><strong>For www</strong>: Add a <code>CNAME</code> record pointing to your Netlify site (e.g., <code>your-site.netlify.app</code>)</li>
+                    </ul>
+                </li>
+                <li>Back in Netlify, click <strong>Verify DNS configuration</strong></li>
+                <li>Enable HTTPS under <strong>Domain settings</strong> → <strong>HTTPS</strong></li>
             </ol>
 
             <h3>Option C: Self-Hosted</h3>
