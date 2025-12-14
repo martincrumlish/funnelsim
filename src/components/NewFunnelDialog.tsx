@@ -77,21 +77,6 @@ export const NewFunnelDialog = ({ open, onOpenChange, onCreateBlank, userId }: N
               Answer a few questions and we'll build it for you
             </p>
           </Button>
-
-          <Button
-            variant="outline"
-            className="h-auto flex-col items-start gap-2 p-4 opacity-50 cursor-not-allowed"
-            disabled
-          >
-            <div className="flex items-center gap-2 w-full">
-              <LayoutTemplate className="h-5 w-5 text-muted-foreground" />
-              <span className="font-semibold">Choose From Template</span>
-              <span className="ml-auto text-xs text-muted-foreground">(coming soon)</span>
-            </div>
-            <p className="text-xs text-muted-foreground text-left">
-              Select from pre-built funnel templates
-            </p>
-          </Button>
         </div>
       </DialogContent>
     </Dialog>

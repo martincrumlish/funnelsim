@@ -32,6 +32,8 @@ The manual covers:
 
 ## Quick Start (Development)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=h[ttps://github.com/OWNER/REPO](https://github.com/martincrumlish/funnelsim))
+
 ```bash
 # Clone and install
 git clone <your-repo-url>
