@@ -4,7 +4,7 @@ import { ArrowRight, PlayCircle, Save, X } from 'lucide-react';
 import { useWhitelabel } from '@/hooks/useWhitelabel';
 
 // Default hero image
-const HERO_IMAGE_URL = "public/images/screens1.png";
+const HERO_IMAGE_URL = "/images/screens1.png";
 
 // Default values for hero content
 const DEFAULT_HEADLINE = "Simulate High-Converting Sales Funnels Instantly";
