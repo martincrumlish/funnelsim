@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FunnelSim Quick Setup Guide</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-tertiary: #1a1a24;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #2d2d3d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+        header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header p { color: var(--text-secondary); margin-top: 0.5rem; }
+        .step {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-title { font-size: 1.25rem; font-weight: 600; }
+        .step-time {
+            margin-left: auto;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+        h3 { font-size: 1rem; margin: 1rem 0 0.5rem; color: var(--accent); }
+        p, li { color: var(--text-secondary); margin-bottom: 0.5rem; }
+        ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+        code {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+        pre {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        pre code { background: none; padding: 0; color: var(--text-primary); }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .button {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        .button:hover { background: var(--accent-hover); text-decoration: none; }
+        .button.secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+        .info-box {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .success-box {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .checklist { list-style: none; padding-left: 0; }
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 0.75rem; text-align: left; border: 1px solid var(--border); }
+        th { background: var(--bg-tertiary); color: var(--text-primary); }
+        td { color: var(--text-secondary); }
+        .copy-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            float: right;
+        }
+        .copy-btn:hover { background: var(--border); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FunnelSim Quick Setup</h1>
+            <p>Deploy your own funnel simulation platform in ~30 minutes</p>
+        </header>
+
+        <!-- Prerequisites -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">0</div>
+                <div class="step-title">What You'll Need</div>
+            </div>
+            <ul>
+                <li><strong>Supabase account</strong> - <a href="https://supabase.com" target="_blank">Create free account</a></li>
+                <li><strong>Stripe account</strong> - <a href="https://stripe.com" target="_blank">Create account</a></li>
+                <li><strong>GitHub account</strong> - For Vercel deployment</li>
+            </ul>
+            <p>No coding or command line required!</p>
+        </div>
+
+        <!-- Step 1: Vercel -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div class="step-title">Deploy to Vercel</div>
+                <span class="step-time">~2 min</span>
+            </div>
+            <p>Click the button below to deploy your app to Vercel:</p>
+            <a href="https://vercel.com/new/clone?repository-url=https://github.com/martincrumlish/funnelsim" class="button" target="_blank">Deploy with Vercel</a>
+            <ol>
+                <li>Sign in with GitHub</li>
+                <li>Click "Create" to fork the repository</li>
+                <li>Skip environment variables for now (we'll add them later)</li>
+                <li>Wait for deployment to complete</li>
+            </ol>
+            <div class="info-box">
+                <strong>Note:</strong> The app won't work yet - we need to set up Supabase first.
+            </div>
+        </div>
+
+        <!-- Step 2: Supabase Project -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div class="step-title">Create Supabase Project</div>
+                <span class="step-time">~3 min</span>
+            </div>
+            <ol>
+                <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></li>
+                <li>Click <strong>"New Project"</strong></li>
+                <li>Enter a project name (e.g., "my-funnelsim")</li>
+                <li>Set a strong database password (save this somewhere safe!)</li>
+                <li>Select a region close to your users</li>
+                <li>Click <strong>"Create new project"</strong></li>
+                <li>Wait 2-3 minutes for setup to complete</li>
+            </ol>
+        </div>
+
+        <!-- Step 3: Database Setup -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div class="step-title">Set Up Database</div>
+                <span class="step-time">~2 min</span>
+            </div>
+            <ol>
+                <li>In your Supabase project, go to <strong>SQL Editor</strong> (left sidebar)</li>
+                <li>Click <strong>"New query"</strong></li>
+                <li>Copy the entire contents of <a href="combined-migrations.sql" target="_blank">combined-migrations.sql</a></li>
+                <li>Paste into the SQL editor</li>
+                <li>Click <strong>"Run"</strong> (or press Ctrl/Cmd+Enter)</li>
+            </ol>
+            <div class="success-box">
+                <strong>Success!</strong> You should see "Success. No rows returned" - this is correct!
+            </div>
+        </div>
+
+        <!-- Step 4: Verify Setup -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">4</div>
+                <div class="step-title">Verify Database Setup</div>
+                <span class="step-time">~30 sec</span>
+            </div>
+            <p>The migrations automatically created:</p>
+            <ul>
+                <li>All database tables (funnels, profiles, subscriptions, etc.)</li>
+                <li>Storage bucket <code>funnel-logos</code> with proper policies</li>
+                <li>Row Level Security policies</li>
+            </ul>
+            <p>You can verify in Supabase Dashboard > Table Editor and Storage.</p>
+        </div>
+
+        <!-- Step 5: Stripe Setup -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">5</div>
+                <div class="step-title">Configure Stripe</div>
+                <span class="step-time">~10 min</span>
+            </div>
+
+            <h3>A. Get API Keys</h3>
+            <ol>
+                <li>Go to <a href="https://dashboard.stripe.com/test/apikeys" target="_blank">Stripe Dashboard > Developers > API keys</a></li>
+                <li>Copy your <strong>Publishable key</strong> (starts with <code>pk_test_</code>)</li>
+                <li>Copy your <strong>Secret key</strong> (starts with <code>sk_test_</code>) - you'll need this for Step 6</li>
+            </ol>
+
+            <h3>B. Create Products</h3>
+            <p>Go to <a href="https://dashboard.stripe.com/test/products" target="_blank">Products</a> and create:</p>
+
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Prices to Create</th>
+                </tr>
+                <tr>
+                    <td><strong>Pro Plan</strong></td>
+                    <td>
+                        Monthly: $29/month (recurring)<br>
+                        Yearly: $290/year (recurring)<br>
+                        Lifetime: $499 one-time (optional)
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Enterprise Plan</strong></td>
+                    <td>
+                        Monthly: $99/month (recurring)<br>
+                        Yearly: $990/year (recurring)<br>
+                        Lifetime: $1,499 one-time (optional)
+                    </td>
+                </tr>
+            </table>
+            <p>Save all the <strong>Price IDs</strong> (they start with <code>price_</code>)</p>
+
+            <h3>C. Create Webhook</h3>
+            <ol>
+                <li>Go to <a href="https://dashboard.stripe.com/test/webhooks" target="_blank">Developers > Webhooks</a></li>
+                <li>Click <strong>"Add endpoint"</strong></li>
+                <li>Endpoint URL: <code>https://YOUR_PROJECT_ID.supabase.co/functions/v1/stripe-webhook</code>
+                    <br><small>(Replace YOUR_PROJECT_ID with your Supabase project ID from Settings > General)</small>
+                </li>
+                <li>Events to listen for:
+                    <ul>
+                        <li><code>checkout.session.completed</code></li>
+                        <li><code>customer.subscription.updated</code></li>
+                        <li><code>customer.subscription.deleted</code></li>
+                        <li><code>charge.refunded</code></li>
+                        <li><code>invoice.payment_failed</code></li>
+                    </ul>
+                </li>
+                <li>Click <strong>"Add endpoint"</strong></li>
+                <li>Copy the <strong>Signing secret</strong> (starts with <code>whsec_</code>)</li>
+            </ol>
+        </div>
+
+        <!-- Step 6: Edge Functions -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">6</div>
+                <div class="step-title">Deploy Edge Functions</div>
+                <span class="step-time">~10 min</span>
+            </div>
+
+            <p>Edge functions handle Stripe payments and admin operations. You have two options:</p>
+
+            <h3>Option A: Using Supabase CLI (Recommended)</h3>
+            <ol>
+                <li>Install <a href="https://supabase.com/docs/guides/cli/getting-started" target="_blank">Supabase CLI</a></li>
+                <li>Clone your forked repo locally</li>
+                <li>Run these commands:
+                    <pre><code># Login to Supabase
+supabase login
+
+# Link to your project
+supabase link --project-ref YOUR_PROJECT_ID
+
+# Set secrets
+supabase secrets set STRIPE_SECRET_KEY=sk_test_your_key
+supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_your_secret
+
+# Deploy all functions
+supabase functions deploy create-checkout-session --no-verify-jwt
+supabase functions deploy create-portal-session --no-verify-jwt
+supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy retrieve-checkout-session --no-verify-jwt
+supabase functions deploy link-pending-subscription --no-verify-jwt
+supabase functions deploy admin-create-user
+supabase functions deploy admin-delete-user
+supabase functions deploy admin-reset-password</code></pre>
+                </li>
+            </ol>
+
+            <h3>Option B: Manual (No CLI needed)</h3>
+            <ol>
+                <li>Go to your Supabase Dashboard > <strong>Edge Functions</strong></li>
+                <li>Click <strong>"Create a new function"</strong></li>
+                <li>For each function, copy the code from the GitHub repo's <code>supabase/functions/</code> folder</li>
+                <li>Go to <strong>Project Settings > Edge Functions</strong> to add secrets:
+                    <ul>
+                        <li><code>STRIPE_SECRET_KEY</code> = your Stripe secret key</li>
+                        <li><code>STRIPE_WEBHOOK_SECRET</code> = your webhook signing secret</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>Important:</strong> Functions that handle Stripe webhooks must be deployed with <code>--no-verify-jwt</code> to accept requests from Stripe.
+            </div>
+        </div>
+
+        <!-- Step 7: Environment Variables -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">7</div>
+                <div class="step-title">Configure Vercel Environment Variables</div>
+                <span class="step-time">~3 min</span>
+            </div>
+
+            <p>Go to your Vercel project > <strong>Settings > Environment Variables</strong> and add:</p>
+
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Where to Find It</th>
+                </tr>
+                <tr>
+                    <td><code>VITE_SUPABASE_PROJECT_ID</code></td>
+                    <td>Supabase > Settings > General</td>
+                </tr>
+                <tr>
+                    <td><code>VITE_SUPABASE_PUBLISHABLE_KEY</code></td>
+                    <td>Supabase > Settings > API > anon/public key</td>
+                </tr>
+                <tr>
+                    <td><code>VITE_SUPABASE_URL</code></td>
+                    <td>Supabase > Settings > API > Project URL</td>
+                </tr>
+                <tr>
+                    <td><code>VITE_STRIPE_PUBLISHABLE_KEY</code></td>
+                    <td>Stripe > Developers > API keys > Publishable key</td>
+                </tr>
+            </table>
+
+            <p>After adding variables, click <strong>"Redeploy"</strong> in Vercel (Deployments tab > ... menu > Redeploy)</p>
+        </div>
+
+        <!-- Step 8: Make Yourself Admin -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">8</div>
+                <div class="step-title">Create Admin Account</div>
+                <span class="step-time">~2 min</span>
+            </div>
+            <ol>
+                <li>Visit your deployed app and sign up for an account</li>
+                <li>Go to Supabase > <strong>Authentication > Users</strong></li>
+                <li>Click on your user and copy the <strong>User UID</strong></li>
+                <li>Go to <strong>Table Editor > admin_users</strong></li>
+                <li>Click <strong>"Insert row"</strong></li>
+                <li>Set <code>user_id</code> to your UID, <code>is_admin</code> to <code>true</code></li>
+                <li>Save</li>
+            </ol>
+            <p>You can now access <code>/admin</code> in your app!</p>
+        </div>
+
+        <!-- Step 9: Link Products -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">9</div>
+                <div class="step-title">Link Stripe Products</div>
+                <span class="step-time">~2 min</span>
+            </div>
+            <ol>
+                <li>Go to <code>/admin/products</code> in your app</li>
+                <li>Click <strong>Edit</strong> on "Pro"</li>
+                <li>Add your Stripe Price IDs:
+                    <ul>
+                        <li><code>stripe_price_id_monthly</code>: price_xxx</li>
+                        <li><code>stripe_price_id_yearly</code>: price_xxx</li>
+                        <li><code>stripe_price_id_lifetime</code>: price_xxx (optional)</li>
+                    </ul>
+                </li>
+                <li>Save and repeat for "Enterprise"</li>
+            </ol>
+        </div>
+
+        <!-- Done -->
+        <div class="success-box" style="padding: 1.5rem; text-align: center;">
+            <h2 style="color: var(--success); margin-bottom: 1rem;">You're Done!</h2>
+            <p>Your FunnelSim instance is now fully configured.</p>
+            <p>Test a checkout using Stripe test card: <code>4242 4242 4242 4242</code></p>
+        </div>
+
+        <!-- Checklist -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-title">Setup Checklist</div>
+            </div>
+            <ul class="checklist">
+                <li>Vercel deployment complete</li>
+                <li>Supabase project created</li>
+                <li>Database migrations applied (creates tables + storage bucket)</li>
+                <li>Edge functions deployed</li>
+                <li>Environment variables set in Vercel</li>
+                <li>Admin account created</li>
+                <li>Stripe products created (optional - can add later)</li>
+                <li>Stripe webhook configured (optional - can add later)</li>
+                <li>Stripe products linked in admin (optional - can add later)</li>
+            </ul>
+        </div>
+
+        <!-- Optional: Branding -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">+</div>
+                <div class="step-title">Customize Your Branding (Optional)</div>
+            </div>
+            <p>Go to <code>/admin/settings</code> to customize:</p>
+            <ul>
+                <li>Brand name and tagline</li>
+                <li>Logo (light and dark versions)</li>
+                <li>Primary color</li>
+                <li>Landing page content (hero, features, testimonials, FAQ)</li>
+            </ul>
+        </div>
+
+        <!-- Help -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-title">Need Help?</div>
+            </div>
+            <ul>
+                <li><a href="manual.html">Full Setup Manual</a> - Detailed instructions and troubleshooting</li>
+                <li><a href="https://supabase.com/docs" target="_blank">Supabase Docs</a></li>
+                <li><a href="https://stripe.com/docs" target="_blank">Stripe Docs</a></li>
+            </ul>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem 0; color: var(--text-secondary);">
+            <p>FunnelSim Quick Setup Guide</p>
+        </footer>
+    </div>
+</body>
+</html>
