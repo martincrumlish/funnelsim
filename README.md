@@ -30,13 +30,23 @@ The manual covers:
 
 ---
 
-## Quick Start (Development)
+## One-Click Deploy
+
+Deploy your own FunnelSim instance:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/martincrumlish/funnelsim&env=VITE_SUPABASE_PROJECT_ID,VITE_SUPABASE_PUBLISHABLE_KEY,VITE_SUPABASE_URL,VITE_STRIPE_PUBLISHABLE_KEY&envDescription=Required%20environment%20variables%20for%20FunnelSim&envLink=https://github.com/martincrumlish/funnelsim/blob/main/docs/customer-setup.html)
+
+**[Customer Setup Guide](docs/customer-setup.html)** - Complete step-by-step instructions (~30 minutes)
+
+---
+
+## Local Development
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=h[ttps://github.com/OWNER/REPO](https://github.com/martincrumlish/funnelsim))
 
 ```bash
 # Clone and install
-git clone <your-repo-url>
+git clone https://github.com/martincrumlish/funnelsim.git
 cd funnelsim
 npm install
 
