@@ -29,3 +29,8 @@ pdf/
 scripts/
 src/__tests__/cli-installer.test.ts
 agent-os/
+
+# Environment files
+.env
+.env.local
+.env.*.local
