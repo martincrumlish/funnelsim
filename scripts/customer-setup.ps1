@@ -59,66 +59,61 @@ if ($SKIP_ADMIN) {
 } else {
     Write-Host "[3/7] Creating admin user..." -ForegroundColor Cyan
 
-    # SQL to create admin user with confirmed email
-    $adminSql = @"
-DO `$`$
-DECLARE
-  new_user_id uuid := gen_random_uuid();
-BEGIN
-  -- Create user in auth.users with confirmed email
-  INSERT INTO auth.users (
-    instance_id,
-    id,
-    aud,
-    role,
-    email,
-    encrypted_password,
-    email_confirmed_at,
-    created_at,
-    updated_at,
-    raw_app_meta_data,
-    raw_user_meta_data
-  ) VALUES (
-    '00000000-0000-0000-0000-000000000000',
-    new_user_id,
-    'authenticated',
-    'authenticated',
-    '$ADMIN_EMAIL',
-    crypt('$ADMIN_PASSWORD', gen_salt('bf')),
-    now(),
-    now(),
-    now(),
-    '{"provider":"email","providers":["email"]}',
-    '{}'
-  );
-
-  -- Create profile (trigger may do this, but ensure it exists)
-  INSERT INTO public.profiles (id, email)
-  VALUES (new_user_id, '$ADMIN_EMAIL')
-  ON CONFLICT (id) DO NOTHING;
-
-  -- Add to admin_users as super_admin
-  INSERT INTO public.admin_users (user_id, role, created_by)
-  VALUES (new_user_id, 'super_admin', new_user_id);
-
-  RAISE NOTICE 'Created admin user: %', '$ADMIN_EMAIL';
-END `$`$;
-"@
-
-    # Write SQL to temp file and execute
-    $tempSqlFile = [System.IO.Path]::GetTempFileName() + ".sql"
-    $adminSql | Out-File -FilePath $tempSqlFile -Encoding UTF8
-
-    $null = npx -y supabase db execute --file $tempSqlFile 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "  Admin user created: $ADMIN_EMAIL" -ForegroundColor Green
-    } else {
-        Write-Host "  Warning: Could not create admin user automatically" -ForegroundColor Yellow
-        Write-Host "  You can create it manually in Supabase Dashboard" -ForegroundColor Yellow
+    # Get service role key for admin API
+    $SERVICE_ROLE_KEY = ""
+    try {
+        $apiKeysJson = npx -y supabase projects api-keys --project-ref $PROJECT_ID --output json 2>&1
+        $apiKeys = $apiKeysJson | ConvertFrom-Json
+        $SERVICE_ROLE_KEY = ($apiKeys | Where-Object { $_.name -eq "service_role" }).api_key
+    } catch {
+        Write-Host "  Could not fetch service role key" -ForegroundColor Yellow
     }
 
-    # Clean up temp file
-    Remove-Item $tempSqlFile -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($SERVICE_ROLE_KEY)) {
+        Write-Host "  Warning: Could not get service role key" -ForegroundColor Yellow
+        Write-Host "  Admin user must be created manually" -ForegroundColor Yellow
+        $SKIP_ADMIN = $true
+    } else {
+        # Create user via Supabase Admin API
+        $adminApiUrl = "https://$PROJECT_ID.supabase.co/auth/v1/admin/users"
+        $headers = @{
+            "apikey" = $SERVICE_ROLE_KEY
+            "Authorization" = "Bearer $SERVICE_ROLE_KEY"
+            "Content-Type" = "application/json"
+        }
+        $body = @{
+            email = $ADMIN_EMAIL
+            password = $ADMIN_PASSWORD
+            email_confirm = $true
+        } | ConvertTo-Json
+
+        try {
+            $response = Invoke-RestMethod -Uri $adminApiUrl -Method Post -Headers $headers -Body $body
+            $userId = $response.id
+            Write-Host "  Auth user created: $ADMIN_EMAIL" -ForegroundColor Green
+
+            # Add to admin_users table via REST API
+            $adminUsersUrl = "https://$PROJECT_ID.supabase.co/rest/v1/admin_users"
+            $adminBody = @{
+                user_id = $userId
+                role = "super_admin"
+                created_by = $userId
+            } | ConvertTo-Json
+
+            $restHeaders = @{
+                "apikey" = $SERVICE_ROLE_KEY
+                "Authorization" = "Bearer $SERVICE_ROLE_KEY"
+                "Content-Type" = "application/json"
+                "Prefer" = "return=minimal"
+            }
+
+            $null = Invoke-RestMethod -Uri $adminUsersUrl -Method Post -Headers $restHeaders -Body $adminBody
+            Write-Host "  Admin role assigned" -ForegroundColor Green
+        } catch {
+            Write-Host "  Warning: Could not create admin user: $_" -ForegroundColor Yellow
+            $SKIP_ADMIN = $true
+        }
+    }
 }
 
 # Step 4: Set secrets
