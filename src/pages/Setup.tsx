@@ -883,16 +883,24 @@ ON CONFLICT (user_id) DO NOTHING;`;
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base flex items-center gap-2">
                         <Settings className="h-4 w-4 text-amber-500" />
-                        Optional next steps
+                        To finish setup
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="text-sm space-y-1 text-muted-foreground">
                         <li>• Set up Stripe for payments</li>
+                        <li>• Create products in Stripe</li>
+                        <li>• Link products in Admin → Products</li>
                         <li>• Customize branding in Admin → Settings</li>
-                        <li>• Configure subscription tiers</li>
-                        <li>• Set up email sending (Elastic Email)</li>
                       </ul>
+                      <a
+                        href="https://github.com/martincrumlish/funnelsim/blob/main/docs/manual.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline text-sm inline-flex items-center gap-1 mt-2"
+                      >
+                        View Full Setup Manual <ExternalLink className="h-3 w-3" />
+                      </a>
                     </CardContent>
                   </Card>
                 </div>
@@ -902,8 +910,12 @@ ON CONFLICT (user_id) DO NOTHING;`;
                     Go to Your App
                     <ExternalLink className="h-4 w-4 ml-2" />
                   </Button>
-                  <Button variant="outline" onClick={() => window.print()}>
-                    Print This Guide
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open("https://github.com/martincrumlish/funnelsim/blob/main/docs/manual.html", "_blank")}
+                  >
+                    Open Setup Manual
+                    <ExternalLink className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
               </>
