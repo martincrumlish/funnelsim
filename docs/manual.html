@@ -703,9 +703,41 @@ supabase secrets set STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 # Set Stripe webhook secret
 supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret</code></pre>
 
+            <h3>Email Configuration (Optional)</h3>
+            <p>Supabase handles all authentication emails (password reset, email verification) by default. However, for a professional appearance, you should configure custom SMTP:</p>
+
+            <h4>Option A: Supabase Built-in (Default)</h4>
+            <p>Works out of the box but emails come from <code>noreply@mail.app.supabase.io</code>. Suitable for testing and small deployments.</p>
+
+            <h4>Option B: Custom SMTP (Recommended for Production)</h4>
+            <ol>
+                <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a> → Authentication → SMTP Settings</li>
+                <li>Enable "Custom SMTP"</li>
+                <li>Enter your SMTP provider credentials:
+                    <ul>
+                        <li><strong>Sender email</strong>: noreply@yourdomain.com</li>
+                        <li><strong>Sender name</strong>: YourBrand</li>
+                        <li><strong>Host</strong>: Your SMTP server (e.g., smtp.sendgrid.net)</li>
+                        <li><strong>Port</strong>: Usually 587 for TLS</li>
+                        <li><strong>Username/Password</strong>: Your SMTP credentials</li>
+                    </ul>
+                </li>
+            </ol>
+
             <div class="info-box">
-                <strong>Email Configuration</strong>
-                <p>Password reset and email verification are handled by Supabase's built-in auth system. No additional email API keys are required. To use a custom sender domain, configure SMTP in Supabase Dashboard > Authentication > SMTP Settings.</p>
+                <strong>Popular SMTP Providers</strong>
+                <ul>
+                    <li><strong>SendGrid</strong> - Free tier: 100 emails/day</li>
+                    <li><strong>Mailgun</strong> - Free tier: 5,000 emails/month for 3 months</li>
+                    <li><strong>Amazon SES</strong> - Very low cost, requires AWS account</li>
+                    <li><strong>Elastic Email</strong> - Free tier: 100 emails/day</li>
+                    <li><strong>Resend</strong> - Free tier: 3,000 emails/month</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>Important: Configure Site URL First!</strong>
+                <p>Before testing emails, make sure your Site URL is configured correctly in Supabase Dashboard → Authentication → URL Configuration. Otherwise, email links will point to <code>localhost</code> instead of your production URL.</p>
             </div>
 
             <h3>Deploy Edge Functions</h3>

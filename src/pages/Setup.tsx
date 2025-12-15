@@ -540,12 +540,6 @@ ON CONFLICT (user_id) DO NOTHING;`;
                           description="Stripe webhook signing secret (add real one later)"
                           onCopy={copyToClipboard}
                         />
-                        <SecretRow
-                          name="ELASTIC_EMAIL_API_KEY"
-                          value="placeholder"
-                          description="For password reset emails (optional)"
-                          onCopy={copyToClipboard}
-                        />
                       </div>
                     </div>
                   </div>
