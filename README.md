@@ -34,9 +34,9 @@ The manual covers:
 
 Deploy your own FunnelSim instance:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/martincrumlish/funnelsim&env=VITE_SUPABASE_PROJECT_ID,VITE_SUPABASE_PUBLISHABLE_KEY,VITE_SUPABASE_URL&envDescription=Supabase%20credentials%20(get%20from%20Supabase%20Dashboard)&envLink=https://github.com/martincrumlish/funnelsim/blob/main/docs/customer-setup.html)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/martincrumlish/funnelsim)
 
-**[Customer Setup Guide](docs/customer-setup.html)** - Complete step-by-step instructions (~30 minutes)
+After deploying, visit `your-app.vercel.app/setup` for the guided setup wizard.
 
 ---
 
