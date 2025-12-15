@@ -20,12 +20,14 @@ import {
   Settings,
   Shield,
   PartyPopper,
+  Link,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SetupData {
   projectId: string;
   adminEmail: string;
+  vercelUrl: string;
 }
 
 const STEPS = [
@@ -35,6 +37,7 @@ const STEPS = [
   { id: "migrations", title: "Setup DB", icon: Database },
   { id: "secrets", title: "Secrets", icon: Key },
   { id: "envvars", title: "Env Vars", icon: Settings },
+  { id: "authurl", title: "Auth URL", icon: Link },
   { id: "admin", title: "Admin", icon: Shield },
   { id: "complete", title: "Done", icon: PartyPopper },
 ];
@@ -45,6 +48,7 @@ const Setup = () => {
   const [data, setData] = useState<SetupData>({
     projectId: "",
     adminEmail: "",
+    vercelUrl: "",
   });
   const { toast } = useToast();
 
@@ -78,6 +82,7 @@ const Setup = () => {
       case "migrations":
       case "secrets":
       case "envvars":
+      case "authurl":
       case "admin":
         return completedSteps[step.id];
       default:
@@ -663,6 +668,100 @@ ON CONFLICT (user_id) DO NOTHING;`;
                   onCheckedChange={(checked) => {
                     if (checked) markStepComplete("envvars");
                     else setCompletedSteps((prev) => ({ ...prev, envvars: false }));
+                  }}
+                />
+              </>
+            )}
+
+            {/* Configure Auth URL Step */}
+            {STEPS[currentStep].id === "authurl" && (
+              <>
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                  <p className="text-blue-600 dark:text-blue-400">
+                    <strong>Important!</strong> Configure your Site URL so authentication emails
+                    (password reset, email verification) link to your app instead of localhost.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">Enter your Vercel URL:</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Find this in your Vercel Dashboard (e.g., your-app.vercel.app)
+                      </p>
+                      <Input
+                        placeholder="https://your-app.vercel.app"
+                        value={data.vercelUrl}
+                        onChange={(e) => setData({ ...data, vercelUrl: e.target.value })}
+                        className="max-w-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">Go to Supabase Authentication settings:</p>
+                      <a
+                        href={`https://supabase.com/dashboard/project/${data.projectId || "_"}/auth/url-configuration`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline inline-flex items-center gap-1 text-sm"
+                      >
+                        Open URL Configuration <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">Update these settings:</p>
+                      <div className="mt-2 space-y-2">
+                        <div className="p-3 bg-muted/50 rounded">
+                          <p className="text-sm font-medium">Site URL</p>
+                          <code className="text-xs text-primary">{data.vercelUrl || "https://your-app.vercel.app"}</code>
+                        </div>
+                        <div className="p-3 bg-muted/50 rounded">
+                          <p className="text-sm font-medium">Redirect URLs (add this)</p>
+                          <code className="text-xs text-primary">{data.vercelUrl ? `${data.vercelUrl}/**` : "https://your-app.vercel.app/**"}</code>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
+                      4
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">Click "Save" in Supabase</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                  <p className="text-amber-600 dark:text-amber-400 text-sm">
+                    <strong>Why this matters:</strong> Without this, password reset and verification
+                    emails will contain links to localhost:3000 instead of your actual site.
+                  </p>
+                </div>
+
+                <StepCheckbox
+                  id="authurl"
+                  label="Done! Site URL and Redirect URLs are configured"
+                  checked={completedSteps["authurl"]}
+                  onCheckedChange={(checked) => {
+                    if (checked) markStepComplete("authurl");
+                    else setCompletedSteps((prev) => ({ ...prev, authurl: false }));
                   }}
                 />
               </>
