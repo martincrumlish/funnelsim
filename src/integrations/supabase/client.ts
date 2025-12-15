@@ -8,8 +8,19 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Validate that URL is actually a valid HTTP/HTTPS URL
+const isValidSupabaseUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 // Check if Supabase is configured - allows /setup route to work without env vars
-export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+export const isSupabaseConfigured = isValidSupabaseUrl(SUPABASE_URL) && Boolean(SUPABASE_PUBLISHABLE_KEY);
 
 // Create client only if configured, otherwise create a placeholder that will error on use
 export const supabase: SupabaseClient<Database> = isSupabaseConfigured
