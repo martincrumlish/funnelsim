@@ -15,12 +15,12 @@ import {
   CheckCircle2,
   Rocket,
   Database,
-  Github,
   Key,
   Settings,
   Shield,
   PartyPopper,
   Link,
+  Terminal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ interface SetupData {
 const STEPS = [
   { id: "welcome", title: "Welcome", icon: Rocket },
   { id: "supabase", title: "Database", icon: Database },
-  { id: "github", title: "Connect", icon: Github },
+  { id: "github", title: "Functions", icon: Terminal },
   { id: "migrations", title: "Setup DB", icon: Database },
   { id: "secrets", title: "Secrets", icon: Key },
   { id: "envvars", title: "Env Vars", icon: Settings },
@@ -319,82 +319,228 @@ ON CONFLICT (user_id) DO NOTHING;`;
               </>
             )}
 
-            {/* Connect GitHub to Supabase Step */}
+            {/* Deploy Edge Functions Step */}
             {STEPS[currentStep].id === "github" && (
               <>
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
                   <p className="text-blue-600 dark:text-blue-400">
-                    <strong>This is the magic step!</strong> By connecting your GitHub repo to Supabase,
-                    all the backend "Edge Functions" will be automatically deployed whenever you push code.
+                    Now we need to deploy the backend "Edge Functions" that handle payments,
+                    password resets, and other server-side features.
                   </p>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                      1
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">Go to your Supabase project's settings</p>
-                      <a
-                        href={`https://supabase.com/dashboard/project/${data.projectId || "_"}/settings/integrations`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline inline-flex items-center gap-1 text-sm"
-                      >
-                        Open Integrations Settings <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
+                {/* Option A: Pro Plan - GitHub Integration */}
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded">Option A</span>
+                    <span className="font-semibold">Automatic Setup</span>
+                    <span className="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded">Requires Supabase Pro</span>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                      2
+                  <p className="text-sm text-muted-foreground mb-4">
+                    If you have Supabase Pro, you can connect GitHub for automatic deployments:
+                  </p>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground">1.</span>
+                      <div>
+                        Go to{" "}
+                        <a
+                          href={`https://supabase.com/dashboard/project/${data.projectId || "_"}/settings/integrations`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          Integrations Settings <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium">Find "GitHub" and click "Connect"</p>
-                      <p className="text-sm text-muted-foreground">
-                        Authorize Supabase to access your GitHub
-                      </p>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground">2.</span>
+                      <span>Find "GitHub" and click "Connect"</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground">3.</span>
+                      <span>Select your "funnelsim" repository and enable "Edge Functions"</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                      3
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">Select your "funnelsim" repository</p>
-                      <p className="text-sm text-muted-foreground">
-                        This is the repo Vercel created in your GitHub account
-                      </p>
-                    </div>
+                {/* Option B: Free Plan - CLI Instructions */}
+                <div className="border-2 border-primary/50 rounded-lg p-4 bg-primary/5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded">Option B</span>
+                    <span className="font-semibold">Manual Setup (Free Plan)</span>
+                    <span className="text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded">Works on Free Tier</span>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                      4
+                  <p className="text-sm text-muted-foreground mb-4">
+                    If you're on the free Supabase plan, follow these steps to deploy manually using the command line:
+                  </p>
+
+                  <div className="space-y-4">
+                    {/* Step 1: Open Terminal */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          1
+                        </div>
+                        <p className="font-medium text-sm">Open a Terminal</p>
+                      </div>
+                      <div className="ml-8 text-sm text-muted-foreground space-y-1">
+                        <p><strong>Windows:</strong> Press <code className="bg-muted px-1 rounded">Win + R</code>, type <code className="bg-muted px-1 rounded">cmd</code>, press Enter</p>
+                        <p><strong>Mac:</strong> Press <code className="bg-muted px-1 rounded">Cmd + Space</code>, type <code className="bg-muted px-1 rounded">Terminal</code>, press Enter</p>
+                        <p><strong>Linux:</strong> Press <code className="bg-muted px-1 rounded">Ctrl + Alt + T</code></p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium">Enable "Edge Functions"</p>
-                      <p className="text-sm text-muted-foreground">
-                        Make sure the Edge Functions sync is turned on
-                      </p>
+
+                    {/* Step 2: Install Node.js if needed */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          2
+                        </div>
+                        <p className="font-medium text-sm">Check if Node.js is installed</p>
+                      </div>
+                      <div className="ml-8">
+                        <p className="text-sm text-muted-foreground mb-2">Type this command and press Enter:</p>
+                        <CommandBlock command="node --version" onCopy={copyToClipboard} label="Check Node" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          If you see a version number (like v18.0.0), skip to step 3.
+                          If you see an error, <a href="https://nodejs.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">download Node.js here</a> and install it first.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Clone your repo */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          3
+                        </div>
+                        <p className="font-medium text-sm">Download your code from GitHub</p>
+                      </div>
+                      <div className="ml-8">
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Go to your GitHub account, find the "funnelsim" repo that Vercel created, and copy the clone URL. Then run:
+                        </p>
+                        <CommandBlock command="git clone https://github.com/YOUR_USERNAME/funnelsim.git" onCopy={copyToClipboard} label="Git clone" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Replace YOUR_USERNAME with your actual GitHub username.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 4: Navigate to folder */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          4
+                        </div>
+                        <p className="font-medium text-sm">Go into the project folder</p>
+                      </div>
+                      <div className="ml-8">
+                        <CommandBlock command="cd funnelsim" onCopy={copyToClipboard} label="Change directory" />
+                      </div>
+                    </div>
+
+                    {/* Step 5: Login to Supabase */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          5
+                        </div>
+                        <p className="font-medium text-sm">Login to Supabase CLI</p>
+                      </div>
+                      <div className="ml-8">
+                        <p className="text-sm text-muted-foreground mb-2">This will open your browser to authenticate:</p>
+                        <CommandBlock command="npx supabase login" onCopy={copyToClipboard} label="Supabase login" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Click "Allow" in the browser window that opens, then return to your terminal.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 6: Link project */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          6
+                        </div>
+                        <p className="font-medium text-sm">Link to your Supabase project</p>
+                      </div>
+                      <div className="ml-8">
+                        <CommandBlock
+                          command={`npx supabase link --project-ref ${data.projectId || "YOUR_PROJECT_ID"}`}
+                          onCopy={copyToClipboard}
+                          label="Link project"
+                        />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          When asked for the database password, enter the password you set when creating the Supabase project.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 7: Deploy functions */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          7
+                        </div>
+                        <p className="font-medium text-sm">Deploy all Edge Functions</p>
+                      </div>
+                      <div className="ml-8">
+                        <CommandBlock command="npx supabase functions deploy" onCopy={copyToClipboard} label="Deploy functions" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          This uploads all the backend functions. It may take a minute or two.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 8: Verify */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center font-semibold text-xs">
+                          8
+                        </div>
+                        <p className="font-medium text-sm">Verify deployment</p>
+                      </div>
+                      <div className="ml-8">
+                        <p className="text-sm text-muted-foreground">
+                          Go to{" "}
+                          <a
+                            href={`https://supabase.com/dashboard/project/${data.projectId || "_"}/functions`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline inline-flex items-center gap-1"
+                          >
+                            Edge Functions Dashboard <ExternalLink className="h-3 w-3" />
+                          </a>
+                          {" "}and confirm you see these functions listed:
+                        </p>
+                        <ul className="text-xs text-muted-foreground mt-2 ml-4 list-disc space-y-0.5">
+                          <li>create-checkout-session</li>
+                          <li>create-portal-session</li>
+                          <li>stripe-webhook</li>
+                          <li>send-password-reset</li>
+                          <li>reset-password-with-token</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
                   <p className="text-green-600 dark:text-green-400 text-sm">
-                    <strong>What this does:</strong> Supabase will automatically deploy all the
-                    backend functions (payment processing, admin tools, etc.) from your GitHub repo.
-                    No command line needed!
+                    <strong>What these functions do:</strong> They handle Stripe payments, password resets,
+                    and other server-side operations that can't run in the browser.
                   </p>
                 </div>
 
                 <StepCheckbox
                   id="github"
-                  label="Done! GitHub is connected and Edge Functions are syncing"
+                  label="Done! Edge Functions are deployed (I can see them in the Supabase dashboard)"
                   checked={completedSteps["github"]}
                   onCheckedChange={(checked) => {
                     if (checked) markStepComplete("github");
