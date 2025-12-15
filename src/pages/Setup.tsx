@@ -893,14 +893,9 @@ ON CONFLICT (user_id) DO NOTHING;`;
                         <li>• Link products in Admin → Products</li>
                         <li>• Customize branding in Admin → Settings</li>
                       </ul>
-                      <a
-                        href="https://github.com/martincrumlish/funnelsim/blob/main/docs/manual.html"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline text-sm inline-flex items-center gap-1 mt-2"
-                      >
-                        View Full Setup Manual <ExternalLink className="h-3 w-3" />
-                      </a>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        See manual sections 5-6 (Stripe) and 10-11 (Products & Branding)
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -912,9 +907,9 @@ ON CONFLICT (user_id) DO NOTHING;`;
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => window.open("https://github.com/martincrumlish/funnelsim/blob/main/docs/manual.html", "_blank")}
+                    onClick={() => window.open("https://github.com/martincrumlish/funnelsim/blob/main/docs/manual.html#stripe-setup", "_blank")}
                   >
-                    Open Setup Manual
+                    Continue to Stripe Setup (Section 5)
                     <ExternalLink className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
