@@ -1,7 +1,4 @@
-project_id = "lntraljilztlwwsggtfa"
+# Supabase config - project_id is set when you run: npx supabase link --project-ref YOUR_PROJECT_ID
 
-[functions.send-password-reset]
-verify_jwt = false
-
-[functions.reset-password-with-token]
+[functions.stripe-webhook]
 verify_jwt = false
