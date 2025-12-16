@@ -45,7 +45,7 @@ export const Comparison: React.FC = () => {
             </ul>
           </div>
 
-          {/* The FunnelSim Way */}
+          {/* The brandName Way */}
           <div className="relative p-8 rounded-2xl border border-indigo-500/30 bg-indigo-900/5 flex flex-col">
             
             {/* Inner container for background effects with overflow hidden */}

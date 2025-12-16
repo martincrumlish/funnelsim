@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, MousePointer2, TrendingUp, Layers, ArrowRight, Zap } from 'lucide-react';
 import { Button } from './ui/Button';
+import { useWhitelabel } from '@/hooks/useWhitelabel';
 
 // Custom SVG Data URIs for subtle placeholder appearance
 const IMAGES = {
@@ -14,6 +15,9 @@ const IMAGES = {
 };
 
 export const ProductShowcase: React.FC = () => {
+  const { config } = useWhitelabel();
+  const brandName = config.brand_name || 'FunnelSim';
+
   return (
     <div className="bg-dark-900 relative overflow-hidden">
        {/* Shared background elements */}
@@ -53,10 +57,12 @@ export const ProductShowcase: React.FC = () => {
                   ))}
                 </div>
                 
-                <Button variant="outline" className="group border-indigo-500/20 hover:bg-indigo-500/10 hover:text-indigo-400 hover:border-indigo-500/50">
-                  Try the Builder
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <a href="#pricing">
+                  <Button variant="outline" className="group border-indigo-500/20 hover:bg-indigo-500/10 hover:text-indigo-400 hover:border-indigo-500/50">
+                    Try the Builder
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </a>
               </div>
 
               {/* Image/Graphic */}
@@ -125,10 +131,12 @@ export const ProductShowcase: React.FC = () => {
                   ))}
                 </div>
 
-                <Button variant="outline" className="group border-emerald-500/20 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/50">
-                   Explore Analytics
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <a href="#pricing">
+                  <Button variant="outline" className="group border-emerald-500/20 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/50">
+                    Explore Analytics
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
@@ -168,10 +176,12 @@ export const ProductShowcase: React.FC = () => {
                   ))}
                 </div>
                 
-                <Button variant="outline" className="group border-purple-500/20 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/50">
-                  Start Organizing Now
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <a href="#pricing">
+                  <Button variant="outline" className="group border-purple-500/20 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/50">
+                    Start Organizing Now
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </a>
               </div>
 
               {/* Image/Graphic */}
@@ -220,7 +230,7 @@ export const ProductShowcase: React.FC = () => {
                   <span className="text-amber-400">In Seconds.</span>
                 </h2>
                 <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                   Skip the manual setup. Define your products, traffic sources, and costs in our intuitive wizard, and watch as FunnelSim generates the entire simulation instantly.
+                   Skip the manual setup. Define your products, traffic sources, and costs in our intuitive wizard, and watch as {brandName} generates the entire simulation instantly.
                 </p>
 
                 <div className="space-y-4 mb-8">
@@ -238,10 +248,12 @@ export const ProductShowcase: React.FC = () => {
                   ))}
                 </div>
 
-                <Button variant="outline" className="group border-amber-500/20 hover:bg-amber-500/10 hover:text-amber-400 hover:border-amber-500/50">
-                   Try the Wizard
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <a href="#pricing">
+                  <Button variant="outline" className="group border-amber-500/20 hover:bg-amber-500/10 hover:text-amber-400 hover:border-amber-500/50">
+                    Try the Wizard
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
