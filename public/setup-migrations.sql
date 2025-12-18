@@ -7,7 +7,34 @@
 -- ============================================
 
 -- ============================================
--- CORE TABLES
+-- 1. ADMIN SYSTEM (must be first - other policies depend on it)
+-- ============================================
+
+create table if not exists public.admin_users (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  is_admin boolean not null default true,
+  created_at timestamp with time zone default now()
+);
+
+create unique index if not exists idx_admin_users_user_unique on public.admin_users(user_id);
+
+-- Helper function to check if user is admin
+create or replace function public.is_admin(check_user_id uuid)
+returns boolean
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  return exists (
+    select 1 from public.admin_users
+    where user_id = check_user_id and is_admin = true
+  );
+end;
+$$;
+
+-- ============================================
+-- 2. CORE TABLES
 -- ============================================
 
 -- Create profiles table
@@ -17,20 +44,6 @@ create table if not exists public.profiles (
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
-
-alter table public.profiles enable row level security;
-
-create policy "Users can view own profile"
-  on public.profiles for select
-  using (auth.uid() = id);
-
-create policy "Admins can view all profiles"
-  on public.profiles for select
-  using (public.is_admin(auth.uid()));
-
-create policy "Users can update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
 
 -- Create funnels table
 create table if not exists public.funnels (
@@ -45,26 +58,8 @@ create table if not exists public.funnels (
   updated_at timestamp with time zone default now()
 );
 
-alter table public.funnels enable row level security;
-
-create policy "Users can view own funnels"
-  on public.funnels for select
-  using (auth.uid() = user_id);
-
-create policy "Users can create own funnels"
-  on public.funnels for insert
-  with check (auth.uid() = user_id);
-
-create policy "Users can update own funnels"
-  on public.funnels for update
-  using (auth.uid() = user_id);
-
-create policy "Users can delete own funnels"
-  on public.funnels for delete
-  using (auth.uid() = user_id);
-
 -- ============================================
--- TRIGGERS & FUNCTIONS
+-- 3. TRIGGERS & FUNCTIONS
 -- ============================================
 
 -- Function to handle new user registration
@@ -105,7 +100,7 @@ create trigger on_funnels_updated
   for each row execute procedure public.handle_updated_at();
 
 -- ============================================
--- PASSWORD RESET TOKENS
+-- 4. PASSWORD RESET TOKENS
 -- ============================================
 
 create table if not exists public.password_reset_tokens (
@@ -120,53 +115,21 @@ create table if not exists public.password_reset_tokens (
 create index if not exists idx_password_reset_tokens_token on public.password_reset_tokens(token);
 create index if not exists idx_password_reset_tokens_user_id on public.password_reset_tokens(user_id);
 
-alter table public.password_reset_tokens enable row level security;
-
 -- ============================================
--- STORAGE BUCKET FOR LOGOS
+-- 5. STORAGE BUCKET FOR LOGOS
 -- ============================================
 
 insert into storage.buckets (id, name, public)
 values ('funnel-logos', 'funnel-logos', true)
 on conflict (id) do nothing;
 
--- Storage policies
-drop policy if exists "Anyone can view funnel logos" on storage.objects;
-create policy "Anyone can view funnel logos"
-on storage.objects for select
-using (bucket_id = 'funnel-logos');
-
-drop policy if exists "Users can upload their own funnel logos" on storage.objects;
-create policy "Users can upload their own funnel logos"
-on storage.objects for insert
-with check (
-  bucket_id = 'funnel-logos'
-  and auth.uid()::text = (storage.foldername(name))[1]
-);
-
-drop policy if exists "Users can update their own funnel logos" on storage.objects;
-create policy "Users can update their own funnel logos"
-on storage.objects for update
-using (
-  bucket_id = 'funnel-logos'
-  and auth.uid()::text = (storage.foldername(name))[1]
-);
-
-drop policy if exists "Users can delete their own funnel logos" on storage.objects;
-create policy "Users can delete their own funnel logos"
-on storage.objects for delete
-using (
-  bucket_id = 'funnel-logos'
-  and auth.uid()::text = (storage.foldername(name))[1]
-);
-
 -- ============================================
--- SUBSCRIPTION TIERS
+-- 6. SUBSCRIPTION TIERS
 -- ============================================
 
 create table if not exists public.subscription_tiers (
   id uuid default gen_random_uuid() primary key,
-  name text not null,
+  name text unique not null,
   stripe_product_id text,
   stripe_price_id_monthly text,
   stripe_price_id_yearly text,
@@ -185,48 +148,13 @@ create table if not exists public.subscription_tiers (
 create index if not exists idx_subscription_tiers_is_active on public.subscription_tiers(is_active);
 create index if not exists idx_subscription_tiers_sort_order on public.subscription_tiers(sort_order);
 
-alter table public.subscription_tiers enable row level security;
-
 drop trigger if exists on_subscription_tiers_updated on public.subscription_tiers;
 create trigger on_subscription_tiers_updated
   before update on public.subscription_tiers
   for each row execute procedure public.handle_updated_at();
 
--- Seed default tiers (only if table is empty)
-insert into public.subscription_tiers (name, price_monthly, price_yearly, max_funnels, features, sort_order, is_active)
-select * from (values
-  (
-    'Free',
-    0::numeric,
-    0::numeric,
-    3,
-    '["Up to 3 funnels", "Basic analytics", "Community support"]'::jsonb,
-    1,
-    true
-  ),
-  (
-    'Pro',
-    29::numeric,
-    290::numeric,
-    25,
-    '["Up to 25 funnels", "Advanced analytics", "Priority support", "Custom branding"]'::jsonb,
-    2,
-    true
-  ),
-  (
-    'Enterprise',
-    99::numeric,
-    990::numeric,
-    -1,
-    '["Unlimited funnels", "Advanced analytics", "Dedicated support", "Custom branding", "API access", "White-label options"]'::jsonb,
-    3,
-    true
-  )
-) as t(name, price_monthly, price_yearly, max_funnels, features, sort_order, is_active)
-where not exists (select 1 from public.subscription_tiers limit 1);
-
 -- ============================================
--- USER SUBSCRIPTIONS
+-- 7. USER SUBSCRIPTIONS
 -- ============================================
 
 create table if not exists public.user_subscriptions (
@@ -248,8 +176,6 @@ create index if not exists idx_user_subscriptions_user_id on public.user_subscri
 create index if not exists idx_user_subscriptions_stripe_subscription_id on public.user_subscriptions(stripe_subscription_id);
 create index if not exists idx_user_subscriptions_status on public.user_subscriptions(status);
 create unique index if not exists idx_user_subscriptions_user_unique on public.user_subscriptions(user_id);
-
-alter table public.user_subscriptions enable row level security;
 
 drop trigger if exists on_user_subscriptions_updated on public.user_subscriptions;
 create trigger on_user_subscriptions_updated
@@ -280,7 +206,7 @@ create trigger on_auth_user_created_subscription
   for each row execute procedure public.handle_new_user_subscription();
 
 -- ============================================
--- PENDING SUBSCRIPTIONS (for checkout flow)
+-- 8. PENDING SUBSCRIPTIONS (for checkout flow)
 -- ============================================
 
 create table if not exists public.pending_subscriptions (
@@ -301,10 +227,8 @@ create index if not exists idx_pending_subscriptions_stripe_session_id on public
 create index if not exists idx_pending_subscriptions_customer_email on public.pending_subscriptions(customer_email);
 create index if not exists idx_pending_subscriptions_status on public.pending_subscriptions(status);
 
-alter table public.pending_subscriptions enable row level security;
-
 -- ============================================
--- WHITELABEL CONFIG
+-- 9. WHITELABEL CONFIG
 -- ============================================
 
 create table if not exists public.whitelabel_config (
@@ -327,124 +251,164 @@ create table if not exists public.whitelabel_config (
   updated_at timestamp with time zone default now()
 );
 
-alter table public.whitelabel_config enable row level security;
-
 drop trigger if exists on_whitelabel_config_updated on public.whitelabel_config;
 create trigger on_whitelabel_config_updated
   before update on public.whitelabel_config
   for each row execute procedure public.handle_updated_at();
 
--- Seed default config (only if table is empty)
-insert into public.whitelabel_config (brand_name)
-select 'FunnelSim'
-where not exists (select 1 from public.whitelabel_config limit 1);
-
 -- ============================================
--- ADMIN USERS
+-- 10. ENABLE RLS ON ALL TABLES
 -- ============================================
-
-create table if not exists public.admin_users (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users on delete cascade not null,
-  is_admin boolean not null default true,
-  created_at timestamp with time zone default now()
-);
-
-create unique index if not exists idx_admin_users_user_unique on public.admin_users(user_id);
 
 alter table public.admin_users enable row level security;
-
--- Helper function to check if user is admin
-create or replace function public.is_admin(check_user_id uuid)
-returns boolean
-language plpgsql
-security definer set search_path = public
-as $$
-begin
-  return exists (
-    select 1 from public.admin_users
-    where user_id = check_user_id and is_admin = true
-  );
-end;
-$$;
+alter table public.profiles enable row level security;
+alter table public.funnels enable row level security;
+alter table public.password_reset_tokens enable row level security;
+alter table public.subscription_tiers enable row level security;
+alter table public.user_subscriptions enable row level security;
+alter table public.pending_subscriptions enable row level security;
+alter table public.whitelabel_config enable row level security;
 
 -- ============================================
--- RLS POLICIES
+-- 11. RLS POLICIES
 -- ============================================
+
+-- profiles policies
+create policy "Users can view own profile"
+  on public.profiles for select
+  using (auth.uid() = id);
+
+create policy "Admins can view all profiles"
+  on public.profiles for select
+  using (public.is_admin(auth.uid()));
+
+create policy "Users can update own profile"
+  on public.profiles for update
+  using (auth.uid() = id);
+
+-- funnels policies
+create policy "Users can view own funnels"
+  on public.funnels for select
+  using (auth.uid() = user_id);
+
+create policy "Users can create own funnels"
+  on public.funnels for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update own funnels"
+  on public.funnels for update
+  using (auth.uid() = user_id);
+
+create policy "Users can delete own funnels"
+  on public.funnels for delete
+  using (auth.uid() = user_id);
+
+-- Storage policies
+create policy "Anyone can view funnel logos"
+on storage.objects for select
+using (bucket_id = 'funnel-logos');
+
+create policy "Users can upload their own funnel logos"
+on storage.objects for insert
+with check (
+  bucket_id = 'funnel-logos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
+
+create policy "Users can update their own funnel logos"
+on storage.objects for update
+using (
+  bucket_id = 'funnel-logos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
+
+create policy "Users can delete their own funnel logos"
+on storage.objects for delete
+using (
+  bucket_id = 'funnel-logos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
 
 -- subscription_tiers policies
-drop policy if exists "Anyone can view subscription tiers" on public.subscription_tiers;
 create policy "Anyone can view subscription tiers"
   on public.subscription_tiers for select
   using (true);
 
-drop policy if exists "Admins can create subscription tiers" on public.subscription_tiers;
 create policy "Admins can create subscription tiers"
   on public.subscription_tiers for insert
   with check (public.is_admin(auth.uid()));
 
-drop policy if exists "Admins can update subscription tiers" on public.subscription_tiers;
 create policy "Admins can update subscription tiers"
   on public.subscription_tiers for update
   using (public.is_admin(auth.uid()));
 
-drop policy if exists "Admins can delete subscription tiers" on public.subscription_tiers;
 create policy "Admins can delete subscription tiers"
   on public.subscription_tiers for delete
   using (public.is_admin(auth.uid()));
 
 -- user_subscriptions policies
-drop policy if exists "Users can view own subscription" on public.user_subscriptions;
 create policy "Users can view own subscription"
   on public.user_subscriptions for select
   using (auth.uid() = user_id);
 
-drop policy if exists "Admins can view all subscriptions" on public.user_subscriptions;
 create policy "Admins can view all subscriptions"
   on public.user_subscriptions for select
   using (public.is_admin(auth.uid()));
 
-drop policy if exists "Admins can update subscriptions" on public.user_subscriptions;
 create policy "Admins can update subscriptions"
   on public.user_subscriptions for update
   using (public.is_admin(auth.uid()));
 
 -- whitelabel_config policies
-drop policy if exists "Anyone can view whitelabel config" on public.whitelabel_config;
 create policy "Anyone can view whitelabel config"
   on public.whitelabel_config for select
   using (true);
 
-drop policy if exists "Admins can update whitelabel config" on public.whitelabel_config;
 create policy "Admins can update whitelabel config"
   on public.whitelabel_config for update
   using (public.is_admin(auth.uid()));
 
 -- admin_users policies
-drop policy if exists "Admins can view admin users" on public.admin_users;
 create policy "Admins can view admin users"
   on public.admin_users for select
   using (public.is_admin(auth.uid()));
 
-drop policy if exists "Admins can create admin users" on public.admin_users;
 create policy "Admins can create admin users"
   on public.admin_users for insert
   with check (public.is_admin(auth.uid()));
 
-drop policy if exists "Admins can update admin users" on public.admin_users;
 create policy "Admins can update admin users"
   on public.admin_users for update
   using (public.is_admin(auth.uid()));
 
-drop policy if exists "Admins can delete admin users" on public.admin_users;
 create policy "Admins can delete admin users"
   on public.admin_users for delete
   using (public.is_admin(auth.uid()));
 
 -- ============================================
+-- 12. SEED DATA
+-- ============================================
+
+-- Seed default tiers
+INSERT INTO public.subscription_tiers (name, price_monthly, price_yearly, max_funnels, features, sort_order, is_active)
+VALUES
+  ('Free', 0, 0, 3, '["Up to 3 funnels", "Basic analytics", "Community support"]'::jsonb, 1, true),
+  ('Pro', 29, 290, 25, '["Up to 25 funnels", "Advanced analytics", "Priority support", "Custom branding"]'::jsonb, 2, true),
+  ('Enterprise', 99, 990, -1, '["Unlimited funnels", "Advanced analytics", "Dedicated support", "Custom branding", "API access", "White-label options"]'::jsonb, 3, true)
+ON CONFLICT (name) DO NOTHING;
+
+-- Seed default whitelabel config
+INSERT INTO public.whitelabel_config (brand_name)
+SELECT 'FunnelSim'
+WHERE NOT EXISTS (SELECT 1 FROM public.whitelabel_config LIMIT 1);
+
+-- ============================================
 -- SETUP COMPLETE!
 -- ============================================
 -- Your database is now configured.
--- Next: Create your first admin user by running
--- the admin SQL command from the setup wizard.
+-- Next: Create your first admin user by running:
+--
+-- INSERT INTO admin_users (user_id)
+-- SELECT id FROM auth.users WHERE email = 'your-email@example.com';
+--
 -- ============================================
