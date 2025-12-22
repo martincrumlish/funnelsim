@@ -188,7 +188,7 @@ export const Hero: React.FC = () => {
             {/* Video Embed */}
             <iframe
               className="w-full h-full"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+              src="https://www.youtube.com/embed/NpEaa2P7qZI"
               title={`${config.brand_name || 'FunnelSim'} Demo`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
