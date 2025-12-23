@@ -519,13 +519,26 @@ ON CONFLICT (user_id) DO NOTHING;`;
                           </a>
                           {" "}and confirm you see these functions listed:
                         </p>
-                        <ul className="text-xs text-muted-foreground mt-2 ml-4 list-disc space-y-0.5">
-                          <li>create-checkout-session</li>
-                          <li>create-portal-session</li>
-                          <li>stripe-webhook</li>
-                          <li>send-password-reset</li>
-                          <li>reset-password-with-token</li>
-                        </ul>
+                        <div className="mt-2 space-y-2">
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground">Admin functions:</p>
+                            <ul className="text-xs text-muted-foreground ml-4 list-disc space-y-0.5">
+                              <li>admin-create-user</li>
+                              <li>admin-delete-user</li>
+                              <li>admin-reset-password</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground">Stripe functions (work after Stripe setup):</p>
+                            <ul className="text-xs text-muted-foreground ml-4 list-disc space-y-0.5">
+                              <li>create-checkout-session</li>
+                              <li>create-portal-session</li>
+                              <li>link-pending-subscription</li>
+                              <li>retrieve-checkout-session</li>
+                              <li>stripe-webhook</li>
+                            </ul>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
