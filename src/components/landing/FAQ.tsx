@@ -6,6 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useWhitelabel, DEFAULT_FAQ } from '@/hooks/useWhitelabel';
+import { MarkdownPreview } from "@/components/admin/MarkdownPreview";
 
 export const FAQ: React.FC = () => {
   const { config, isLoading } = useWhitelabel();
@@ -41,7 +42,10 @@ export const FAQ: React.FC = () => {
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-slate-400 leading-relaxed text-base pb-6">
-                  {item.answer}
+                  <MarkdownPreview
+                    content={item.answer}
+                    className="text-slate-400 [&_strong]:text-slate-200 [&_em]:text-slate-300 [&_a]:text-indigo-400 [&_a]:hover:text-indigo-300 [&_li]:text-slate-400 [&_p]:text-slate-400"
+                  />
                 </AccordionContent>
               </AccordionItem>
             ))}
