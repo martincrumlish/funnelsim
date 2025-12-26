@@ -167,9 +167,10 @@ interface FunnelCanvasProps {
     exportToPNG: () => Promise<void>;
     exportToPDF: () => Promise<void>;
   } | null>;
+  logoUrl?: string | null;
 }
 
-export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, addNodeRef, exportFunctionsRef }: FunnelCanvasProps) => {
+export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, addNodeRef, exportFunctionsRef, logoUrl }: FunnelCanvasProps) => {
   // Ensure frontend node always exists
   const getInitialNodes = () => {
     if (initialData?.nodes) {
@@ -667,6 +668,16 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
     const totalHeight = scaledHeight + 160;
     let html = `
       <div style="max-width: 1160px;">
+        ${logoUrl ? `
+          <div style="margin-bottom: 24px;">
+            <img
+              src="${logoUrl}"
+              alt="Funnel Logo"
+              style="max-height: 48px; max-width: 200px; object-fit: contain;"
+              crossorigin="anonymous"
+            />
+          </div>
+        ` : ''}
         <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: #0f172a;">
           Funnel Structure
         </h1>
@@ -763,7 +774,7 @@ export const FunnelCanvas = ({ funnelId, initialData, onNameChange, canvasRef, a
 
     exportContainer.innerHTML = html;
     return exportContainer;
-  }, [nodes, edges, trafficSources, totalVisits, totalCost, stepMetrics, totalRevenue]);
+  }, [nodes, edges, trafficSources, totalVisits, totalCost, stepMetrics, totalRevenue, logoUrl]);
 
   // Export functions
   const exportToPNG = useCallback(async () => {
