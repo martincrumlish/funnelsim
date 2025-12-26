@@ -238,6 +238,7 @@ export type Database = {
           hero_headline: string | null
           hero_subheadline: string | null
           hero_badge_text: string | null
+          hero_video_embed: string | null
           cta_button_text: string | null
           features: Json | null
           testimonials: Json | null
@@ -257,6 +258,7 @@ export type Database = {
           hero_headline?: string | null
           hero_subheadline?: string | null
           hero_badge_text?: string | null
+          hero_video_embed?: string | null
           cta_button_text?: string | null
           features?: Json | null
           testimonials?: Json | null
@@ -276,6 +278,7 @@ export type Database = {
           hero_headline?: string | null
           hero_subheadline?: string | null
           hero_badge_text?: string | null
+          hero_video_embed?: string | null
           cta_button_text?: string | null
           features?: Json | null
           testimonials?: Json | null
