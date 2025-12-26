@@ -41,6 +41,7 @@ export const WhitelabelEditor = ({
   const [heroHeadline, setHeroHeadline] = useState(config.hero_headline || '');
   const [heroSubheadline, setHeroSubheadline] = useState(config.hero_subheadline || '');
   const [heroBadgeText, setHeroBadgeText] = useState(config.hero_badge_text || '');
+  const [heroVideoEmbed, setHeroVideoEmbed] = useState(config.hero_video_embed || '');
   const [ctaButtonText, setCtaButtonText] = useState(config.cta_button_text || '');
 
   // Features (array of objects)
@@ -127,6 +128,7 @@ export const WhitelabelEditor = ({
       hero_headline: heroHeadline || null,
       hero_subheadline: heroSubheadline || null,
       hero_badge_text: heroBadgeText || null,
+      hero_video_embed: heroVideoEmbed || null,
       cta_button_text: ctaButtonText || null,
       features: features as any,
       testimonials: testimonials as any,
@@ -308,6 +310,22 @@ export const WhitelabelEditor = ({
                     placeholder="e.g., Start Modeling Free"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="heroVideoEmbed">Video Embed Code</Label>
+                <Textarea
+                  id="heroVideoEmbed"
+                  value={heroVideoEmbed}
+                  onChange={(e) => setHeroVideoEmbed(e.target.value)}
+                  placeholder='<iframe src="https://www.youtube.com/embed/VIDEO_ID" ...></iframe>'
+                  rows={4}
+                  className="font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste the full embed code from YouTube, Vimeo, or other video platforms.
+                  This appears when users click "See It In Action". Leave empty to hide the video button.
+                </p>
               </div>
             </CardContent>
           </Card>

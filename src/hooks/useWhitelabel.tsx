@@ -22,6 +22,7 @@ const DEFAULT_CONFIG: WhitelabelConfigData = {
   hero_headline: 'Simulate High-Converting Sales Funnels Instantly',
   hero_subheadline: 'The first visual funnel builder that predicts your profit before you build. Map out flows, calculate conversions, and optimize ROI in real-time.',
   hero_badge_text: 'Early Bird Deal Now Available',
+  hero_video_embed: null,
   cta_button_text: 'Start Modeling Free',
   features: null,
   testimonials: null,
@@ -131,6 +132,7 @@ export interface WhitelabelConfigData {
   hero_headline: string | null;
   hero_subheadline: string | null;
   hero_badge_text: string | null;
+  hero_video_embed: string | null;
   cta_button_text: string | null;
   features: WhitelabelFeature[] | null;
   testimonials: WhitelabelTestimonial[] | null;
@@ -238,6 +240,7 @@ function parseConfigFromDatabase(data: WhitelabelConfig | null): WhitelabelConfi
     hero_headline: data.hero_headline,
     hero_subheadline: data.hero_subheadline,
     hero_badge_text: data.hero_badge_text,
+    hero_video_embed: data.hero_video_embed,
     cta_button_text: data.cta_button_text,
     features,
     testimonials,

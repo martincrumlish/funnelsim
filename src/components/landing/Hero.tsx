@@ -35,6 +35,7 @@ export const Hero: React.FC = () => {
   const subheadline = config.hero_subheadline || DEFAULT_SUBHEADLINE;
   const badgeText = config.hero_badge_text || DEFAULT_BADGE_TEXT;
   const ctaText = config.cta_button_text || DEFAULT_CTA_TEXT;
+  const videoEmbed = config.hero_video_embed;
 
   // Split headline to apply gradient to last part if it contains a line break pattern
   const renderHeadline = () => {
@@ -106,15 +107,17 @@ export const Hero: React.FC = () => {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </a>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto px-8 h-14 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10"
-              onClick={() => setIsVideoOpen(true)}
-            >
-              <PlayCircle className="mr-2 w-5 h-5" />
-              See It In Action
-            </Button>
+            {videoEmbed && (
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto px-8 h-14 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10"
+                onClick={() => setIsVideoOpen(true)}
+              >
+                <PlayCircle className="mr-2 w-5 h-5" />
+                See It In Action
+              </Button>
+            )}
           </div>
 
         </div>
@@ -166,7 +169,7 @@ export const Hero: React.FC = () => {
       </div>
 
       {/* Video Modal */}
-      {isVideoOpen && (
+      {isVideoOpen && videoEmbed && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           {/* Backdrop */}
           <div
@@ -185,14 +188,11 @@ export const Hero: React.FC = () => {
               <X className="w-6 h-6" />
             </button>
 
-            {/* Video Embed */}
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/NpEaa2P7qZI"
-              title={`${config.brand_name || 'FunnelSim'} Demo`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            ></iframe>
+            {/* Video Embed - renders custom embed code from whitelabel config */}
+            <div
+              className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full"
+              dangerouslySetInnerHTML={{ __html: videoEmbed }}
+            />
           </div>
         </div>
       )}
