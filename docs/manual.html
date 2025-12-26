@@ -696,12 +696,32 @@ WITH CHECK (
             <h2><span class="step-number">7</span> Edge Functions</h2>
 
             <h3>Set Edge Function Secrets</h3>
-            <p>Configure your Stripe keys as secrets for the edge functions:</p>
+            <p>Configure your Stripe keys as secrets for the edge functions. You can do this via CLI or the Dashboard UI:</p>
+
+            <h4>Option A: Via CLI</h4>
             <pre><code># Set Stripe secret key
 supabase secrets set STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 
 # Set Stripe webhook secret
 supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret</code></pre>
+
+            <h4>Option B: Via Supabase Dashboard (No CLI Required)</h4>
+            <ol>
+                <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a> → Your Project → <strong>Project Settings</strong> (gear icon)</li>
+                <li>Click <strong>Edge Functions</strong> in the sidebar</li>
+                <li>Scroll down to <strong>Edge Function Secrets</strong></li>
+                <li>Click <strong>Add new secret</strong> and add each secret:
+                    <ul>
+                        <li><code>STRIPE_SECRET_KEY</code> = your Stripe secret key (starts with <code>sk_test_</code> or <code>sk_live_</code>)</li>
+                        <li><code>STRIPE_WEBHOOK_SECRET</code> = your webhook signing secret (starts with <code>whsec_</code>)</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>Setup Wizard Users: Replace Placeholder Secrets!</strong>
+                <p>If you used the Setup Wizard, you added placeholder values (<code>sk_test_placeholder</code>). Before accepting payments, you <strong>must</strong> replace these with your real Stripe keys from your <a href="https://dashboard.stripe.com/test/apikeys" target="_blank">Stripe Dashboard</a>.</p>
+            </div>
 
             <h3>Email Configuration (Optional)</h3>
             <p>Supabase handles all authentication emails (password reset, email verification) by default. However, for a professional appearance, you should configure custom SMTP:</p>

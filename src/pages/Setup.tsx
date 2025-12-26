@@ -706,9 +706,16 @@ ON CONFLICT (user_id) DO NOTHING;`;
 
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
                   <p className="text-amber-600 dark:text-amber-400 text-sm">
-                    <strong>Note:</strong> Using placeholder values lets you complete setup now.
-                    You'll add real Stripe keys later from the Admin dashboard when you're ready
-                    to accept payments.
+                    <strong>Important:</strong> These are placeholder values to complete setup.
+                    Before accepting payments, you must replace them with your real Stripe keys from{" "}
+                    <a
+                      href={`https://supabase.com/dashboard/project/${data.projectId || "_"}/settings/functions`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-500 hover:underline font-medium"
+                    >
+                      Supabase Dashboard → Edge Functions → Secrets
+                    </a>.
                   </p>
                 </div>
 
@@ -1047,13 +1054,14 @@ ON CONFLICT (user_id) DO NOTHING;`;
                     </CardHeader>
                     <CardContent>
                       <ul className="text-sm space-y-1 text-muted-foreground">
-                        <li>• Set up Stripe for payments</li>
+                        <li>• Get your Stripe API keys (Section 5)</li>
+                        <li>• <strong className="text-amber-500">Replace placeholder secrets</strong> in Supabase with real Stripe keys</li>
                         <li>• Create products in Stripe</li>
                         <li>• Link products in Admin → Products</li>
                         <li>• Customize branding in Admin → Settings</li>
                       </ul>
                       <p className="text-xs text-muted-foreground mt-2">
-                        See manual sections 5-6 (Stripe) and 10-11 (Products & Branding)
+                        See manual sections 5-7 (Stripe & Edge Functions) and 10-11 (Products & Branding)
                       </p>
                     </CardContent>
                   </Card>
@@ -1066,7 +1074,7 @@ ON CONFLICT (user_id) DO NOTHING;`;
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => window.open("https://github.com/martincrumlish/funnelsim/blob/main/docs/manual.html#stripe-setup", "_blank")}
+                    onClick={() => window.open("https://get.funnelsim.app/manual/", "_blank")}
                   >
                     Continue to Stripe Setup (Section 5)
                     <ExternalLink className="h-4 w-4 ml-2" />
