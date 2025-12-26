@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { SubscriptionTier } from '@/integrations/supabase/types';
 
 // Default pricing plans (fallback when no tiers in database)
-const DEFAULT_PLANS = [
+const DEFAULT_PLANS: PlanType[] = [
   {
     name: "Starter",
     price: "0",
@@ -18,6 +18,7 @@ const DEFAULT_PLANS = [
     cta: "Start Free",
     featured: false,
     priceId: null,
+    billingType: 'free',
   },
   {
     name: "Pro",
@@ -27,6 +28,7 @@ const DEFAULT_PLANS = [
     cta: "Start Trial",
     featured: true,
     priceId: null,
+    billingType: 'monthly',
   },
 ];
 
@@ -38,6 +40,7 @@ interface PlanType {
   cta: string;
   featured: boolean;
   priceId: string | null;
+  billingType: 'free' | 'monthly' | 'lifetime';
 }
 
 export const Testimonials: React.FC = () => {
@@ -100,9 +103,27 @@ export const Testimonials: React.FC = () => {
           features = [];
         }
 
+        // Determine billing type: free, lifetime-only, or monthly
+        const isFree = tier.price_monthly === 0 && tier.price_lifetime === 0;
+        const isLifetimeOnly = tier.price_monthly === 0 && tier.price_lifetime > 0;
+
+        let billingType: 'free' | 'monthly' | 'lifetime' = 'monthly';
+        let price = tier.price_monthly.toString();
+        let priceId = tier.stripe_price_id_monthly;
+
+        if (isFree) {
+          billingType = 'free';
+          price = '0';
+          priceId = null;
+        } else if (isLifetimeOnly) {
+          billingType = 'lifetime';
+          price = tier.price_lifetime.toString();
+          priceId = tier.stripe_price_id_lifetime;
+        }
+
         return {
           name: tier.name,
-          price: tier.price_monthly.toString(),
+          price,
           description: index === 0
             ? "Perfect for solo marketers testing ideas."
             : index === 1
@@ -111,9 +132,10 @@ export const Testimonials: React.FC = () => {
           features: features.length > 0
             ? features
             : [`${tier.max_funnels === -1 ? 'Unlimited' : tier.max_funnels} Funnels`],
-          cta: tier.price_monthly === 0 ? "Start Free" : "Get Started",
+          cta: isFree ? "Start Free" : "Get Started",
           featured: index === 1, // Middle tier is featured
-          priceId: tier.stripe_price_id_monthly,
+          priceId,
+          billingType,
         };
       })
     : DEFAULT_PLANS;
@@ -128,8 +150,9 @@ export const Testimonials: React.FC = () => {
     // Paid plan - initiate checkout
     // For logged-in users, redirect to profile to use the existing authenticated checkout flow
     if (user) {
-      // Store priceId for checkout after navigating to profile
+      // Store priceId and billing type for checkout after navigating to profile
       localStorage.setItem('pendingCheckoutPriceId', plan.priceId);
+      localStorage.setItem('pendingCheckoutBillingType', plan.billingType);
       navigate('/profile?initCheckout=true');
       return;
     }
@@ -152,6 +175,7 @@ export const Testimonials: React.FC = () => {
           body: JSON.stringify({
             price_id: plan.priceId,
             origin: window.location.origin,
+            billing_interval: plan.billingType === 'lifetime' ? 'lifetime' : 'monthly',
             // No user_id or user_email - unauthenticated checkout
           }),
         }
@@ -304,7 +328,12 @@ export const Testimonials: React.FC = () => {
                       <h3 className="text-lg font-medium text-white mb-2">{plan.name}</h3>
                       <div className="flex items-baseline text-white">
                       <span className="text-4xl font-bold tracking-tight">${plan.price}</span>
-                      <span className="text-slate-500 ml-2">/month</span>
+                      {plan.billingType === 'monthly' && (
+                        <span className="text-slate-500 ml-2">/month</span>
+                      )}
+                      {plan.billingType === 'lifetime' && (
+                        <span className="text-slate-500 ml-2">one-time</span>
+                      )}
                       </div>
                       <p className="text-slate-400 mt-4 text-sm">{plan.description}</p>
                   </div>

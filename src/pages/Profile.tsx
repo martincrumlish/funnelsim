@@ -81,15 +81,18 @@ const ProfileContent = () => {
   useEffect(() => {
     const shouldInitCheckout = searchParams.get('initCheckout') === 'true';
     const pendingPriceId = localStorage.getItem('pendingCheckoutPriceId');
+    const pendingBillingType = localStorage.getItem('pendingCheckoutBillingType') as BillingInterval | null;
 
     if (shouldInitCheckout && pendingPriceId && !isCheckingOut) {
       // Clear localStorage and URL params immediately to prevent re-triggering
       localStorage.removeItem('pendingCheckoutPriceId');
+      localStorage.removeItem('pendingCheckoutBillingType');
       navigate('/profile', { replace: true });
 
-      // Initiate checkout
+      // Initiate checkout with the correct billing interval
+      const billingInterval: BillingInterval = pendingBillingType || 'monthly';
       setIsCheckingOut(true);
-      initiateCheckout(pendingPriceId)
+      initiateCheckout(pendingPriceId, billingInterval)
         .catch((error) => {
           toast({
             title: "Checkout failed",
