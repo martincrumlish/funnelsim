@@ -1,6 +1,6 @@
 # FunnelSim
 
-A visual sales funnel modeling and optimization tool that helps marketers and entrepreneurs plan and validate their funnel strategy before investing in development or traffic.
+A drag and drop visual sales funnel modeling and optimization tool that helps marketers and entrepreneurs plan and validate their funnel strategy before investing in development or traffic.
 
 ## Features
 

@@ -302,6 +302,7 @@ const FunnelBuilder = () => {
           canvasRef={canvasRef}
           addNodeRef={addNodeRef}
           exportFunctionsRef={exportFunctionsRef}
+          logoUrl={logoUrl}
         />
       </ReactFlowProvider>
     </div>
