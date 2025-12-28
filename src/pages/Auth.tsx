@@ -128,22 +128,48 @@ const Auth = () => {
     if (token && data?.user) {
       try {
         // Look up tier by registration token
-        const { data: tierData } = await supabase
+        const { data: tierData, error: tierError } = await supabase
           .from('subscription_tiers')
           .select('id, name')
           .eq('registration_token', token)
           .eq('is_active', true)
           .single();
 
+        if (tierError) {
+          console.error('Error looking up tier:', tierError);
+        }
+
         if (tierData) {
-          // Upgrade user to the matching tier
-          await supabase
+          // Wait a moment for the DB trigger to create the subscription
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // Try to update existing subscription first
+          const { error: updateError, count } = await supabase
             .from('user_subscriptions')
             .update({
               tier_id: tierData.id,
               status: 'active'
             })
-            .eq('user_id', data.user.id);
+            .eq('user_id', data.user.id)
+            .select();
+
+          // If no rows updated, try inserting (subscription might not exist yet)
+          if (updateError || count === 0) {
+            console.log('Update failed or no rows, trying upsert...');
+            const { error: upsertError } = await supabase
+              .from('user_subscriptions')
+              .upsert({
+                user_id: data.user.id,
+                tier_id: tierData.id,
+                status: 'active'
+              }, {
+                onConflict: 'user_id'
+              });
+
+            if (upsertError) {
+              console.error('Error upserting subscription:', upsertError);
+            }
+          }
 
           toast({
             title: "Account created!",

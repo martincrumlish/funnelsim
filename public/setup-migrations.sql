@@ -353,6 +353,14 @@ create policy "Users can view own subscription"
   on public.user_subscriptions for select
   using (auth.uid() = user_id);
 
+create policy "Users can insert own subscription"
+  on public.user_subscriptions for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update own subscription"
+  on public.user_subscriptions for update
+  using (auth.uid() = user_id);
+
 create policy "Admins can view all subscriptions"
   on public.user_subscriptions for select
   using (public.is_admin(auth.uid()));
