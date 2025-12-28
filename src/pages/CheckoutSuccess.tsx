@@ -29,7 +29,7 @@ const CheckoutSuccess = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { theme } = useTheme();
-  const { config } = useWhitelabel();
+  const { config, isLoading: whitelabelLoading } = useWhitelabel();
 
   // State
   const [pageState, setPageState] = useState<PageState>("loading");
@@ -372,16 +372,18 @@ const CheckoutSuccess = () => {
 
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="flex justify-center mb-4">
-            <img
-              src={
-                theme === "dark"
-                  ? config.logo_dark_url || logoDark
-                  : config.logo_light_url || logo
-              }
-              alt={config.brand_name || "Funnel Builder"}
-              className="h-12"
-            />
+          <div className="flex justify-center mb-4 h-12">
+            {!whitelabelLoading && (
+              <img
+                src={
+                  theme === "dark"
+                    ? config.logo_dark_url || logoDark
+                    : config.logo_light_url || logo
+                }
+                alt={config.brand_name || "Funnel Builder"}
+                className="h-12"
+              />
+            )}
           </div>
           <CardTitle>
             {pageState === "success"

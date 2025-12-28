@@ -24,7 +24,7 @@ export const AdminLayout = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const { theme } = useTheme();
-  const { config } = useWhitelabel();
+  const { config, isLoading: whitelabelLoading } = useWhitelabel();
   const navigate = useNavigate();
 
   // Redirect to auth if not logged in
@@ -99,13 +99,17 @@ export const AdminLayout = () => {
       <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img
-              src={theme === "dark"
-                ? (config.logo_dark_url || logoDark)
-                : (config.logo_light_url || logo)}
-              alt={config.brand_name || "FunnelSim"}
-              className="h-8"
-            />
+            <div className="h-8 flex items-center">
+              {!whitelabelLoading && (
+                <img
+                  src={theme === "dark"
+                    ? (config.logo_dark_url || logoDark)
+                    : (config.logo_light_url || logo)}
+                  alt={config.brand_name || "FunnelSim"}
+                  className="h-8"
+                />
+              )}
+            </div>
             <div className="flex items-center gap-2 px-2 py-1 bg-primary/10 rounded-md">
               <Shield className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-primary">Admin</span>

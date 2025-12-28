@@ -17,7 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Auth = () => {
   const { theme } = useTheme();
-  const { config } = useWhitelabel();
+  const { config, isLoading: whitelabelLoading } = useWhitelabel();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
@@ -199,18 +199,17 @@ const Auth = () => {
       </div>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <div className="flex justify-center mb-4">
-            <img
-              src={theme === "dark"
-                ? (config.logo_dark_url || logoDark)
-                : (config.logo_light_url || logo)}
-              alt={config.brand_name || "Funnel Builder"}
-              className="h-12"
-            />
+          <div className="flex justify-center mb-4 h-12">
+            {!whitelabelLoading && (
+              <img
+                src={theme === "dark"
+                  ? (config.logo_dark_url || logoDark)
+                  : (config.logo_light_url || logo)}
+                alt={config.brand_name || "Funnel Builder"}
+                className="h-12"
+              />
+            )}
           </div>
-          <CardDescription className="text-center">
-            Create, save, and manage your conversion funnels
-          </CardDescription>
         </CardHeader>
         <CardContent>
           {resetMode ? (
