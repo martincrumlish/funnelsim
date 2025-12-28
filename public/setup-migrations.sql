@@ -141,6 +141,7 @@ create table if not exists public.subscription_tiers (
   features jsonb not null default '[]'::jsonb,
   sort_order integer not null default 0,
   is_active boolean not null default true,
+  registration_token text unique,  -- Secret token for direct registration URLs (non-Stripe payments)
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
@@ -242,6 +243,7 @@ create table if not exists public.whitelabel_config (
   hero_headline text default 'Simulate High-Converting Sales Funnels Instantly',
   hero_subheadline text default 'The first visual funnel builder that predicts your profit before you build.',
   hero_badge_text text default 'Early Bird Deal Now Available',
+  hero_video_embed text,  -- Embeddable video HTML for landing page hero section
   cta_button_text text default 'Start Modeling Free',
   features jsonb default '[]'::jsonb,
   testimonials jsonb default '[]'::jsonb,
