@@ -183,7 +183,7 @@ create trigger on_user_subscriptions_updated
   before update on public.user_subscriptions
   for each row execute procedure public.handle_updated_at();
 
--- Auto-create free subscription for new users
+-- Auto-create free subscription for new users (only if no subscription exists)
 create or replace function public.handle_new_user_subscription()
 returns trigger
 language plpgsql
@@ -192,10 +192,13 @@ as $$
 declare
   free_tier_id uuid;
 begin
-  select id into free_tier_id from public.subscription_tiers where name = 'Free' limit 1;
-  if free_tier_id is not null then
-    insert into public.user_subscriptions (user_id, tier_id, status)
-    values (new.id, free_tier_id, 'active');
+  -- Only create if user doesn't already have a subscription
+  if not exists (select 1 from public.user_subscriptions where user_id = new.id) then
+    select id into free_tier_id from public.subscription_tiers where name = 'Free' limit 1;
+    if free_tier_id is not null then
+      insert into public.user_subscriptions (user_id, tier_id, status)
+      values (new.id, free_tier_id, 'active');
+    end if;
   end if;
   return new;
 end;
