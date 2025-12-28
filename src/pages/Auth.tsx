@@ -111,83 +111,64 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error, data } = await signUp(email, password);
+
+    const token = searchParams.get('token');
+
+    // Token signup: use edge function for correct tier assignment
+    if (token && tokenTierName) {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/signup-with-token`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, token }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Signup failed');
+        }
+
+        // Set the session from the response
+        if (result.session) {
+          await supabase.auth.setSession(result.session);
+        }
+
+        toast({
+          title: "Account created!",
+          description: `Welcome! Your ${result.tier} plan is now active.`,
+        });
+      } catch (err: any) {
+        toast({
+          title: "Error signing up",
+          description: err.message,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Normal signup
+    const { error } = await signUp(email, password);
+    setLoading(false);
 
     if (error) {
-      setLoading(false);
       toast({
         title: "Error signing up",
         description: error.message,
         variant: "destructive",
       });
-      return;
+    } else {
+      toast({
+        title: "Account created!",
+        description: `Welcome to ${config.brand_name || 'Funnel Builder'}`,
+      });
     }
-
-    // Check for registration token in URL
-    const token = searchParams.get('token');
-    if (token && data?.user) {
-      try {
-        // Look up tier by registration token
-        const { data: tierData, error: tierError } = await supabase
-          .from('subscription_tiers')
-          .select('id, name')
-          .eq('registration_token', token)
-          .eq('is_active', true)
-          .single();
-
-        if (tierError) {
-          console.error('Error looking up tier:', tierError);
-        }
-
-        if (tierData) {
-          // Wait a moment for the DB trigger to create the subscription
-          await new Promise(resolve => setTimeout(resolve, 500));
-
-          // Try to update existing subscription first
-          const { error: updateError, count } = await supabase
-            .from('user_subscriptions')
-            .update({
-              tier_id: tierData.id,
-              status: 'active'
-            })
-            .eq('user_id', data.user.id)
-            .select();
-
-          // If no rows updated, try inserting (subscription might not exist yet)
-          if (updateError || count === 0) {
-            console.log('Update failed or no rows, trying upsert...');
-            const { error: upsertError } = await supabase
-              .from('user_subscriptions')
-              .upsert({
-                user_id: data.user.id,
-                tier_id: tierData.id,
-                status: 'active'
-              }, {
-                onConflict: 'user_id'
-              });
-
-            if (upsertError) {
-              console.error('Error upserting subscription:', upsertError);
-            }
-          }
-
-          toast({
-            title: "Account created!",
-            description: `Welcome! Your ${tierData.name} plan is now active.`,
-          });
-          setLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.error('Error applying registration token:', err);
-      }
-    }
-
-    setLoading(false);
-    toast({
-      title: "Account created!",
-      description: `Welcome to ${config.brand_name || 'Funnel Builder'}`,
-    });
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
