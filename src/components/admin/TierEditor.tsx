@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Copy, RefreshCw, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { SubscriptionTier, SubscriptionTierUpdate } from "@/integrations/supabase/types";
 
 interface TierEditorProps {
@@ -24,6 +26,7 @@ export const TierEditor = ({
   onCancel,
   isSaving,
 }: TierEditorProps) => {
+  const { toast } = useToast();
   const [name, setName] = useState(tier.name);
   const [priceMonthly, setPriceMonthly] = useState(tier.price_monthly);
   const [priceYearly, setPriceYearly] = useState(tier.price_yearly);
@@ -33,9 +36,11 @@ export const TierEditor = ({
   const [stripePriceIdMonthly, setStripePriceIdMonthly] = useState(tier.stripe_price_id_monthly || '');
   const [stripePriceIdYearly, setStripePriceIdYearly] = useState(tier.stripe_price_id_yearly || '');
   const [stripePriceIdLifetime, setStripePriceIdLifetime] = useState(tier.stripe_price_id_lifetime || '');
+  const [registrationToken, setRegistrationToken] = useState(tier.registration_token || '');
   const [sortOrder, setSortOrder] = useState(tier.sort_order);
   const [isActive, setIsActive] = useState(tier.is_active);
   const [featuresText, setFeaturesText] = useState('');
+  const [copied, setCopied] = useState(false);
 
   // Parse features JSON to text (one feature per line)
   useEffect(() => {
@@ -70,12 +75,42 @@ export const TierEditor = ({
       stripe_price_id_monthly: stripePriceIdMonthly || null,
       stripe_price_id_yearly: stripePriceIdYearly || null,
       stripe_price_id_lifetime: stripePriceIdLifetime || null,
+      registration_token: registrationToken || null,
       sort_order: sortOrder,
       is_active: isActive,
       features: features as any,
     };
 
     await onSave(tier.id, updates);
+  };
+
+  const generateToken = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    let token = '';
+    for (let i = 0; i < 16; i++) {
+      token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setRegistrationToken(token);
+  };
+
+  const copyRegistrationUrl = async () => {
+    if (!registrationToken) return;
+    const url = `${window.location.origin}/auth?token=${registrationToken}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Registration URL copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Please copy the URL manually",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -223,6 +258,52 @@ export const TierEditor = ({
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Direct Registration (No Stripe) */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Direct Registration URL (No Stripe)</h4>
+            <p className="text-xs text-muted-foreground">
+              For sellers without Stripe access. Set a secret token to create a direct signup URL
+              that automatically grants this tier. Use as PayPal "thank you" page redirect.
+            </p>
+            <div className="flex gap-2">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="registrationToken">Secret Token</Label>
+                <Input
+                  id="registrationToken"
+                  value={registrationToken}
+                  onChange={(e) => setRegistrationToken(e.target.value)}
+                  placeholder="Leave empty to disable"
+                />
+              </div>
+              <div className="flex items-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={generateToken}
+                  title="Generate random token"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={copyRegistrationUrl}
+                  disabled={!registrationToken}
+                  title="Copy registration URL"
+                >
+                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            {registrationToken && (
+              <p className="text-xs text-muted-foreground font-mono break-all">
+                {window.location.origin}/auth?token={registrationToken}
+              </p>
+            )}
           </div>
 
           {/* Features */}

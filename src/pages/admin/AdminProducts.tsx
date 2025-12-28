@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Package, Edit, RefreshCw, Infinity, Plus, Trash2, AlertCircle } from "lucide-react";
+import { Package, Edit, RefreshCw, Infinity, Plus, Trash2, AlertCircle, Link } from "lucide-react";
 import { TierEditor } from "@/components/admin/TierEditor";
 import { TierCreator } from "@/components/admin/TierCreator";
 import type { SubscriptionTier, SubscriptionTierUpdate, SubscriptionTierInsert } from "@/integrations/supabase/types";
@@ -341,6 +341,12 @@ export const AdminProducts = () => {
                     <CardTitle>{tier.name}</CardTitle>
                   </div>
                   <div className="flex items-center gap-1">
+                    {tier.registration_token && (
+                      <Badge variant="outline" className="gap-1">
+                        <Link className="h-3 w-3" />
+                        Direct URL
+                      </Badge>
+                    )}
                     {!tier.is_active && (
                       <Badge variant="secondary">Inactive</Badge>
                     )}

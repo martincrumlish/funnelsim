@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-FunnelSim is a visual sales funnel modeling tool for marketers. Users design multi-step funnels with drag-and-drop nodes (ReactFlow), input traffic sources and costs, and see real-time revenue/profit calculations. The app features a public landing page, protected dashboard for authenticated users, an admin area, and a subscription-based access tier system with Stripe integration.
+FunnelSim is a visual sales funnel modeling tool for marketers. Users design multi-step funnels with drag-and-drop nodes (ReactFlow), input traffic sources and costs, and see real-time revenue/profit calculations. The app features a public landing page, protected dashboard for authenticated users, an admin area, subscription-based access tiers with Stripe integration, and PDF/PNG export capabilities. Supports one-click deployment to Vercel/Netlify with a guided setup wizard.
 
 ## Development Commands
 
@@ -51,6 +51,8 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
 **Routing:**
 - `/` → Landing page (public)
 - `/auth` → Sign in/sign up (public)
+- `/setup` → Setup wizard for new deployments (public, standalone)
+- `/checkout/success` → Post-checkout flow for guest/lifetime purchases (public)
 - `/dashboard` → Funnel list (protected, respects subscription limits)
 - `/funnel/:id` → Funnel builder (protected)
 - `/profile` → User profile with subscription management (protected)
@@ -91,9 +93,16 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
 
 **Key Hook:**
 - `src/hooks/useWhitelabel.tsx` - Whitelabel context providing:
-  - `config` - Merged configuration object
+  - `config` - Merged configuration object (includes `hero_video_embed` for landing video)
   - `isLoading` - Loading state
   - `refreshConfig()` - Reload configuration
+
+**Configurable Fields:**
+- Brand name, tagline, colors, logos
+- Hero headline, subheadline, badge text
+- `hero_video_embed` - Embeddable video code for landing hero section
+- CTA button text, footer text
+- Features, testimonials, FAQ arrays
 
 **Default Content Exports:**
 - `DEFAULT_FEATURES` - Landing page features array
@@ -122,10 +131,17 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
 
 **Key Files:**
 - `src/lib/funnelCalculations.ts` - Revenue calculation logic (recursive node processing)
-- `src/components/FunnelCanvas.tsx` - Main ReactFlow canvas wrapper
+- `src/components/FunnelCanvas.tsx` - Main ReactFlow canvas wrapper (includes export functions)
 - `src/components/FunnelNode.tsx` - Custom node component
 - `src/components/FunnelMetricsTable.tsx` - Metrics display
 - `src/components/TrafficInput.tsx` - Traffic source management
+- `src/components/ExportMenu.tsx` - Export dropdown (PNG/PDF options)
+
+**Export Functionality:**
+- `exportToPNG()` - Exports funnel as high-res PNG image with logo
+- `exportToPDF()` - Exports funnel as PDF document with logo
+- Uses `html-to-image` and `jspdf` libraries
+- Logo from whitelabel config included in exports
 
 ### State Management
 
@@ -168,6 +184,11 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
 - `create-checkout-session` - Creates Stripe Checkout session
 - `create-portal-session` - Creates Stripe Customer Portal session
 - `stripe-webhook` - Handles Stripe webhook events
+- `admin-create-user` - Admin API for creating users
+- `admin-delete-user` - Admin API for deleting users
+- `admin-reset-password` - Admin API for resetting user passwords
+- `retrieve-checkout-session` - Retrieves Stripe checkout session data
+- `link-pending-subscription` - Links pending subscriptions to users (guest checkout)
 
 All deployed to: `https://lntraljilztlwwsggtfa.supabase.co/functions/v1/`
 
@@ -231,12 +252,29 @@ The core calculation in `funnelCalculations.ts` uses recursive tree traversal:
 
 ### Subscription Flow
 
+**Logged-in User Upgrade:**
 1. User views pricing on landing page or profile
 2. Clicks upgrade → `initiateCheckout(priceId)` called
 3. Redirects to Stripe Checkout hosted page
 4. On success, redirects back with `?checkout=success`
 5. Webhook updates `user_subscriptions` table
 6. User gains access to higher tier limits
+
+**Guest/Lifetime Purchase (no account required):**
+1. Visitor clicks pricing on landing page
+2. Redirects to Stripe Checkout (no auth required)
+3. On success, redirects to `/checkout/success?session_id=xxx`
+4. `CheckoutSuccess` page prompts for password to create account
+5. `link-pending-subscription` edge function links purchase to new user
+6. User can sign in with new account
+
+**Direct Registration URL (for non-Stripe countries):**
+1. Admin sets a secret `registration_token` on a tier via Admin → Products → Edit
+2. Admin shares URL: `https://yourapp.com/auth?token=SECRET_TOKEN`
+3. Customer pays via PayPal/bank transfer, receives URL as "thank you" page
+4. Customer signs up using the URL → automatically gets that tier
+5. Invalid/shared tokens silently fall back to Free tier (no error shown)
+6. Admin can rotate token anytime if compromised
 
 ### Password Reset Flow
 
@@ -303,6 +341,8 @@ import { cn } from '../../lib/utils';  // Wrong (breaks Vite)
 - `supabase/functions/` - Edge functions (Deno runtime)
 - `supabase/migrations/` - Database migrations
 - `src/__tests__/` - Test files
+- `docs/` - Setup guides and documentation
+- `scripts/` - Installation scripts
 
 ## Environment Variables
 
@@ -335,13 +375,22 @@ ELASTIC_EMAIL_API_KEY="..."
 ## Testing
 
 **Test Files:**
-- `src/__tests__/subscription-components.test.tsx` - Subscription UI tests (10 tests)
-- `src/__tests__/funnel-limit-enforcement.test.tsx` - Limit enforcement tests (6 tests)
-- `src/__tests__/admin-area.test.tsx` - Admin functionality tests (6 tests)
-- `src/__tests__/whitelabel.test.tsx` - Whitelabel system tests (8 tests)
-- `src/__tests__/integration-tests.test.tsx` - Integration tests (11 tests)
+- `src/__tests__/subscription-components.test.tsx` - Subscription UI tests
+- `src/__tests__/funnel-limit-enforcement.test.tsx` - Limit enforcement tests
+- `src/__tests__/admin-area.test.tsx` - Admin functionality tests
+- `src/__tests__/admin-shared-components.test.tsx` - Admin shared component tests
+- `src/__tests__/whitelabel.test.tsx` - Whitelabel system tests
+- `src/__tests__/whitelabel-editors.test.tsx` - Whitelabel editor tests
+- `src/__tests__/integration-tests.test.tsx` - Integration tests
+- `src/__tests__/checkout-success.test.tsx` - Checkout success page tests
+- `src/__tests__/landing-checkout.test.tsx` - Landing page checkout tests
+- `src/__tests__/lifetime-pricing-ui.test.tsx` - Lifetime pricing UI tests
+- `src/__tests__/products-management.test.tsx` - Products management tests
+- `src/__tests__/users-management.test.tsx` - User management tests
+- `src/__tests__/canvas-analytics.test.tsx` - Canvas analytics tests
+- `src/__tests__/cli-installer.test.ts` - CLI installer tests
 - `supabase/tests/database-schema.test.sql` - Database verification queries
-- `supabase/tests/stripe-edge-functions.test.ts` - Edge function tests (8 tests)
+- `supabase/tests/stripe-edge-functions.test.ts` - Edge function tests
 
 **Running Tests:**
 ```bash
@@ -354,6 +403,25 @@ npm run test:run -- src/__tests__/subscription-components.test.tsx
 # Run edge function tests (requires Deno)
 deno test --allow-net --allow-env supabase/tests/stripe-edge-functions.test.ts
 ```
+
+## Deployment
+
+**One-Click Deploy Options:**
+- Vercel: Deploy button in README, uses `vercel.json` for SPA routing
+- Netlify: Uses `netlify.toml` for build config and SPA routing
+
+**Setup Wizard:**
+- Available at `/setup` route after deployment
+- Guides through: Supabase project, Edge Functions, migrations, secrets, env vars, auth URL, admin user
+- Steps are tracked with checkboxes
+- References `docs/manual.html` for detailed instructions
+
+**Deployment Files:**
+- `vercel.json` - Vercel SPA rewrites configuration
+- `netlify.toml` - Netlify build and redirect configuration
+- `docs/manual.html` - Comprehensive setup guide
+- `docs/netlify-install.html` - Netlify-specific installation guide
+- `docs/endusermanual.html` - End user documentation
 
 ## Agent OS
 
