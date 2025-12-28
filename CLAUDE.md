@@ -80,7 +80,7 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
   - `openCustomerPortal()` - Open Stripe Customer Portal
 
 **Subscription Components:**
-- `src/components/subscription/SubscriptionCard.tsx` - Profile subscription display
+- `src/components/subscription/SubscriptionCard.tsx` - Profile subscription display (hides Manage button for non-Stripe users)
 - `src/components/subscription/FunnelUsage.tsx` - Progress bar indicator
 - `src/components/subscription/UpgradePrompt.tsx` - Limit reached prompt
 
@@ -170,7 +170,7 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
 - `funnels` - Stores funnel data (nodes, edges, traffic_sources as JSONB)
 - `profiles` - User profiles (links to auth.users)
 - `password_reset_tokens` - Custom password reset flow
-- `subscription_tiers` - Available plans (Free, Pro, Enterprise)
+- `subscription_tiers` - Available plans (Free, Pro, Enterprise), includes `registration_token` for direct signup URLs
 - `user_subscriptions` - User subscription status and Stripe IDs
 - `whitelabel_config` - Single-row branding configuration
 - `admin_users` - Admin role assignments
@@ -189,8 +189,15 @@ npm run test:run -- src/__tests__/<file>.test.tsx  # Run specific test file
 - `admin-reset-password` - Admin API for resetting user passwords
 - `retrieve-checkout-session` - Retrieves Stripe checkout session data
 - `link-pending-subscription` - Links pending subscriptions to users (guest checkout)
+- `signup-with-token` - Creates user with correct subscription tier via registration token
 
 All deployed to: `https://lntraljilztlwwsggtfa.supabase.co/functions/v1/`
+
+**Edge Function Configuration:**
+- `supabase/config.toml` - JWT verification settings per function
+- Functions with `verify_jwt = false` handle their own auth internally:
+  - `admin-create-user`, `admin-delete-user`, `admin-reset-password`
+  - `signup-with-token`, `stripe-webhook`
 
 **Current Supabase Project:**
 - Project ID: `lntraljilztlwwsggtfa`
