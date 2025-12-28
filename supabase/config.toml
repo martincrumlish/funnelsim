@@ -1,4 +1,17 @@
 # Supabase config - project_id is set when you run: npx supabase link --project-ref YOUR_PROJECT_ID
+# These functions handle their own authentication internally, so Supabase gateway JWT check is disabled
 
 [functions.stripe-webhook]
+verify_jwt = false
+
+[functions.admin-create-user]
+verify_jwt = false
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.admin-reset-password]
+verify_jwt = false
+
+[functions.signup-with-token]
 verify_jwt = false
