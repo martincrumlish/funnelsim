@@ -29,7 +29,7 @@ import {
 const ProfileContent = () => {
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
-  const { config } = useWhitelabel();
+  const { config, isLoading: whitelabelLoading } = useWhitelabel();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -295,13 +295,17 @@ const ProfileContent = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <img
-              src={theme === "dark"
-                ? (config.logo_dark_url || logoDark)
-                : (config.logo_light_url || logo)}
-              alt={config.brand_name || "Funnel Builder"}
-              className="h-6"
-            />
+            <div className="h-6 flex items-center">
+              {!whitelabelLoading && (
+                <img
+                  src={theme === "dark"
+                    ? (config.logo_dark_url || logoDark)
+                    : (config.logo_light_url || logo)}
+                  alt={config.brand_name || "Funnel Builder"}
+                  className="h-6"
+                />
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>

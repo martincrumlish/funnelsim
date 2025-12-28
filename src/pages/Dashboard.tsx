@@ -48,7 +48,7 @@ interface Funnel {
 const DashboardContent = () => {
   const { user, signOut, loading } = useAuth();
   const { theme } = useTheme();
-  const { config } = useWhitelabel();
+  const { config, isLoading: whitelabelLoading } = useWhitelabel();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [funnels, setFunnels] = useState<Funnel[]>([]);
@@ -355,13 +355,17 @@ const DashboardContent = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <img
-              src={theme === "dark"
-                ? (config.logo_dark_url || logoDark)
-                : (config.logo_light_url || logo)}
-              alt={config.brand_name || "Funnel Builder"}
-              className="h-8"
-            />
+          <div className="h-8 flex items-center">
+            {!whitelabelLoading && (
+              <img
+                src={theme === "dark"
+                  ? (config.logo_dark_url || logoDark)
+                  : (config.logo_light_url || logo)}
+                alt={config.brand_name || "Funnel Builder"}
+                className="h-8"
+              />
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
             {isAdmin && (

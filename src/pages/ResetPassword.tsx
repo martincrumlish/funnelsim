@@ -16,7 +16,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme } = useTheme();
-  const { config } = useWhitelabel();
+  const { config, isLoading: whitelabelLoading } = useWhitelabel();
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -114,14 +114,16 @@ const ResetPassword = () => {
       </div>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="flex justify-center mb-4">
-            <img
-              src={theme === "dark"
-                ? (config.logo_dark_url || logoDark)
-                : (config.logo_light_url || logo)}
-              alt={config.brand_name || "Funnel Builder"}
-              className="h-12"
-            />
+          <div className="flex justify-center mb-4 h-12">
+            {!whitelabelLoading && (
+              <img
+                src={theme === "dark"
+                  ? (config.logo_dark_url || logoDark)
+                  : (config.logo_light_url || logo)}
+                alt={config.brand_name || "Funnel Builder"}
+                className="h-12"
+              />
+            )}
           </div>
           <CardTitle>Reset Your Password</CardTitle>
           <CardDescription>Enter your new password below</CardDescription>
