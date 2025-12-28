@@ -364,6 +364,25 @@ ON CONFLICT (user_id) DO NOTHING;`;
                       <span className="text-muted-foreground">3.</span>
                       <span>Select your "funnelsim" repository and enable "Edge Functions"</span>
                     </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground">4.</span>
+                      <div>
+                        <span className="font-medium">After deployment:</span> Go to{" "}
+                        <a
+                          href={`https://supabase.com/dashboard/project/${data.projectId || "_"}/functions`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          Edge Functions <ExternalLink className="h-3 w-3" />
+                        </a>
+                        {" "}and for these 5 functions, click each → Settings → toggle OFF "Enforce JWT":
+                        <ul className="text-xs text-muted-foreground ml-4 mt-1 list-disc">
+                          <li>admin-create-user, admin-delete-user, admin-reset-password</li>
+                          <li>signup-with-token, stripe-webhook</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -538,9 +557,18 @@ ON CONFLICT (user_id) DO NOTHING;`;
                               <li>stripe-webhook</li>
                             </ul>
                           </div>
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground">Other functions:</p>
+                            <ul className="text-xs text-muted-foreground ml-4 list-disc space-y-0.5">
+                              <li>signup-with-token (for direct registration URLs)</li>
+                              <li>send-password-reset</li>
+                              <li>reset-password-with-token</li>
+                            </ul>
+                          </div>
                         </div>
                       </div>
                     </div>
+
                   </div>
                 </div>
 
