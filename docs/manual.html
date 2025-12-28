@@ -689,6 +689,38 @@ WITH CHECK (
                 <strong>Tip: Test Lifetime Flow</strong>
                 <p>Use Stripe's test card <code>4242 4242 4242 4242</code> to complete a lifetime purchase and verify the webhook correctly sets <code>is_lifetime: true</code> in your database.</p>
             </div>
+
+            <h3>Direct Registration URLs (No Stripe Required)</h3>
+            <p>For sellers in countries where Stripe is not available, you can create direct registration URLs that bypass Stripe entirely. This allows you to accept payments via PayPal, bank transfer, or any other method, then provide customers with a special signup link.</p>
+
+            <h4>How It Works</h4>
+            <ol>
+                <li>Admin sets a secret token on a subscription tier</li>
+                <li>The system generates a registration URL: <code>https://yourapp.com/auth?token=SECRET_TOKEN</code></li>
+                <li>Customer pays via PayPal/bank transfer (outside the app)</li>
+                <li>Seller sends the registration URL to the customer (e.g., as PayPal "thank you" page)</li>
+                <li>Customer signs up using the URL and automatically receives that tier</li>
+            </ol>
+
+            <h4>Setting Up Direct Registration</h4>
+            <ol>
+                <li>Go to <strong>Admin → Products</strong></li>
+                <li>Click <strong>Edit</strong> on a paid tier (e.g., Pro or Enterprise)</li>
+                <li>Scroll to <strong>"Direct Registration URL (No Stripe)"</strong> section</li>
+                <li>Click the refresh icon (🔄) to generate a random token</li>
+                <li>Click the copy icon (📋) to copy the full registration URL</li>
+                <li>Save the tier</li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>Security Note</strong>
+                <p>Direct registration tokens can be shared. If a token is compromised, go to Admin → Products → Edit the tier and generate a new token. The old token will stop working immediately.</p>
+            </div>
+
+            <div class="info-box">
+                <strong>Invalid Tokens</strong>
+                <p>If someone visits a registration URL with an invalid or expired token, they will simply get a Free account instead. No error is shown, and the token system is not revealed.</p>
+            </div>
         </section>
 
         <!-- Section 7: Edge Functions -->
