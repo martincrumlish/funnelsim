@@ -86,21 +86,57 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp(email, password);
-    setLoading(false);
+    const { error, data } = await signUp(email, password);
 
     if (error) {
+      setLoading(false);
       toast({
         title: "Error signing up",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Account created!",
-        description: `Welcome to ${config.brand_name || 'Funnel Builder'}`,
-      });
+      return;
     }
+
+    // Check for registration token in URL
+    const token = searchParams.get('token');
+    if (token && data?.user) {
+      try {
+        // Look up tier by registration token
+        const { data: tierData } = await supabase
+          .from('subscription_tiers')
+          .select('id, name')
+          .eq('registration_token', token)
+          .eq('is_active', true)
+          .single();
+
+        if (tierData) {
+          // Upgrade user to the matching tier
+          await supabase
+            .from('user_subscriptions')
+            .update({
+              tier_id: tierData.id,
+              status: 'active'
+            })
+            .eq('user_id', data.user.id);
+
+          toast({
+            title: "Account created!",
+            description: `Welcome! Your ${tierData.name} plan is now active.`,
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Error applying registration token:', err);
+      }
+    }
+
+    setLoading(false);
+    toast({
+      title: "Account created!",
+      description: `Welcome to ${config.brand_name || 'Funnel Builder'}`,
+    });
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {

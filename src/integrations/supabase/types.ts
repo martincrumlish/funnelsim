@@ -134,6 +134,7 @@ export type Database = {
           features: Json
           sort_order: number
           is_active: boolean
+          registration_token: string | null
           created_at: string | null
           updated_at: string | null
         }
@@ -151,6 +152,7 @@ export type Database = {
           features?: Json
           sort_order?: number
           is_active?: boolean
+          registration_token?: string | null
           created_at?: string | null
           updated_at?: string | null
         }
@@ -168,6 +170,7 @@ export type Database = {
           features?: Json
           sort_order?: number
           is_active?: boolean
+          registration_token?: string | null
           created_at?: string | null
           updated_at?: string | null
         }
