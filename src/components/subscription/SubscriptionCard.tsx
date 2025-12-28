@@ -28,6 +28,8 @@ export const SubscriptionCard = ({
   // isPaidTier now includes lifetime subscriptions (they have no stripe_subscription_id but are paid)
   const isPaidTier = !isFreeTier && (subscription?.stripe_subscription_id || isLifetime);
   const isCanceling = subscription?.cancel_at_period_end && !isLifetime;
+  // Check if user has Stripe integration (for showing Manage Subscription button)
+  const hasStripeCustomer = !!subscription?.stripe_customer_id;
 
   const formatPrice = (price: number) => {
     if (price === 0) return "Free";
@@ -185,18 +187,19 @@ export const SubscriptionCard = ({
               <Zap className="mr-2 h-4 w-4" />
               Upgrade Plan
             </Button>
-          ) : isLifetime ? (
-            // Lifetime users can still contact support if needed
+          ) : isLifetime && hasStripeCustomer ? (
+            // Lifetime users with Stripe can view billing history
             <Button onClick={onManage} variant="outline" className="flex-1">
               <ExternalLink className="mr-2 h-4 w-4" />
               Billing History
             </Button>
-          ) : (
+          ) : hasStripeCustomer ? (
+            // Regular Stripe subscribers can manage subscription
             <Button onClick={onManage} variant="outline" className="flex-1">
               <ExternalLink className="mr-2 h-4 w-4" />
               Manage Subscription
             </Button>
-          )}
+          ) : null}
         </div>
 
         {/* Upgrade prompt for paid users who want higher tier (not for lifetime users on Enterprise) */}
