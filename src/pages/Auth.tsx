@@ -25,10 +25,35 @@ const Auth = () => {
   const [resetMode, setResetMode] = useState(false);
   const [hasFreeTier, setHasFreeTier] = useState(false);
   const [tiersLoaded, setTiersLoaded] = useState(false);
+  const [tokenTierName, setTokenTierName] = useState<string | null>(null);
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Check for registration token and look up tier name
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      const lookupToken = async () => {
+        try {
+          const { data } = await supabase
+            .from('subscription_tiers')
+            .select('name')
+            .eq('registration_token', token)
+            .eq('is_active', true)
+            .single();
+
+          if (data) {
+            setTokenTierName(data.name);
+          }
+        } catch (err) {
+          // Invalid token - will fall back to normal signup
+        }
+      };
+      lookupToken();
+    }
+  }, [searchParams]);
 
   // Check if a free tier exists
   useEffect(() => {
@@ -190,8 +215,8 @@ const Auth = () => {
         <CardContent>
           {resetMode ? (
             <div className="space-y-4">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={() => setResetMode(false)}
                 className="mb-4"
               >
@@ -214,6 +239,55 @@ const Auth = () => {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </form>
+            </div>
+          ) : tokenTierName ? (
+            /* Token-based signup - show dedicated form with tier name */
+            <div className="space-y-4">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold">Create Your {tokenTierName} Account</h3>
+                <p className="text-sm text-muted-foreground">
+                  Complete your registration to activate your {tokenTierName} plan
+                </p>
+              </div>
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="token-signup-email">Email</Label>
+                  <Input
+                    id="token-signup-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="token-signup-password">Password</Label>
+                  <Input
+                    id="token-signup-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Creating account..." : `Activate ${tokenTierName} Account`}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
+              <p className="text-xs text-center text-muted-foreground">
+                Already have an account?{" "}
+                <Button
+                  variant="link"
+                  className="px-0 h-auto text-xs"
+                  onClick={() => navigate('/auth')}
+                >
+                  Sign in here
+                </Button>
+              </p>
             </div>
           ) : hasFreeTier ? (
             <Tabs defaultValue="signin" className="w-full">
