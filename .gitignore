@@ -27,7 +27,6 @@ dist-ssr
 .claude/
 pdf/
 src/__tests__/cli-installer.test.ts
-agent-os/
 
 # Environment files
 .env
