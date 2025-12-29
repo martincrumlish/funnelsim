@@ -1,0 +1,4 @@
+# Protect whitelabel-only files from being deleted when merging from main
+# These files exist only in whitelabel branch, not in main
+CLAUDE.md merge=ours
+agent-os/** merge=ours
