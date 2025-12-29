@@ -1,4 +1,5 @@
 # CLAUDE.md
+<!-- whitelabel-branch-only: This file is maintained only in the whitelabel branch -->
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
