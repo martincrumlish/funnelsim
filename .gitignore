@@ -41,5 +41,6 @@ supabase/.temp/
 customer-*.txt
 scripts/customer-setup.ps1
 scripts/
-.claude
+.claude/
 CLAUDE.md
+agent-os/
