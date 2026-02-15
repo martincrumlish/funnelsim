@@ -4,7 +4,7 @@ A drag and drop visual sales funnel modeling and optimization tool that helps ma
 
 ## Features
 
-- **Visual Funnel Builder**: Drag-and-drop interface for creating complex funnel structures
+- **Visual Funnel Builder**: Drag-and-drop interface for creating complex funnel models
 - **Traffic Modeling**: Define multiple traffic sources with visit counts and costs
 - **Real-time ROI Calculations**: Automatic calculation of conversions, revenue, and profit
 - **Sensitivity Analysis**: See how conversion changes at each step affect total profit
